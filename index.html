@@ -1634,7 +1634,7 @@
         const esVendida = prop.es_vendida || (String(prop.estado || '').toLowerCase().includes('vendid') || String(prop.estado || '').toLowerCase().includes('sold'));
 
         return `
-          <div class="property-card bg-white rounded-2xl shadow-xl hover:shadow-2xl border border-gray-100 overflow-hidden flex flex-col transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer relative" data-id="${prop.id}" data-type="${tipo}" data-precio="${precioNumerico}">
+          <div class="property-card bg-white rounded-2xl shadow-xl hover:shadow-2xl border border-gray-100 overflow-hidden flex flex-col transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer relative" onclick="abrirModal('${prop.id}')" data-id="${prop.id}" data-type="${tipo}" data-precio="${precioNumerico}">
             <div class="relative h-64 overflow-hidden">
               <img src="${fotoTarjeta}" alt="${prop.titulo}" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110 ${esVendida ? 'contrast-95 opacity-90' : ''}">
               
@@ -1721,6 +1721,8 @@
     function abrirModal(idPropiedad) {
       const prop = propiedades.find(p => String(p.id) === String(idPropiedad));
       if (!prop) return;
+
+      const esVendida = prop.es_vendida || (String(prop.estado || '').toLowerCase().includes('vendid') || String(prop.estado || '').toLowerCase().includes('sold'));
 
       const asesor = asesores[prop.id_asesor] || asesores['carmen'];
 
