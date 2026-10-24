@@ -1680,97 +1680,207 @@
     // ========================================================
     // 2. CONFIGURACIÓN DEL SISTEMA DINÁMICO DE PROPIEDADES (CSV)
     // ========================================================
-    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQf3nbHplMReV66T1t4DN-FQiazZHpWkky6LUjI_XoodndeYS8-D3htCrMO8EkbxNsOv5dWDqkTbGPI/pub?output=csv";
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQNjxdHFK3RqBmpD1d_b-KVKeBWLG5oAclIGBn4u-Vf6sRM9SIwbpcuXpmugBWMhEsKo0nzNagtX4D-/pub?output=csv";
 
-    // Propiedades base mientras el usuario conecta su Google Sheet
+    // Función universal para normalizar enlaces de imágenes (Soporta Google Drive directo)
+    function normalizarUrlImagen(url) {
+      if (!url) return '';
+      url = url.trim();
+      // Si el enlace proviene de Google Drive (compartido como archivo o vista previa)
+      if (url.includes('drive.google.com')) {
+        let fileId = '';
+        const matchD = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (matchD) fileId = matchD[1];
+        const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (matchId) fileId = matchId[1];
+        if (fileId) {
+          return `https://lh3.googleusercontent.com/d/${fileId}`;
+        }
+      }
+      return url;
+    }
+
+    // Catálogo completo de 10 propiedades base (con portada y galería de espacios)
     const propiedadesBase = [
       {
         id: "1",
-        titulo: "Villa Florentina Luxury Estate",
-        precio: "$1,450,000 USD",
-        cuartos: "4 Habs",
-        banos: "4.5 Baños",
-        metros: "580 m²",
-        ubicacion: "Zona 14 • Las Américas",
-        amenidades: [
-          "Piscina infinity climatizada",
-          "Cava de vinos privada",
-          "Elevador biométrico",
-          "Domótica integral"
+        titulo: "Penthouse Exclusivo - Zona 15",
+        precio: "$770,000 USD",
+        cuartos: "3 Habs",
+        banos: "2.5 Baños",
+        metros: "292 m²",
+        ubicacion: "Zona 15 • Vista Hermosa",
+        amenidades: ["Terraza privada 360°", "Elevador biométrico directo", "Acabados en mármol italiano", "Seguridad 24/7"],
+        cercanias: ["A 3 min de colegios de Zona 15", "A 5 min de centros médicos", "A 8 min de Cayalá y Zona 10"],
+        imagen_portada: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
+        galeria_fotos: [
+          "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80"
         ],
-        cercanias: [
-          "A 2 min de Av. Las Américas",
-          "A 5 min de Zona 10",
-          "A 8 min del Aeropuerto Internacional"
-        ],
-        imagen: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
         id_asesor: "carmen"
       },
       {
         id: "2",
-        titulo: "Mansión Contemporánea Cayalá",
-        precio: "$1,850,000 USD",
-        cuartos: "5 Habs",
-        banos: "6 Baños",
-        metros: "720 m²",
+        titulo: "Mansión Moderna en Cayalá",
+        precio: "$1,250,000 USD",
+        cuartos: "4 Habs",
+        banos: "5 Baños",
+        metros: "650 m²",
         ubicacion: "Zona 16 • Paseo Cayalá",
-        amenidades: [
-          "Cancha privada de pádel",
-          "Jacuzzi exterior con deck",
-          "Jardín paisajista",
-          "Garaje para 6 vehículos"
+        amenidades: ["Piscina climatizada con deck", "Cancha de tenis y pádel", "Jardín paisajista", "Garaje 4 vehículos"],
+        cercanias: ["A 2 min de Paseo Cayalá", "A 5 min de Colegios Americano e Interamericano", "Triple garita blindada"],
+        imagen_portada: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
+        galeria_fotos: [
+          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=800&q=80"
         ],
-        cercanias: [
-          "A 3 min de Paseo Cayalá",
-          "A 5 min de Colegios Americano e Interamericano",
-          "Seguridad con triple garita"
-        ],
-        imagen: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
         id_asesor: "santiago"
       },
       {
         id: "3",
-        titulo: "Sky Penthouse Bellas Artes",
-        precio: "$980,000 USD",
-        cuartos: "3 Habs",
-        banos: "3.5 Baños",
-        metros: "340 m²",
-        ubicacion: "Zona 15 • Vista Hermosa",
-        amenidades: [
-          "Terraza mirador 360°",
-          "Acabados en mármol Calacatta",
-          "Altura de techos 3.5m",
-          "Gimnasio privado"
+        titulo: "Apartamento Ideal Inversión - Zona 14",
+        precio: "$285,000 USD",
+        cuartos: "2 Habs",
+        banos: "2 Baños",
+        metros: "115 m²",
+        ubicacion: "Zona 14 • Las Américas",
+        amenidades: ["Rooftop lounge con BBQ", "Gimnasio de última generación", "Alta rentabilidad Airbnb", "Business center"],
+        cercanias: ["A pasos de Av. Las Américas", "A 4 min de Zona 10", "A 7 min del Aeropuerto Internacional"],
+        imagen_portada: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+        galeria_fotos: [
+          "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80"
         ],
-        cercanias: [
-          "A 3 min de Bulevar Vista Hermosa",
-          "A 6 min de Zona 10",
-          "A pasos de centros médicos de prestigio"
-        ],
-        imagen: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
         id_asesor: "joseluis"
       },
       {
         id: "4",
-        titulo: "Residencia Colonial Real San Jerónimo",
-        precio: "$890,000 USD",
-        cuartos: "4 Habs",
-        banos: "4 Baños",
-        metros: "460 m²",
-        ubicacion: "Sacatepéquez • Antigua Guatemala",
-        amenidades: [
-          "Patio central con fuente de cantera",
-          "Cielos con vigas nobles",
-          "Terraza con vista al Volcán de Agua",
-          "Pérgola colonial"
+        titulo: "Loft de Lujo Amueblado - Zona 10",
+        precio: "$1,500 USD/mes",
+        cuartos: "1 Hab",
+        banos: "1 Baño",
+        metros: "85 m²",
+        ubicacion: "Zona 10 • Zona Viva",
+        amenidades: ["Completamente amueblado de diseño", "Cocina de cuarzo equipada", "Ventanales acústicos", "Infinity pool en azotea"],
+        cercanias: ["En corazón financiero de Zona 10", "A 2 min a pie de hoteles y embajadas", "A 5 min de Fontabella"],
+        imagen_portada: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
+        galeria_fotos: [
+          "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"
         ],
-        cercanias: [
-          "A 5 min del Parque Central de Antigua",
-          "A 3 min de San Pedro Las Huertas",
-          "A pasos de restaurantes gourmet"
-        ],
-        imagen: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80",
         id_asesor: "madeleine"
+      },
+      {
+        id: "5",
+        titulo: "Casa Familiar en Condominio - Carr. El Salvador",
+        precio: "$450,000 USD",
+        cuartos: "4 Habs",
+        banos: "3.5 Baños",
+        metros: "320 m²",
+        ubicacion: "Carretera a El Salvador",
+        amenidades: ["Entorno boscoso privado", "Senderos y áreas infantiles", "Pérgola amplia con asador", "Máster suite con jacuzzi"],
+        cercanias: ["A 5 min de centros comerciales", "A 8 min de colegios internacionales", "Retornos viales rápidos"],
+        imagen_portada: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
+        galeria_fotos: [
+          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"
+        ],
+        id_asesor: "mariaelena"
+      },
+      {
+        id: "6",
+        titulo: "Oficina Corporativa - Edificio Burgó",
+        precio: "$3,200 USD/mes",
+        cuartos: "0 Habs",
+        banos: "2 Baños",
+        metros: "150 m²",
+        ubicacion: "Zona 14 • Edificio Burgó",
+        amenidades: ["Certificación ambiental LEED", "Salas de juntas con tecnología AV", "Seguridad biométrica", "Fibra óptica redundante"],
+        cercanias: ["A 3 min de Bulevar Los Próceres", "A 5 min de Zona 10 y Zona 9", "A 8 min del Aeropuerto"],
+        imagen_portada: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80",
+        galeria_fotos: [
+          "https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80"
+        ],
+        id_asesor: "bitia"
+      },
+      {
+        id: "7",
+        titulo: "Residencia Clásica - Muxbal",
+        precio: "$890,000 USD",
+        cuartos: "5 Habs",
+        banos: "4 Baños",
+        metros: "500 m²",
+        ubicacion: "Santa Catarina Pinula • Muxbal",
+        amenidades: ["Terreno de 1,800 v² con árboles centenarios", "Cava subterránea privada", "Spa con sauna y jacuzzi", "Doble garita"],
+        cercanias: ["A 8 min de Zona 10 vía Muxbal", "A 10 min de Pradera Concepción", "A 7 min de colegios privados"],
+        imagen_portada: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=80",
+        galeria_fotos: [
+          "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"
+        ],
+        id_asesor: "sonia"
+      },
+      {
+        id: "8",
+        titulo: "Apartamento Vista a Volcanes - Zona 14",
+        precio: "$2,100 USD/mes",
+        cuartos: "3 Habs",
+        banos: "2 Baños",
+        metros: "180 m²",
+        ubicacion: "Zona 14 • Panorámica Premium",
+        amenidades: ["Balcón corrido con vista a volcanes", "Piscina semiolímpica climatizada", "Cocina de cuarzo con isla", "Bodega y 2 parqueos"],
+        cercanias: ["A 1 min de Av. Las Américas", "A 5 min de Zona Pradera", "A 6 min de Zona 10", "A 10 min de Zona 15"],
+        imagen_portada: "https://images.unsplash.com/photo-1567496898669-ee935f5f647a?auto=format&fit=crop&w=1200&q=80",
+        galeria_fotos: [
+          "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"
+        ],
+        id_asesor: "sofia"
+      },
+      {
+        id: "9",
+        titulo: "Terreno Premium para Desarrollo - Zona 16",
+        precio: "$1,100,000 USD",
+        cuartos: "0 Habs",
+        banos: "0 Baños",
+        metros: "1200 m²",
+        ubicacion: "Zona 16 • San Isidro",
+        amenidades: ["Topografía óptima con leve pendiente", "Estudios de suelo y licencias en regla", "Agua de pozo propio y luz", "Condominio cerrado VIP"],
+        cercanias: ["A 4 min de Ciudad Cayalá", "A 6 min de Club San Isidro", "A 8 min de universidades"],
+        imagen_portada: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80",
+        galeria_fotos: [
+          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80"
+        ],
+        id_asesor: "william"
+      },
+      {
+        id: "10",
+        titulo: "Villa de Descanso - Antigua Guatemala",
+        precio: "$650,000 USD",
+        cuartos: "3 Habs",
+        banos: "3 Baños",
+        metros: "250 m²",
+        ubicacion: "Sacatepéquez • Antigua Guatemala",
+        amenidades: ["Patio colonial con fuente de cantera", "Cielos altos con vigas nobles", "Terraza mirador al Volcán de Agua", "Seguridad colonial 24h"],
+        cercanias: ["A 5 min del Parque Central de Antigua", "A 3 min de San Pedro Las Huertas", "A pasos de restaurantes gourmet"],
+        imagen_portada: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80",
+        galeria_fotos: [
+          "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80"
+        ],
+        id_asesor: "carmen"
       }
     ];
 
@@ -1806,10 +1916,9 @@
       return values;
     }
 
-    // Función asíncrona principal para cargar desde el Google Sheet CSV
+    // Función asíncrona principal para cargar desde Google Sheets CSV
     async function cargarPropiedadesDesdeExcel() {
       if (!CSV_URL || CSV_URL === "AQUI_VA_EL_LINK_DEL_CSV") {
-        // Renderizar propiedades iniciales si el link aún no se ha configurado
         renderizarTarjetas();
         return;
       }
@@ -1821,39 +1930,45 @@
         }
         const dataCSV = await response.text();
 
-        // Separar filas por saltos de línea e ignorar vacías
         const filas = dataCSV.trim().split(/\r?\n/).filter(f => f.trim().length > 0);
         if (filas.length <= 1) {
           renderizarTarjetas();
           return;
         }
 
-        // Ignorar primera fila de encabezados
+        // Mapeo inteligente de columnas según encabezados
+        const headers = parseCSVLine(filas[0]).map(h => h.replace(/^"+|"+$/g, '').trim().toLowerCase());
+        const getCol = (cols, name, altName = '') => {
+          let idx = headers.indexOf(name);
+          if (idx === -1 && altName) idx = headers.indexOf(altName);
+          return idx !== -1 ? (cols[idx] || '').replace(/^"+|"+$/g, '').trim() : '';
+        };
+
         const filasDatos = filas.slice(1);
         const propiedadesMapeadas = [];
 
-        filasDatos.forEach(fila => {
+        filasDatos.forEach((fila, idx) => {
           const cols = parseCSVLine(fila);
           if (cols.length < 3) return;
 
-          // id,titulo,precio,cuartos,banos,metros,ubicacion,amenidades,cercanias,imagen,id_asesor
-          const id = (cols[0] || '').replace(/^"+|"+$/g, '').trim();
-          const titulo = (cols[1] || '').replace(/^"+|"+$/g, '').trim();
-          const precioRaw = (cols[2] || '').replace(/^"+|"+$/g, '').trim();
-          const cuartos = (cols[3] || '').replace(/^"+|"+$/g, '').trim();
-          const banos = (cols[4] || '').replace(/^"+|"+$/g, '').trim();
-          const metros = (cols[5] || '').replace(/^"+|"+$/g, '').trim();
-          const ubicacion = (cols[6] || '').replace(/^"+|"+$/g, '').trim();
-          const amenidadesRaw = (cols[7] || '').replace(/^"+|"+$/g, '').trim();
-          const cercaniasRaw = (cols[8] || '').replace(/^"+|"+$/g, '').trim();
-          const imagen = (cols[9] || '').replace(/^"+|"+$/g, '').trim();
-          const id_asesor = (cols[10] || '').replace(/^"+|"+$/g, '').trim().toLowerCase();
+          const id = getCol(cols, 'id') || String(idx + 1);
+          const titulo = getCol(cols, 'titulo');
+          const precioRaw = getCol(cols, 'precio');
+          const cuartos = getCol(cols, 'cuartos');
+          const banos = getCol(cols, 'banos');
+          const metros = getCol(cols, 'metros');
+          const ubicacion = getCol(cols, 'ubicacion');
+          const amenidadesRaw = getCol(cols, 'amenidades');
+          const cercaniasRaw = getCol(cols, 'cercanias');
+          const imagenPortadaRaw = getCol(cols, 'imagen_portada', 'imagen');
+          const galeriaRaw = getCol(cols, 'galeria_fotos', 'fotos_extra');
+          const id_asesor = getCol(cols, 'id_asesor').toLowerCase();
 
-          // Extraer precio como texto limpio (ej. "$750,000 USD")
+          // Extraer precio y formatearlo como texto limpio
           const precioNum = parseInt(precioRaw.replace(/[^0-9]/g, ''), 10) || 0;
           let precioLimpio = precioRaw;
-          if (!precioLimpio.includes('$')) {
-            precioLimpio = formatearUSD(precioNum) + ' USD';
+          if (!precioLimpio.includes('$') && precioNum > 0) {
+            precioLimpio = formatearUSD(precioNum) + (precioNum < 10000 ? ' USD/mes' : ' USD');
           }
 
           // Separar amenidades y cercanias por delimitadores '|' o ';' o comas
@@ -1865,8 +1980,16 @@
             ? cercaniasRaw.split(/[|;]/).map(item => item.replace(/^"+|"+$/g, '').trim()).filter(Boolean)
             : ["Ubicación de alta plusvalía", "Acceso a vías principales"];
 
+          // Normalizar imagen de portada (Soporte Google Drive y Unsplash)
+          const imagenPortada = normalizarUrlImagen(imagenPortadaRaw) || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80';
+
+          // Procesar galería de fotos (sala, baño, recámara, etc.)
+          const galeriaArray = galeriaRaw
+            ? galeriaRaw.split(/[|;]/).map(item => normalizarUrlImagen(item.replace(/^"+|"+$/g, '').trim())).filter(Boolean)
+            : [];
+
           propiedadesMapeadas.push({
-            id: id || String(propiedadesMapeadas.length + 1),
+            id: id,
             titulo: titulo,
             precio: precioLimpio,
             cuartos: cuartos.includes('Hab') ? cuartos : `${cuartos} Habs`,
@@ -1875,7 +1998,8 @@
             ubicacion: ubicacion,
             amenidades: amenidadesArray,
             cercanias: cercaniasArray,
-            imagen: imagen || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80',
+            imagen_portada: imagenPortada,
+            galeria_fotos: galeriaArray,
             id_asesor: id_asesor || 'carmen'
           });
         });
@@ -1886,7 +2010,6 @@
       } catch (error) {
         console.warn("Aviso: No fue posible cargar el CSV remoto. Utilizando catálogo base:", error);
       } finally {
-        // Al final de la promesa, renderizar las tarjetas
         renderizarTarjetas();
       }
     }
@@ -1904,11 +2027,12 @@
         const tipo = precioNumerico < 10000 ? 'renta' : 'venta';
         const badgeTipo = tipo === 'renta' ? 'EN RENTA' : 'EN VENTA';
         const badgeColor = tipo === 'renta' ? 'bg-[#4B5563]' : 'bg-[#1D3557]';
+        const fotoTarjeta = prop.imagen_portada || prop.imagen || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80';
 
         return `
           <div class="property-card bg-white rounded-2xl shadow-xl hover:shadow-2xl border border-gray-100 overflow-hidden flex flex-col transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer" data-id="${prop.id}" data-type="${tipo}" data-precio="${precioNumerico}">
             <div class="relative h-64 overflow-hidden">
-              <img src="${prop.imagen || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80'}" alt="${prop.titulo}" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+              <img src="${fotoTarjeta}" alt="${prop.titulo}" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
               <div class="absolute top-4 left-4 bg-[#388E3C] text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-md shadow-md">
                 NUEVO
               </div>
@@ -1958,7 +2082,6 @@
         });
       });
 
-      // Sincronizar filtro de presupuesto con las tarjetas actuales
       calculateBudget();
     }
     window.renderizarTarjetas = renderizarTarjetas;
@@ -1974,12 +2097,18 @@
 
       const asesor = asesores[prop.id_asesor] || asesores['carmen'];
 
-      // Generar 3 fotos de interiores
-      const fotos = (prop.fotos_extra && prop.fotos_extra.length) ? prop.fotos_extra : [
-        prop.imagen,
-        "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=600&q=80",
-        "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80"
-      ];
+      // Crear galería completa de fotos (Portada + Fotos adicionales de sala, baño, recámara, etc.)
+      let fotos = [];
+      if (prop.galeria_fotos && prop.galeria_fotos.length > 0) {
+        fotos = [...prop.galeria_fotos];
+      } else {
+        const fotoP = prop.imagen_portada || prop.imagen;
+        fotos = [
+          fotoP,
+          "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80",
+          "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80"
+        ];
+      }
 
       const fotosContainer = document.getElementById('modal-fotos');
       if (fotosContainer) {
@@ -2115,7 +2244,6 @@
     function calculateBudget() {
       if (!precioSlider) return;
 
-      // Limpiar string de valor del slider para comparación numérica exacta
       const sliderValRaw = String(precioSlider.value || '');
       const presupuestoSliderNumerico = parseInt(sliderValRaw.replace(/[^0-9]/g, ''), 10) || 0;
 
@@ -2257,7 +2385,7 @@
     // 9. INICIALIZACIÓN AL CARGAR EL DOM
     // ========================================================
     document.addEventListener('DOMContentLoaded', () => {
-      // Cargar propiedades desde Google Sheet (o catálogo base)
+      // Cargar propiedades desde Google Sheets CSV
       cargarPropiedadesDesdeExcel();
 
       // Cerrar al hacer clic en el backdrop oscuro fuera del modal
