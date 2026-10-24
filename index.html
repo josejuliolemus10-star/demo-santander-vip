@@ -14,6 +14,9 @@
   <!-- Swiper.js CSS via CDN -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
+  <!-- Font Awesome 6 Icons via CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -1546,7 +1549,7 @@
   <!-- ========================================================
        10. MODAL DE DETALLES DE PROPIEDAD VIP
        - Tema claro (blanco/gris), glassmorphism sutil y sombras profundas.
-       - Grid de fotos interiores, badge dorado "💎 Propiedad Exclusiva",
+       - Grid de fotos interiores, badge dorado "Interiores de Lujo",
          especificaciones completas, amenidades, distancias clave,
          tarjeta de asesor con avatar dinámico UI-Avatars y botón sticky de WhatsApp.
        ======================================================== -->
@@ -1568,15 +1571,13 @@
         </div>
       </div>
 
-      <!-- 3. Título grande, Precio y Badge dorado "💎 Propiedad Exclusiva" -->
+      <!-- 3. Título grande, Precio y Badge dorado "Interiores de Lujo" -->
       <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-2">
         <div class="flex-1 pr-6">
           <span id="modal-ubicacion" class="text-xs uppercase tracking-wider text-gray-400 font-semibold block mb-1"></span>
           <h3 id="modal-titulo" class="font-serif text-2xl sm:text-3xl font-bold text-gray-900 leading-tight"></h3>
         </div>
-        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold whitespace-nowrap self-start shadow-sm">
-          💎 Propiedad Exclusiva
-        </div>
+        <span id="modal-badge" class="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full text-sm font-medium"><i class="fa-solid fa-couch mr-2"></i>Interiores de Lujo</span>
       </div>
       <p id="modal-precio" class="font-serif text-2xl sm:text-3xl font-bold text-[#2A9D8F] mb-4"></p>
 
@@ -1987,6 +1988,12 @@
       const elemPrecio = document.getElementById('modal-precio');
       if (elemPrecio) elemPrecio.textContent = prop.precio;
 
+      // Inyectar badge del modal: Interiores de Lujo
+      const elemBadge = document.getElementById('modal-badge');
+      if (elemBadge) {
+        elemBadge.outerHTML = '<span id="modal-badge" class="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full text-sm font-medium"><i class="fa-solid fa-couch mr-2"></i>Interiores de Lujo</span>';
+      }
+
       // Inyectar especificaciones (cuartos, baños, metros)
       const elemCuartos = document.getElementById('modal-cuartos');
       if (elemCuartos) elemCuartos.textContent = prop.cuartos;
@@ -2115,6 +2122,55 @@
       }).format(valor);
     }
 
+    // Función estricta para evaluar y actualizar tarjetas según presupuesto
+    function calculateBudget() {
+      if (!precioSlider) return;
+
+      // Limpiar string de valor del slider para comparación numérica exacta
+      const sliderValRaw = String(precioSlider.value || '');
+      const presupuestoSliderNumerico = parseInt(sliderValRaw.replace(/[^0-9]/g, ''), 10) || 0;
+
+      // 1. Evaluar tarjetas en la sección de Calculadora de Presupuesto (#calculadora-resultados)
+      const tarjetasCalculadora = document.querySelectorAll('#calculadora-resultados > div');
+      tarjetasCalculadora.forEach(tarjeta => {
+        // Asegurar limpiar los strings de precios para poder compararlos matemáticamente
+        const precioPropiedadStr = tarjeta.getAttribute('data-precio') || tarjeta.querySelector('.text-[#2A9D8F]')?.textContent || '';
+        const precioPropiedadNumerico = parseInt(String(precioPropiedadStr).replace(/[^0-9]/g, ''), 10) || 0;
+
+        let badgeHTML = '';
+        if (precioPropiedadNumerico <= presupuestoSliderNumerico) {
+          badgeHTML = `<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold shadow-sm"><i class="fa-solid fa-check mr-1"></i> Dentro de su presupuesto</span>`;
+        } else {
+          badgeHTML = `<span class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs font-semibold shadow-sm border border-red-100"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Supera su presupuesto</span>`;
+        }
+
+        // Actualizar contenedor del badge en la esquina superior izquierda de la tarjeta
+        const badgeContainer = tarjeta.querySelector('.absolute.top-3.left-3');
+        if (badgeContainer) {
+          badgeContainer.className = 'absolute top-3 left-3 z-10';
+          badgeContainer.innerHTML = badgeHTML;
+        }
+      });
+
+      // 2. Filtrar catálogo completo VIP según el presupuesto
+      if (catalogoCompleto) {
+        const tarjetasCatalogo = catalogoCompleto.querySelectorAll('.property-card');
+        tarjetasCatalogo.forEach(tarjeta => {
+          const precioPropiedadStr = tarjeta.getAttribute('data-precio') || '';
+          const precioPropiedadNumerico = parseInt(String(precioPropiedadStr).replace(/[^0-9]/g, ''), 10) || 0;
+
+          if (precioPropiedadNumerico <= presupuestoSliderNumerico) {
+            tarjeta.classList.remove('hidden');
+            tarjeta.style.display = '';
+          } else {
+            tarjeta.classList.add('hidden');
+            tarjeta.style.display = 'none';
+          }
+        });
+      }
+    }
+    window.calculateBudget = calculateBudget;
+
     if (precioSlider && precioDisplay) {
       precioSlider.addEventListener('input', (e) => {
         const valorActual = parseFloat(e.target.value);
@@ -2124,27 +2180,16 @@
         if (rangeDisplay) {
           rangeDisplay.textContent = `Hasta ${formatearUSD(valorActual)} USD`;
         }
+
+        // Actualizar badges en tiempo real con cada movimiento del slider
+        calculateBudget();
       });
     }
 
     if (btnCalcular && catalogoCompleto && precioSlider) {
       btnCalcular.addEventListener('click', () => {
+        calculateBudget();
         catalogoCompleto.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-        const valorPresupuesto = parseFloat(precioSlider.value);
-        const tarjetas = catalogoCompleto.querySelectorAll('.property-card');
-
-        tarjetas.forEach(tarjeta => {
-          const precioPropiedad = parseFloat(tarjeta.getAttribute('data-precio') || 0);
-
-          if (precioPropiedad <= valorPresupuesto) {
-            tarjeta.classList.remove('hidden');
-            tarjeta.style.display = '';
-          } else {
-            tarjeta.classList.add('hidden');
-            tarjeta.style.display = 'none';
-          }
-        });
       });
     }
 
@@ -2206,6 +2251,8 @@
     // INTERACTIVIDAD EN TARJETAS DE PROPIEDADES & MODAL
     // ========================================================
     document.addEventListener('DOMContentLoaded', () => {
+      // Evaluar tarjetas iniciales de presupuesto y badges
+      calculateBudget();
       // 1. Vincular clics en tarjetas y botones de agendar al modal
       const cards = document.querySelectorAll('.property-card');
       cards.forEach((card, index) => {
