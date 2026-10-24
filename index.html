@@ -1663,7 +1663,7 @@
   <!-- Scripts Interactivos Unificados -->
   <script>
     // ========================================================
-    // BASE DE DATOS DE ASESORES (Datos Reales)
+    // 1. BASE DE DATOS DE ASESORES (Datos Reales)
     // ========================================================
     const asesores = {
       "carmen": { nombre: "Carmen Coloma", tel: "50252945088", puesto: "Directora Comercial & VIP Estates" },
@@ -1678,307 +1678,319 @@
     };
 
     // ========================================================
-    // BASE DE DATOS DE PROPIEDADES (Catálogo VIP Detallado)
+    // 2. CONFIGURACIÓN DEL SISTEMA DINÁMICO DE PROPIEDADES (CSV)
     // ========================================================
-    const propiedades = [
+    const CSV_URL = "AQUI_VA_EL_LINK_DEL_CSV"; // El usuario pondrá su link aquí
+
+    // Propiedades base mientras el usuario conecta su Google Sheet
+    const propiedadesBase = [
       {
-        id: 1,
-        titulo: "Penthouse Exclusivo - Zona 15",
-        precio: "$770,000 USD",
-        ubicacion: "Zona 15 • Vista Hermosa",
-        cuartos: "3 Habs",
-        banos: "2.5 Baños",
-        metros: "292 m²",
-        id_asesor: "carmen",
-        fotos_extra: [
-          "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80"
-        ],
-        amenidades: [
-          "Terraza privada con vista panorámica 360° a los volcanes",
-          "Elevador directo con control de acceso biométrico",
-          "Acabados en mármol italiano y carpintería en maderas finas",
-          "Seguridad privada 24/7 y circuito cerrado de cámaras"
-        ],
-        cercanias: [
-          "A 3 min de prestigiosos colegios y universidades de Zona 15",
-          "A 5 min de centros hospitalarios y médicos de primer nivel",
-          "A 8 min de Ciudad Cayalá y Distrito Financiero de Zona 10",
-          "Fácil acceso por Bulevar Vista Hermosa"
-        ]
-      },
-      {
-        id: 2,
-        titulo: "Mansión Moderna en Cayalá",
-        precio: "$1,250,000 USD",
-        ubicacion: "Zona 16 • Paseo Cayalá",
+        id: "1",
+        titulo: "Villa Florentina Luxury Estate",
+        precio: "$1,450,000 USD",
         cuartos: "4 Habs",
-        banos: "5 Baños",
-        metros: "650 m²",
-        id_asesor: "santiago",
-        fotos_extra: [
-          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80"
-        ],
-        amenidades: [
-          "Piscina privada climatizada con deck de teca y cascada",
-          "Club house con canchas de tenis y canchas de pádel",
-          "Amplio jardín paisajista diseñado por arquitecto de renombre",
-          "Garaje techado para 4 vehículos grandes"
-        ],
-        cercanias: [
-          "A 2 min de Paseo Cayalá (restaurantes gourmet y boutiques)",
-          "A 5 min de Colegios Americano, Interamericano y Maya",
-          "A 10 min de la Zona 10 de la Ciudad de Guatemala",
-          "Seguridad con triple garita y patrullaje motorizado 24/7"
-        ]
-      },
-      {
-        id: 3,
-        titulo: "Apartamento Ideal Inversión - Zona 14",
-        precio: "$285,000 USD",
+        banos: "4.5 Baños",
+        metros: "580 m²",
         ubicacion: "Zona 14 • Las Américas",
-        cuartos: "2 Habs",
-        banos: "2 Baños",
-        metros: "115 m²",
-        id_asesor: "joseluis",
-        fotos_extra: [
-          "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=600&q=80"
-        ],
         amenidades: [
-          "Rooftop lounge con área de BBQ, fogateras y vista panorámica",
-          "Gimnasio equipado con tecnología cardio y pesas libres",
-          "Alta rentabilidad proyectada en Airbnb y perfil corporativo",
-          "Parqueo techado de visitas y business center privado"
+          "Piscina infinity climatizada",
+          "Cava de vinos privada",
+          "Elevador biométrico",
+          "Domótica integral"
         ],
         cercanias: [
-          "A pasos de la caminata peatonal de Avenida Las Américas",
-          "A 4 min de la Zona Viva en Zona 10",
-          "A 7 min del Aeropuerto Internacional La Aurora",
-          "Rodeado de los cafés de especialidad más exclusivos"
-        ]
+          "A 2 min de Av. Las Américas",
+          "A 5 min de Zona 10",
+          "A 8 min del Aeropuerto Internacional"
+        ],
+        imagen: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
+        id_asesor: "carmen"
       },
       {
-        id: 4,
-        titulo: "Loft de Lujo Amueblado - Zona 10",
-        precio: "$1,500 USD/mes",
-        ubicacion: "Zona 10 • Zona Viva",
-        cuartos: "1 Hab",
-        banos: "1 Baño",
-        metros: "85 m²",
-        id_asesor: "madeleine",
-        fotos_extra: [
-          "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?auto=format&fit=crop&w=600&q=80"
-        ],
-        amenidades: [
-          "Completamente amueblado y decorado por firma de interiores",
-          "Cocina con electrodomésticos empotrados de acero inoxidable",
-          "Ventanales termo-acústicos de doble vidrio con vista a la ciudad",
-          "Piscina infinity en azotea y salas de coworking"
-        ],
-        cercanias: [
-          "En el epicentro financiero, diplomático y gastronómico",
-          "A 2 min a pie de cadenas hoteleras de lujo internacionales",
-          "A 5 min de Plaza Fontabella y Oakland Mall",
-          "A 10 min del Aeropuerto Internacional"
-        ]
-      },
-      {
-        id: 5,
-        titulo: "Casa Familiar en Condominio - Carr. El Salvador",
-        precio: "$450,000 USD",
-        ubicacion: "Carretera a El Salvador",
-        cuartos: "4 Habs",
-        banos: "3.5 Baños",
-        metros: "320 m²",
-        id_asesor: "mariaelena",
-        fotos_extra: [
-          "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=600&q=80"
-        ],
-        amenidades: [
-          "Rodeada de bosque protegido con aire puro de montaña",
-          "Senderos privados de caminata, canchas y juegos infantiles",
-          "Pérgola techada con horno de leña y asador argentino",
-          "Habitación máster con walk-in closet y tina de hidromasaje"
-        ],
-        cercanias: [
-          "A 5 min de centros comerciales y supermercados premium",
-          "A 8 min de colegios internacionales bilingües",
-          "Accesos fluidos a pasos a desnivel y retornos",
-          "A 25 min del corazón corporativo de la capital"
-        ]
-      },
-      {
-        id: 6,
-        titulo: "Oficina Corporativa - Edificio Burgó",
-        precio: "$3,200 USD/mes",
-        ubicacion: "Zona 14 • Edificio Burgó",
-        cuartos: "0 Habs",
-        banos: "2 Baños",
-        metros: "150 m²",
-        id_asesor: "bitia",
-        fotos_extra: [
-          "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=600&q=80"
-        ],
-        amenidades: [
-          "Edificio con certificación de sustentabilidad y alta eficiencia",
-          "Salas corporativas de conferencias con soporte multimedia",
-          "Acceso inteligente por torniquetes y tarjeta de proximidad",
-          "Red de fibra óptica redundante y respaldo eléctrico 100%"
-        ],
-        cercanias: [
-          "A 3 min de Bulevar Los Próceres",
-          "A 5 min de la Zona Financiera de Zona 10",
-          "A 8 min del Aeropuerto Internacional",
-          "Acceso peatonal a sedes bancarias y cafés ejecutivos"
-        ]
-      },
-      {
-        id: 7,
-        titulo: "Residencia Clásica - Muxbal",
-        precio: "$890,000 USD",
-        ubicacion: "Santa Catarina Pinula • Muxbal",
+        id: "2",
+        titulo: "Mansión Contemporánea Cayalá",
+        precio: "$1,850,000 USD",
         cuartos: "5 Habs",
+        banos: "6 Baños",
+        metros: "720 m²",
+        ubicacion: "Zona 16 • Paseo Cayalá",
+        amenidades: [
+          "Cancha privada de pádel",
+          "Jacuzzi exterior con deck",
+          "Jardín paisajista",
+          "Garaje para 6 vehículos"
+        ],
+        cercanias: [
+          "A 3 min de Paseo Cayalá",
+          "A 5 min de Colegios Americano e Interamericano",
+          "Seguridad con triple garita"
+        ],
+        imagen: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
+        id_asesor: "santiago"
+      },
+      {
+        id: "3",
+        titulo: "Sky Penthouse Bellas Artes",
+        precio: "$980,000 USD",
+        cuartos: "3 Habs",
+        banos: "3.5 Baños",
+        metros: "340 m²",
+        ubicacion: "Zona 15 • Vista Hermosa",
+        amenidades: [
+          "Terraza mirador 360°",
+          "Acabados en mármol Calacatta",
+          "Altura de techos 3.5m",
+          "Gimnasio privado"
+        ],
+        cercanias: [
+          "A 3 min de Bulevar Vista Hermosa",
+          "A 6 min de Zona 10",
+          "A pasos de centros médicos de prestigio"
+        ],
+        imagen: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
+        id_asesor: "joseluis"
+      },
+      {
+        id: "4",
+        titulo: "Residencia Colonial Real San Jerónimo",
+        precio: "$890,000 USD",
+        cuartos: "4 Habs",
         banos: "4 Baños",
-        metros: "500 m²",
-        id_asesor: "sonia",
-        fotos_extra: [
-          "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=600&q=80"
-        ],
-        amenidades: [
-          "Propiedad de más de 1,800 v² con árboles centenarios",
-          "Cava subterránea para conservación de vinos",
-          "Área de relajación con sauna seco y tina de hidromasaje",
-          "Doble garita de seguridad con monitoreo permanente"
-        ],
-        cercanias: [
-          "A 8 min de Zona 10 a través de la vía Muxbal",
-          "A 10 min de Pradera Concepción y centros de entretenimiento",
-          "A 7 min de instituciones educativas de alto prestigio",
-          "Entorno de máxima serenidad y contacto con la naturaleza"
-        ]
-      },
-      {
-        id: 8,
-        titulo: "Apartamento Vista a Volcanes - Zona 14",
-        precio: "$2,100 USD/mes",
-        ubicacion: "Zona 14 • Panorámica Premium",
-        cuartos: "3 Habs",
-        banos: "2 Baños",
-        metros: "180 m²",
-        id_asesor: "sofia",
-        fotos_extra: [
-          "https://images.unsplash.com/photo-1567496898669-ee935f5f647a?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80"
-        ],
-        amenidades: [
-          "Balcón corrido con vista frontal sin obstáculos a los volcanes",
-          "Piscina climatizada con carril de nado y deck para tomar sol",
-          "Cocina con isla central de cuarzo y muebles europeos",
-          "Bodega individual y 2 parqueos subterráneos exclusivos"
-        ],
-        cercanias: [
-          "A 1 min de Avenida Las Américas y ciclo-vía dominical",
-          "A 5 min de Zona Pradera y Europlaza",
-          "A 6 min de centros comerciales y clínicas de Zona 10",
-          "A 10 min de Vista Hermosa en Zona 15"
-        ]
-      },
-      {
-        id: 9,
-        titulo: "Terreno Premium para Desarrollo - Zona 16",
-        precio: "$1,100,000 USD",
-        ubicacion: "Zona 16 • San Isidro",
-        cuartos: "0 Habs",
-        banos: "0 Baños",
-        metros: "1200 m²",
-        id_asesor: "william",
-        fotos_extra: [
-          "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80"
-        ],
-        amenidades: [
-          "Topografía óptima con leve pendiente positiva para vistas",
-          "Estudios de mecánica de suelos y permisos en regla",
-          "Servicios a pie de lote: agua potable de pozo propio y luz",
-          "Condominio residencial con alta plusvalía patrimonial"
-        ],
-        cercanias: [
-          "A 4 min del centro comercial y cines de Paseo Cayalá",
-          "A 6 min del Club Deportivo y Social San Isidro",
-          "A 8 min de campus universitarios de primer orden",
-          "Acceso ágil hacia Bulevar Austriaco y Calzada La Paz"
-        ]
-      },
-      {
-        id: 10,
-        titulo: "Villa de Descanso - Antigua Guatemala",
-        precio: "$650,000 USD",
+        metros: "460 m²",
         ubicacion: "Sacatepéquez • Antigua Guatemala",
-        cuartos: "3 Habs",
-        banos: "3 Baños",
-        metros: "250 m²",
-        id_asesor: "carmen",
-        fotos_extra: [
-          "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=600&q=80",
-          "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80"
-        ],
         amenidades: [
-          "Patio interior colonial con fuente tradicional de cantera",
-          "Cielos altos con vigas de madera noble talladas a mano",
-          "Terraza apergolada con vista panorámica al Volcán de Agua",
-          "Seguridad privada con garita colonial y control permanente"
+          "Patio central con fuente de cantera",
+          "Cielos con vigas nobles",
+          "Terraza con vista al Volcán de Agua",
+          "Pérgola colonial"
         ],
         cercanias: [
-          "A 5 min del Parque Central y monumentos históricos de Antigua",
+          "A 5 min del Parque Central de Antigua",
           "A 3 min de San Pedro Las Huertas",
-          "A corta distancia de restaurantes de alta cocina y galerías",
-          "A 45 min de la Ciudad de Guatemala"
-        ]
+          "A pasos de restaurantes gourmet"
+        ],
+        imagen: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80",
+        id_asesor: "madeleine"
       }
     ];
 
+    // Array dinámico de propiedades
+    let propiedades = [...propiedadesBase];
+
     // ========================================================
-    // FUNCIONES DEL MODAL DE PROPIEDADES VIP
+    // 3. PARSER Y CARGA ASÍNCRONA DESDE GOOGLE SHEETS (CSV)
     // ========================================================
 
-    // 1. Abrir Modal de Propiedad y poblar datos dinámicamente
+    // Función auxiliar para parsear líneas CSV respetando comillas dobles
+    function parseCSVLine(line) {
+      const values = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          values.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      values.push(current.trim());
+      return values;
+    }
+
+    // Función asíncrona principal para cargar desde el Google Sheet CSV
+    async function cargarPropiedadesDesdeExcel() {
+      if (!CSV_URL || CSV_URL === "AQUI_VA_EL_LINK_DEL_CSV") {
+        // Renderizar propiedades iniciales si el link aún no se ha configurado
+        renderizarTarjetas();
+        return;
+      }
+
+      try {
+        const response = await fetch(CSV_URL);
+        if (!response.ok) {
+          throw new Error(`Error de red: ${response.status} ${response.statusText}`);
+        }
+        const dataCSV = await response.text();
+
+        // Separar filas por saltos de línea e ignorar vacías
+        const filas = dataCSV.trim().split(/\r?\n/).filter(f => f.trim().length > 0);
+        if (filas.length <= 1) {
+          renderizarTarjetas();
+          return;
+        }
+
+        // Ignorar primera fila de encabezados
+        const filasDatos = filas.slice(1);
+        const propiedadesMapeadas = [];
+
+        filasDatos.forEach(fila => {
+          const cols = parseCSVLine(fila);
+          if (cols.length < 3) return;
+
+          // id,titulo,precio,cuartos,banos,metros,ubicacion,amenidades,cercanias,imagen,id_asesor
+          const id = (cols[0] || '').replace(/^"+|"+$/g, '').trim();
+          const titulo = (cols[1] || '').replace(/^"+|"+$/g, '').trim();
+          const precioRaw = (cols[2] || '').replace(/^"+|"+$/g, '').trim();
+          const cuartos = (cols[3] || '').replace(/^"+|"+$/g, '').trim();
+          const banos = (cols[4] || '').replace(/^"+|"+$/g, '').trim();
+          const metros = (cols[5] || '').replace(/^"+|"+$/g, '').trim();
+          const ubicacion = (cols[6] || '').replace(/^"+|"+$/g, '').trim();
+          const amenidadesRaw = (cols[7] || '').replace(/^"+|"+$/g, '').trim();
+          const cercaniasRaw = (cols[8] || '').replace(/^"+|"+$/g, '').trim();
+          const imagen = (cols[9] || '').replace(/^"+|"+$/g, '').trim();
+          const id_asesor = (cols[10] || '').replace(/^"+|"+$/g, '').trim().toLowerCase();
+
+          // Extraer precio como texto limpio (ej. "$750,000 USD")
+          const precioNum = parseInt(precioRaw.replace(/[^0-9]/g, ''), 10) || 0;
+          let precioLimpio = precioRaw;
+          if (!precioLimpio.includes('$')) {
+            precioLimpio = formatearUSD(precioNum) + ' USD';
+          }
+
+          // Separar amenidades y cercanias por delimitadores '|' o ';' o comas
+          const amenidadesArray = amenidadesRaw
+            ? amenidadesRaw.split(/[|;]/).map(item => item.replace(/^"+|"+$/g, '').trim()).filter(Boolean)
+            : ["Acabados de lujo", "Seguridad 24/7", "Diseño contemporáneo"];
+
+          const cercaniasArray = cercaniasRaw
+            ? cercaniasRaw.split(/[|;]/).map(item => item.replace(/^"+|"+$/g, '').trim()).filter(Boolean)
+            : ["Ubicación de alta plusvalía", "Acceso a vías principales"];
+
+          propiedadesMapeadas.push({
+            id: id || String(propiedadesMapeadas.length + 1),
+            titulo: titulo,
+            precio: precioLimpio,
+            cuartos: cuartos.includes('Hab') ? cuartos : `${cuartos} Habs`,
+            banos: banos.includes('Baño') ? banos : `${banos} Baños`,
+            metros: metros.includes('m') ? metros : `${metros} m²`,
+            ubicacion: ubicacion,
+            amenidades: amenidadesArray,
+            cercanias: cercaniasArray,
+            imagen: imagen || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80',
+            id_asesor: id_asesor || 'carmen'
+          });
+        });
+
+        if (propiedadesMapeadas.length > 0) {
+          propiedades = propiedadesMapeadas;
+        }
+      } catch (error) {
+        console.warn("Aviso: No fue posible cargar el CSV remoto. Utilizando catálogo base:", error);
+      } finally {
+        // Al final de la promesa, renderizar las tarjetas
+        renderizarTarjetas();
+      }
+    }
+    window.cargarPropiedadesDesdeExcel = cargarPropiedadesDesdeExcel;
+
+    // ========================================================
+    // 4. RENDERIZADO DINÁMICO DE TARJETAS EN EL CATÁLOGO VIP
+    // ========================================================
+    function renderizarTarjetas() {
+      const catalogoCompleto = document.getElementById('catalogo-completo');
+      if (!catalogoCompleto) return;
+
+      catalogoCompleto.innerHTML = propiedades.map((prop) => {
+        const precioNumerico = parseInt(String(prop.precio).replace(/[^0-9]/g, ''), 10) || 0;
+        const tipo = precioNumerico < 10000 ? 'renta' : 'venta';
+        const badgeTipo = tipo === 'renta' ? 'EN RENTA' : 'EN VENTA';
+        const badgeColor = tipo === 'renta' ? 'bg-[#4B5563]' : 'bg-[#1D3557]';
+
+        return `
+          <div class="property-card bg-white rounded-2xl shadow-xl hover:shadow-2xl border border-gray-100 overflow-hidden flex flex-col transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer" data-id="${prop.id}" data-type="${tipo}" data-precio="${precioNumerico}">
+            <div class="relative h-64 overflow-hidden">
+              <img src="${prop.imagen || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80'}" alt="${prop.titulo}" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+              <div class="absolute top-4 left-4 bg-[#388E3C] text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-md shadow-md">
+                NUEVO
+              </div>
+              <div class="absolute top-4 right-4 ${badgeColor} text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-md shadow-md">
+                ${badgeTipo}
+              </div>
+            </div>
+            <div class="p-6 flex-1 flex flex-col justify-between">
+              <div>
+                <span class="text-xs uppercase tracking-wider text-gray-400 font-medium block mb-1">${prop.ubicacion || 'Ubicación Exclusiva'}</span>
+                <h3 class="font-serif text-xl font-bold text-[#1A1A1A] hover:text-[#2A9D8F] transition-colors leading-snug">
+                  ${prop.titulo}
+                </h3>
+                <p class="font-serif text-2xl font-bold text-[#2A9D8F] mt-3">
+                  ${prop.precio}
+                </p>
+              </div>
+              <div class="py-4 my-4 border-y border-gray-100 flex items-center justify-between text-xs sm:text-sm font-medium text-gray-700">
+                <span class="flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-gray-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 7v13m0-5h18m0-8v13M3 10h18M7 10V7a2 2 0 012-2h6a2 2 0 012 2v3"/></svg>
+                  <span>${prop.cuartos || '3 Habs'}</span>
+                </span>
+                <span class="flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-gray-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 12h16v3a5 5 0 01-5 5H9a5 5 0 01-5-5v-3zm3-7a2 2 0 012-2h1a2 2 0 012 2v7H7V5zm-1 16v1.5m12-1.5v1.5"/></svg>
+                  <span>${prop.banos || '2.5 Baños'}</span>
+                </span>
+                <span class="flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-gray-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5h-4m4 0v-4m0 4l-5-5"/></svg>
+                  <span>${prop.metros || '250 m²'}</span>
+                </span>
+              </div>
+              <button type="button" onclick="event.stopPropagation(); abrirModal('${prop.id}')" class="w-full inline-flex items-center justify-center gap-2 bg-[#1A1A1A] hover:bg-[#2A9D8F] text-white font-semibold text-sm py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.969.54 1.772.82 2.791.82 3.181 0 5.768-2.587 5.768-5.766.001-3.182-2.585-5.806-5.768-5.806zm3.377 8.219c-.14.394-.813.73-1.127.777-.306.046-.703.064-2.155-.544-1.745-.733-2.859-2.518-2.946-2.634-.087-.116-.708-.942-.708-1.796 0-.855.449-1.275.609-1.449.16-.174.349-.218.465-.218.116 0 .233.001.334.006.107.005.25-.041.391.298.145.349.494 1.206.538 1.293.044.087.073.189.015.305-.058.116-.087.189-.174.291-.087.102-.184.228-.263.306-.088.087-.18.182-.077.359.102.176.455.751.977 1.216.671.597 1.236.782 1.411.869.175.087.277.073.379-.044.102-.116.437-.508.553-.683.116-.175.233-.146.393-.087.16.058 1.018.48 1.193.567.175.087.291.131.335.204.043.072.043.422-.097.816z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.982-1.398A9.957 9.957 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18.158c-1.637 0-3.167-.478-4.463-1.303l-.32-.204-2.962.83.824-2.909-.211-.336A8.125 8.125 0 013.842 12c0-4.508 3.65-8.158 8.158-8.158s8.158 3.65 8.158 8.158-3.65 8.158-8.158 8.158z"/></svg>
+                <span>Agendar Visita</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Asignar evento click a cada tarjeta generada
+      const tarjetas = catalogoCompleto.querySelectorAll('.property-card');
+      tarjetas.forEach(tarjeta => {
+        const propId = tarjeta.getAttribute('data-id');
+        tarjeta.addEventListener('click', () => {
+          abrirModal(propId);
+        });
+      });
+
+      // Sincronizar filtro de presupuesto con las tarjetas actuales
+      calculateBudget();
+    }
+    window.renderizarTarjetas = renderizarTarjetas;
+
+    // ========================================================
+    // 5. MODAL DE PROPIEDADES VIP (APERTURA, CIERRE Y WHATSAPP)
+    // ========================================================
+
+    // Abrir Modal de Propiedad y poblar datos dinámicamente
     function abrirModal(idPropiedad) {
-      const prop = propiedades.find(p => p.id === Number(idPropiedad));
+      const prop = propiedades.find(p => String(p.id) === String(idPropiedad));
       if (!prop) return;
 
-      const asesor = asesores[prop.id_asesor] || {
-        nombre: "Carmen Coloma",
-        tel: "50252945088",
-        puesto: "Directora Comercial & VIP Estates"
-      };
+      const asesor = asesores[prop.id_asesor] || asesores['carmen'];
 
-      // Inyectar 3 fotos de interiores en el grid
+      // Generar 3 fotos de interiores
+      const fotos = (prop.fotos_extra && prop.fotos_extra.length) ? prop.fotos_extra : [
+        prop.imagen,
+        "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80"
+      ];
+
       const fotosContainer = document.getElementById('modal-fotos');
-      if (fotosContainer && prop.fotos_extra) {
-        fotosContainer.innerHTML = prop.fotos_extra.map((foto, idx) => `
+      if (fotosContainer) {
+        fotosContainer.innerHTML = fotos.map((foto, idx) => `
           <div class="relative h-44 rounded-xl overflow-hidden shadow-sm group bg-slate-100">
             <img src="${foto}" alt="Espacio ${idx + 1} de ${prop.titulo}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
           </div>
         `).join('');
       }
 
-      // Inyectar ubicación, título y precio
+      // Ubicación, título y precio
       const elemUbicacion = document.getElementById('modal-ubicacion');
       if (elemUbicacion) elemUbicacion.textContent = prop.ubicacion;
 
@@ -1994,7 +2006,7 @@
         elemBadge.outerHTML = '<span id="modal-badge" class="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full text-sm font-medium"><i class="fa-solid fa-couch mr-2"></i>Interiores de Lujo</span>';
       }
 
-      // Inyectar especificaciones (cuartos, baños, metros)
+      // Especificaciones (cuartos, baños, metros)
       const elemCuartos = document.getElementById('modal-cuartos');
       if (elemCuartos) elemCuartos.textContent = prop.cuartos;
 
@@ -2004,10 +2016,11 @@
       const elemMetros = document.getElementById('modal-metros');
       if (elemMetros) elemMetros.textContent = prop.metros;
 
-      // Inyectar lista de amenidades
+      // Amenidades
       const elemAmenidades = document.getElementById('modal-amenidades');
       if (elemAmenidades && prop.amenidades) {
-        elemAmenidades.innerHTML = prop.amenidades.map(item => `
+        const amenidadesLista = Array.isArray(prop.amenidades) ? prop.amenidades : [prop.amenidades];
+        elemAmenidades.innerHTML = amenidadesLista.map(item => `
           <li class="flex items-start gap-2">
             <span class="text-[#2A9D8F] font-bold text-base leading-none mt-0.5">•</span>
             <span>${item}</span>
@@ -2015,10 +2028,11 @@
         `).join('');
       }
 
-      // Inyectar lista de distancias clave
+      // Distancias clave
       const elemCercanias = document.getElementById('modal-cercanias');
       if (elemCercanias && prop.cercanias) {
-        elemCercanias.innerHTML = prop.cercanias.map(item => `
+        const cercaniasLista = Array.isArray(prop.cercanias) ? prop.cercanias : [prop.cercanias];
+        elemCercanias.innerHTML = cercaniasLista.map(item => `
           <li class="flex items-start gap-2">
             <span class="text-[#2A9D8F] font-bold text-base leading-none mt-0.5">•</span>
             <span>${item}</span>
@@ -2026,7 +2040,7 @@
         `).join('');
       }
 
-      // Inyectar tarjeta del asesor con avatar dinámico UI-Avatars
+      // Asesor asignado con avatar dinámico UI-Avatars
       const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(asesor.nombre)}&background=0D9488&color=fff&rounded=true`;
       const elemAvatar = document.getElementById('modal-asesor-avatar');
       if (elemAvatar) {
@@ -2040,7 +2054,7 @@
       const elemAsesorPuesto = document.getElementById('modal-asesor-puesto');
       if (elemAsesorPuesto) elemAsesorPuesto.textContent = asesor.puesto || "Director Inmobiliario Senior";
 
-      // Configurar acción del botón sticky de WhatsApp
+      // Botón sticky de WhatsApp
       const btnWhatsApp = document.getElementById('modal-btn-whatsapp');
       if (btnWhatsApp) {
         btnWhatsApp.onclick = function() {
@@ -2048,7 +2062,7 @@
         };
       }
 
-      // Mostrar modal y bloquear scroll de fondo
+      // Mostrar modal
       const modal = document.getElementById('modal-propiedad');
       if (modal) {
         modal.classList.remove('hidden');
@@ -2056,7 +2070,7 @@
       }
     }
 
-    // 2. Cerrar Modal de Propiedad
+    // Cerrar Modal
     function cerrarModal() {
       const modal = document.getElementById('modal-propiedad');
       if (modal) {
@@ -2065,16 +2079,12 @@
       }
     }
 
-    // 3. Enviar mensaje detallado al WhatsApp del Asesor específico
+    // Enviar WhatsApp estructurado al asesor
     function enviarWhatsApp(idPropiedad) {
-      const prop = propiedades.find(p => p.id === Number(idPropiedad));
+      const prop = propiedades.find(p => String(p.id) === String(idPropiedad));
       if (!prop) return;
 
-      const asesor = asesores[prop.id_asesor] || {
-        nombre: "Carmen Coloma",
-        tel: "50252945088"
-      };
-
+      const asesor = asesores[prop.id_asesor] || asesores['carmen'];
       const telefono = asesor.tel || asesor.telefono || "50252945088";
       const mensaje = `Hola ${asesor.nombre}, me interesa la propiedad: ${prop.titulo} por ${prop.precio}. Vi las especificaciones (${prop.metros}, ${prop.cuartos}, etc). ¿Podemos agendar una visita?`;
 
@@ -2082,33 +2092,13 @@
       window.open(urlWhatsApp, '_blank');
     }
 
-    // Exponer funciones en el ámbito global de window
     window.abrirModal = abrirModal;
     window.cerrarModal = cerrarModal;
     window.enviarWhatsApp = enviarWhatsApp;
 
     // ========================================================
-    // LOGICA EXISTENTE DE NAVEGACION, CALCULADORA Y TESTIMONIOS
+    // 6. CALCULADORA DE PRESUPUESTO & FILTRADO MATEMÁTICO
     // ========================================================
-
-    // 1. Menú Móvil
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-
-    if (mobileMenuBtn && mobileMenu) {
-      mobileMenuBtn.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-      });
-
-      mobileNavLinks.forEach(link => {
-        link.addEventListener('click', () => {
-          mobileMenu.classList.add('hidden');
-        });
-      });
-    }
-
-    // 2. Calculadora de Presupuesto & Filtrado del Catálogo VIP
     const precioSlider = document.getElementById('precio-slider');
     const precioDisplay = document.getElementById('precio-display');
     const btnCalcular = document.getElementById('btn-calcular');
@@ -2122,7 +2112,6 @@
       }).format(valor);
     }
 
-    // Función estricta para evaluar y actualizar tarjetas según presupuesto
     function calculateBudget() {
       if (!precioSlider) return;
 
@@ -2133,7 +2122,6 @@
       // 1. Evaluar tarjetas en la sección de Calculadora de Presupuesto (#calculadora-resultados)
       const tarjetasCalculadora = document.querySelectorAll('#calculadora-resultados > div');
       tarjetasCalculadora.forEach(tarjeta => {
-        // Asegurar limpiar los strings de precios para poder compararlos matemáticamente
         const precioPropiedadStr = tarjeta.getAttribute('data-precio') || tarjeta.querySelector('.text-[#2A9D8F]')?.textContent || '';
         const precioPropiedadNumerico = parseInt(String(precioPropiedadStr).replace(/[^0-9]/g, ''), 10) || 0;
 
@@ -2144,7 +2132,6 @@
           badgeHTML = `<span class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs font-semibold shadow-sm border border-red-100"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Supera su presupuesto</span>`;
         }
 
-        // Actualizar contenedor del badge en la esquina superior izquierda de la tarjeta
         const badgeContainer = tarjeta.querySelector('.absolute.top-3.left-3');
         if (badgeContainer) {
           badgeContainer.className = 'absolute top-3 left-3 z-10';
@@ -2152,7 +2139,7 @@
         }
       });
 
-      // 2. Filtrar catálogo completo VIP según el presupuesto
+      // 2. Filtrar tarjetas en el Catálogo VIP (#catalogo-completo)
       if (catalogoCompleto) {
         const tarjetasCatalogo = catalogoCompleto.querySelectorAll('.property-card');
         tarjetasCatalogo.forEach(tarjeta => {
@@ -2181,7 +2168,6 @@
           rangeDisplay.textContent = `Hasta ${formatearUSD(valorActual)} USD`;
         }
 
-        // Actualizar badges en tiempo real con cada movimiento del slider
         calculateBudget();
       });
     }
@@ -2199,7 +2185,9 @@
     }
     window.updateMonthlyPayment = updateMonthlyPayment;
 
-    // 3. Filtros por Categoría del Catálogo (Todas / En Venta / En Renta)
+    // ========================================================
+    // 7. FILTROS POR CATEGORÍA DEL CATÁLOGO
+    // ========================================================
     function filterProperties(category) {
       const buttons = document.querySelectorAll('.filter-btn');
       buttons.forEach(btn => {
@@ -2226,7 +2214,25 @@
     }
     window.filterProperties = filterProperties;
 
-    // 4. Carrusel Swiper Testimonios
+    // ========================================================
+    // 8. MENÚ MÓVIL Y CARRUSEL TESTIMONIOS
+    // ========================================================
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+    if (mobileMenuBtn && mobileMenu) {
+      mobileMenuBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+
+      mobileNavLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.add('hidden');
+        });
+      });
+    }
+
     const testimonialsSwiper = new Swiper('.testimonials-swiper', {
       slidesPerView: 1,
       spaceBetween: 24,
@@ -2248,34 +2254,13 @@
     });
 
     // ========================================================
-    // INTERACTIVIDAD EN TARJETAS DE PROPIEDADES & MODAL
+    // 9. INICIALIZACIÓN AL CARGAR EL DOM
     // ========================================================
     document.addEventListener('DOMContentLoaded', () => {
-      // Evaluar tarjetas iniciales de presupuesto y badges
-      calculateBudget();
-      // 1. Vincular clics en tarjetas y botones de agendar al modal
-      const cards = document.querySelectorAll('.property-card');
-      cards.forEach((card, index) => {
-        const propId = index + 1;
-        card.style.cursor = 'pointer';
+      // Cargar propiedades desde Google Sheet (o catálogo base)
+      cargarPropiedadesDesdeExcel();
 
-        // Clic en la tarjeta abre el modal
-        card.addEventListener('click', () => {
-          abrirModal(propId);
-        });
-
-        // Clic en el botón interno de la tarjeta también abre el modal
-        const actionBtn = card.querySelector('a');
-        if (actionBtn) {
-          actionBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            abrirModal(propId);
-          });
-        }
-      });
-
-      // 2. Cerrar al hacer clic en el backdrop oscuro fuera del modal
+      // Cerrar al hacer clic en el backdrop oscuro fuera del modal
       const modal = document.getElementById('modal-propiedad');
       if (modal) {
         modal.addEventListener('click', (e) => {
@@ -2285,7 +2270,7 @@
         });
       }
 
-      // 3. Cerrar al presionar la tecla ESC
+      // Cerrar al presionar la tecla ESC
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           cerrarModal();
