@@ -1718,7 +1718,8 @@
           "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80",
           "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80"
         ],
-        id_asesor: "carmen"
+        id_asesor: "carmen",
+        estado: "Disponible"
       },
       {
         id: "2",
@@ -1736,7 +1737,8 @@
           "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80",
           "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=800&q=80"
         ],
-        id_asesor: "santiago"
+        id_asesor: "santiago",
+        estado: "Disponible"
       },
       {
         id: "3",
@@ -1754,7 +1756,8 @@
           "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80",
           "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80"
         ],
-        id_asesor: "joseluis"
+        id_asesor: "joseluis",
+        estado: "Vendida"
       },
       {
         id: "4",
@@ -1772,7 +1775,8 @@
           "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?auto=format&fit=crop&w=800&q=80",
           "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"
         ],
-        id_asesor: "madeleine"
+        id_asesor: "madeleine",
+        estado: "Disponible"
       },
       {
         id: "5",
@@ -1790,7 +1794,8 @@
           "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=800&q=80",
           "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"
         ],
-        id_asesor: "mariaelena"
+        id_asesor: "mariaelena",
+        estado: "Disponible"
       },
       {
         id: "6",
@@ -1808,7 +1813,8 @@
           "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=800&q=80",
           "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80"
         ],
-        id_asesor: "bitia"
+        id_asesor: "bitia",
+        estado: "Disponible"
       },
       {
         id: "7",
@@ -1826,7 +1832,8 @@
           "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=800&q=80",
           "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"
         ],
-        id_asesor: "sonia"
+        id_asesor: "sonia",
+        estado: "Vendida"
       },
       {
         id: "8",
@@ -1844,7 +1851,8 @@
           "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80",
           "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"
         ],
-        id_asesor: "sofia"
+        id_asesor: "sofia",
+        estado: "Disponible"
       },
       {
         id: "9",
@@ -1862,7 +1870,8 @@
           "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
           "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80"
         ],
-        id_asesor: "william"
+        id_asesor: "william",
+        estado: "Disponible"
       },
       {
         id: "10",
@@ -1880,7 +1889,8 @@
           "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80",
           "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80"
         ],
-        id_asesor: "carmen"
+        id_asesor: "carmen",
+        estado: "Disponible"
       }
     ];
 
@@ -1963,6 +1973,12 @@
           const imagenPortadaRaw = getCol(cols, 'imagen_portada', 'imagen');
           const galeriaRaw = getCol(cols, 'galeria_fotos', 'fotos_extra');
           const id_asesor = getCol(cols, 'id_asesor').toLowerCase();
+          const estadoRaw = getCol(cols, 'estado', 'status');
+
+          // Detectar si está vendida (soporta "vendida", "vendido", "sold", etc.)
+          const estadoLower = (estadoRaw || '').toLowerCase();
+          const esVendida = estadoLower.includes('vendid') || estadoLower.includes('sold');
+          const estado = esVendida ? 'Vendida' : 'Disponible';
 
           // Extraer precio y formatearlo como texto limpio
           const precioNum = parseInt(precioRaw.replace(/[^0-9]/g, ''), 10) || 0;
@@ -2000,7 +2016,9 @@
             cercanias: cercaniasArray,
             imagen_portada: imagenPortada,
             galeria_fotos: galeriaArray,
-            id_asesor: id_asesor || 'carmen'
+            id_asesor: id_asesor || 'carmen',
+            estado: estado,
+            es_vendida: esVendida
           });
         });
 
@@ -2028,26 +2046,43 @@
         const badgeTipo = tipo === 'renta' ? 'EN RENTA' : 'EN VENTA';
         const badgeColor = tipo === 'renta' ? 'bg-[#4B5563]' : 'bg-[#1D3557]';
         const fotoTarjeta = prop.imagen_portada || prop.imagen || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80';
+        const esVendida = prop.es_vendida || (String(prop.estado || '').toLowerCase().includes('vendid') || String(prop.estado || '').toLowerCase().includes('sold'));
 
         return `
-          <div class="property-card bg-white rounded-2xl shadow-xl hover:shadow-2xl border border-gray-100 overflow-hidden flex flex-col transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer" data-id="${prop.id}" data-type="${tipo}" data-precio="${precioNumerico}">
+          <div class="property-card bg-white rounded-2xl shadow-xl hover:shadow-2xl border border-gray-100 overflow-hidden flex flex-col transition-all duration-300 transform hover:-translate-y-1.5 cursor-pointer relative" data-id="${prop.id}" data-type="${tipo}" data-precio="${precioNumerico}">
             <div class="relative h-64 overflow-hidden">
-              <img src="${fotoTarjeta}" alt="${prop.titulo}" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
-              <div class="absolute top-4 left-4 bg-[#388E3C] text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-md shadow-md">
-                NUEVO
-              </div>
-              <div class="absolute top-4 right-4 ${badgeColor} text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-md shadow-md">
-                ${badgeTipo}
-              </div>
+              <img src="${fotoTarjeta}" alt="${prop.titulo}" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110 ${esVendida ? 'contrast-95 opacity-90' : ''}">
+              
+              ${esVendida ? `
+                <!-- Listón inclinado rojo SOLD -->
+                <div class="absolute top-0 right-0 w-32 h-32 overflow-hidden pointer-events-none z-20">
+                  <div class="absolute transform rotate-45 bg-red-600 text-white font-black text-xs py-1.5 -right-9 top-6 w-36 text-center shadow-lg uppercase tracking-widest border-y border-red-400">
+                    SOLD
+                  </div>
+                </div>
+                <div class="absolute top-4 left-4 bg-red-600 text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-md shadow-md flex items-center gap-1.5 z-10">
+                  <i class="fa-solid fa-lock text-[10px]"></i> VENDIDA
+                </div>
+              ` : `
+                <div class="absolute top-4 left-4 bg-[#388E3C] text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-md shadow-md">
+                  NUEVO
+                </div>
+                <div class="absolute top-4 right-4 ${badgeColor} text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-md shadow-md">
+                  ${badgeTipo}
+                </div>
+              `}
             </div>
             <div class="p-6 flex-1 flex flex-col justify-between">
               <div>
-                <span class="text-xs uppercase tracking-wider text-gray-400 font-medium block mb-1">${prop.ubicacion || 'Ubicación Exclusiva'}</span>
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs uppercase tracking-wider text-gray-400 font-medium block">${prop.ubicacion || 'Ubicación Exclusiva'}</span>
+                  ${esVendida ? `<span class="text-[11px] font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded">NO DISPONIBLE</span>` : ''}
+                </div>
                 <h3 class="font-serif text-xl font-bold text-[#1A1A1A] hover:text-[#2A9D8F] transition-colors leading-snug">
                   ${prop.titulo}
                 </h3>
-                <p class="font-serif text-2xl font-bold text-[#2A9D8F] mt-3">
-                  ${prop.precio}
+                <p class="font-serif text-2xl font-bold ${esVendida ? 'text-gray-400 line-through' : 'text-[#2A9D8F]'} mt-3">
+                  ${prop.precio} ${esVendida ? '<span class="text-xs font-sans font-bold text-red-600 uppercase no-underline ml-1.5 bg-red-50 border border-red-200 px-2 py-0.5 rounded">SOLD</span>' : ''}
                 </p>
               </div>
               <div class="py-4 my-4 border-y border-gray-100 flex items-center justify-between text-xs sm:text-sm font-medium text-gray-700">
@@ -2064,10 +2099,17 @@
                   <span>${prop.metros || '250 m²'}</span>
                 </span>
               </div>
-              <button type="button" onclick="event.stopPropagation(); abrirModal('${prop.id}')" class="w-full inline-flex items-center justify-center gap-2 bg-[#1A1A1A] hover:bg-[#2A9D8F] text-white font-semibold text-sm py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
-                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.969.54 1.772.82 2.791.82 3.181 0 5.768-2.587 5.768-5.766.001-3.182-2.585-5.806-5.768-5.806zm3.377 8.219c-.14.394-.813.73-1.127.777-.306.046-.703.064-2.155-.544-1.745-.733-2.859-2.518-2.946-2.634-.087-.116-.708-.942-.708-1.796 0-.855.449-1.275.609-1.449.16-.174.349-.218.465-.218.116 0 .233.001.334.006.107.005.25-.041.391.298.145.349.494 1.206.538 1.293.044.087.073.189.015.305-.058.116-.087.189-.174.291-.087.102-.184.228-.263.306-.088.087-.18.182-.077.359.102.176.455.751.977 1.216.671.597 1.236.782 1.411.869.175.087.277.073.379-.044.102-.116.437-.508.553-.683.116-.175.233-.146.393-.087.16.058 1.018.48 1.193.567.175.087.291.131.335.204.043.072.043.422-.097.816z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.982-1.398A9.957 9.957 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18.158c-1.637 0-3.167-.478-4.463-1.303l-.32-.204-2.962.83.824-2.909-.211-.336A8.125 8.125 0 013.842 12c0-4.508 3.65-8.158 8.158-8.158s8.158 3.65 8.158 8.158-3.65 8.158-8.158 8.158z"/></svg>
-                <span>Agendar Visita</span>
-              </button>
+              ${esVendida ? `
+                <button type="button" onclick="event.stopPropagation(); abrirModal('${prop.id}')" class="w-full inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm py-3.5 px-4 rounded-xl shadow-md transition-all duration-300">
+                  <i class="fa-solid fa-lock text-red-400"></i>
+                  <span>Propiedad Vendida (Ver Detalles)</span>
+                </button>
+              ` : `
+                <button type="button" onclick="event.stopPropagation(); abrirModal('${prop.id}')" class="w-full inline-flex items-center justify-center gap-2 bg-[#1A1A1A] hover:bg-[#2A9D8F] text-white font-semibold text-sm py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
+                  <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.969.54 1.772.82 2.791.82 3.181 0 5.768-2.587 5.768-5.766.001-3.182-2.585-5.806-5.768-5.806zm3.377 8.219c-.14.394-.813.73-1.127.777-.306.046-.703.064-2.155-.544-1.745-.733-2.859-2.518-2.946-2.634-.087-.116-.708-.942-.708-1.796 0-.855.449-1.275.609-1.449.16-.174.349-.218.465-.218.116 0 .233.001.334.006.107.005.25-.041.391.298.145.349.494 1.206.538 1.293.044.087.073.189.015.305-.058.116-.087.189-.174.291-.087.102-.184.228-.263.306-.088.087-.18.182-.077.359.102.176.455.751.977 1.216.671.597 1.236.782 1.411.869.175.087.277.073.379-.044.102-.116.437-.508.553-.683.116-.175.233-.146.393-.087.16.058 1.018.48 1.193.567.175.087.291.131.335.204.043.072.043.422-.097.816z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.982-1.398A9.957 9.957 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18.158c-1.637 0-3.167-.478-4.463-1.303l-.32-.204-2.962.83.824-2.909-.211-.336A8.125 8.125 0 013.842 12c0-4.508 3.65-8.158 8.158-8.158s8.158 3.65 8.158 8.158-3.65 8.158-8.158 8.158z"/></svg>
+                  <span>Agendar Visita</span>
+                </button>
+              `}
             </div>
           </div>
         `;
@@ -2129,10 +2171,14 @@
       const elemPrecio = document.getElementById('modal-precio');
       if (elemPrecio) elemPrecio.textContent = prop.precio;
 
-      // Inyectar badge del modal: Interiores de Lujo
+      // Inyectar badge del modal: si es vendida muestra badge rojo VENDIDA (SOLD), si no "Interiores de Lujo"
       const elemBadge = document.getElementById('modal-badge');
       if (elemBadge) {
-        elemBadge.outerHTML = '<span id="modal-badge" class="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full text-sm font-medium"><i class="fa-solid fa-couch mr-2"></i>Interiores de Lujo</span>';
+        if (esVendida) {
+          elemBadge.outerHTML = '<span id="modal-badge" class="bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wide"><i class="fa-solid fa-lock mr-2"></i>Propiedad Vendida (SOLD)</span>';
+        } else {
+          elemBadge.outerHTML = '<span id="modal-badge" class="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full text-sm font-medium"><i class="fa-solid fa-couch mr-2"></i>Interiores de Lujo</span>';
+        }
       }
 
       // Especificaciones (cuartos, baños, metros)
@@ -2183,9 +2229,25 @@
       const elemAsesorPuesto = document.getElementById('modal-asesor-puesto');
       if (elemAsesorPuesto) elemAsesorPuesto.textContent = asesor.puesto || "Director Inmobiliario Senior";
 
-      // Botón sticky de WhatsApp
+      // Botón sticky de WhatsApp (personalizado si está vendida)
       const btnWhatsApp = document.getElementById('modal-btn-whatsapp');
       if (btnWhatsApp) {
+        if (esVendida) {
+          btnWhatsApp.innerHTML = `
+            <i class="fa-brands fa-whatsapp text-2xl"></i>
+            <span>Consultar Opciones Similares</span>
+          `;
+          btnWhatsApp.className = "w-full bg-red-600 hover:bg-red-700 active:scale-[0.99] text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all text-base sm:text-lg flex items-center justify-center gap-3 focus:outline-none";
+        } else {
+          btnWhatsApp.innerHTML = `
+            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.969.54 1.772.82 2.791.82 3.181 0 5.768-2.587 5.768-5.766.001-3.182-2.585-5.806-5.768-5.806zm3.377 8.219c-.14.394-.813.73-1.127.777-.306.046-.703.064-2.155-.544-1.745-.733-2.859-2.518-2.946-2.634-.087-.116-.708-.942-.708-1.796 0-.855.449-1.275.609-1.449.16-.174.349-.218.465-.218.116 0 .233.001.334.006.107.005.25-.041.391.298.145.349.494 1.206.538 1.293.044.087.073.189.015.305-.058.116-.087.189-.174.291-.087.102-.184.228-.263.306-.088.087-.18.182-.077.359.102.176.455.751.977 1.216.671.597 1.236.782 1.411.869.175.087.277.073.379-.044.102-.116.437-.508.553-.683.116-.175.233-.146.393-.087.16.058 1.018.48 1.193.567.175.087.291.131.335.204.043.072.043.422-.097.816z"/>
+              <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.982-1.398A9.957 9.957 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18.158c-1.637 0-3.167-.478-4.463-1.303l-.32-.204-2.962.83.824-2.909-.211-.336A8.125 8.125 0 013.842 12c0-4.508 3.65-8.158 8.158-8.158s8.158 3.65 8.158 8.158-3.65 8.158-8.158 8.158z"/>
+            </svg>
+            <span>Solicitar Información VIP</span>
+          `;
+          btnWhatsApp.className = "w-full bg-teal-600 hover:bg-teal-700 active:scale-[0.99] text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all text-base sm:text-lg flex items-center justify-center gap-3 focus:outline-none";
+        }
         btnWhatsApp.onclick = function() {
           enviarWhatsApp(prop.id);
         };
@@ -2215,7 +2277,14 @@
 
       const asesor = asesores[prop.id_asesor] || asesores['carmen'];
       const telefono = asesor.tel || asesor.telefono || "50252945088";
-      const mensaje = `Hola ${asesor.nombre}, me interesa la propiedad: ${prop.titulo} por ${prop.precio}. Vi las especificaciones (${prop.metros}, ${prop.cuartos}, etc). ¿Podemos agendar una visita?`;
+      const esVendida = prop.es_vendida || (String(prop.estado || '').toLowerCase().includes('vendid') || String(prop.estado || '').toLowerCase().includes('sold'));
+
+      let mensaje = '';
+      if (esVendida) {
+        mensaje = `Hola ${asesor.nombre}, vi que la propiedad: "${prop.titulo}" (${prop.precio}) en ${prop.ubicacion} ya fue vendida. ¿Tendrás alguna opción similar disponible en esa zona?`;
+      } else {
+        mensaje = `Hola ${asesor.nombre}, me interesa la propiedad: ${prop.titulo} por ${prop.precio}. Vi las especificaciones (${prop.metros}, ${prop.cuartos}, etc). ¿Podemos agendar una visita?`;
+      }
 
       const urlWhatsApp = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
       window.open(urlWhatsApp, '_blank');
