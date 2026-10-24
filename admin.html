@@ -398,6 +398,130 @@
             </div>
           </div>
 
+          
+          <!-- ========================================================
+               GALERÍA DE IMÁGENES ADICIONALES (INTERIORES Y ÁREAS)
+               ======================================================== -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8">
+            <!-- 1. ENCABEZADO DE LA SECCIÓN -->
+            <div class="flex items-center justify-between pb-5 border-b border-slate-100 mb-6">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 font-bold">
+                  <i class="fa-solid fa-images"></i>
+                </div>
+                <div>
+                  <h2 class="font-serif text-lg font-bold text-slate-900">Galería de Imágenes Adicionales (Interiores y Áreas)</h2>
+                  <p class="text-xs text-slate-400">Agrega fotos de interiores, amenidades, planos o áreas comunes para el carrusel de detalles. Hasta 15 imágenes.</p>
+                </div>
+              </div>
+
+              <!-- Badge suave y redondeado OPCIONAL -->
+              <span class="text-[11px] font-bold text-teal-700 bg-teal-50 border border-teal-200 px-3 py-1 rounded-full uppercase tracking-wider">
+                OPCIONAL
+              </span>
+            </div>
+
+            <!-- 2. ÁREA DE ARRASTRAR Y SOLTAR (DRAG & DROP) -->
+            <div 
+              id="drop-zone-galeria"
+              class="border-dashed border-2 border-gray-300 hover:border-teal-500 bg-slate-50/70 hover:bg-teal-50/20 rounded-xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center group relative overflow-hidden"
+              onclick="document.getElementById('galeria-input').click();"
+            >
+              <input type="file" id="galeria-input" accept="image/*" multiple class="hidden" onchange="manejarGaleriaSeleccionada(this.files)">
+
+              <div class="flex flex-col items-center">
+                <!-- Ícono central de nube de carga en verde teal -->
+                <div class="w-16 h-16 rounded-2xl bg-teal-100/60 text-teal-600 flex items-center justify-center text-3xl mb-3 group-hover:scale-110 group-hover:bg-teal-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+
+                <!-- Texto principal en negrita y buen tamaño -->
+                <p class="font-serif text-base sm:text-lg font-bold text-slate-800 mb-1 group-hover:text-teal-700 transition-colors">
+                  Arrastra el resto de imágenes aquí o haz clic para explorar
+                </p>
+
+                <!-- Subtexto informativo -->
+                <p class="text-slate-400 text-xs sm:text-sm font-medium max-w-lg mt-1 mb-4">
+                  Formatos admitidos: JPG, PNG, WebP. Puedes subir varias fotos a la vez. Tamaño máximo por archivo: 15MB.
+                </p>
+
+                <!-- Botón centrado SELECCIONAR DESDE EL EQUIPO -->
+                <div class="inline-flex items-center gap-2 bg-white border border-slate-300 hover:border-teal-500 text-slate-700 hover:text-teal-700 text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-xl shadow-xs transition-all">
+                  <span>📁 SELECCIONAR DESDE EL EQUIPO</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. PREVISUALIZACIÓN DE MINIATURAS (THUMBNAILS) -->
+            <div class="mt-6">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                  <i class="fa-solid fa-layer-group text-teal-600"></i>
+                  Fotos en Galería (<span id="galeria-contador">4</span>/15)
+                </span>
+                <span class="text-[11px] text-slate-400">Pasa el cursor o presiona 'X' para eliminar</span>
+              </div>
+
+              <!-- Grid de miniaturas simuladas -->
+              <div id="galeria-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                
+                <!-- Miniatura 1: Sala Principal -->
+                <div class="thumbnail-card relative aspect-video rounded-xl overflow-hidden shadow-sm border border-slate-200 group bg-slate-100">
+                  <img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80" alt="Sala Principal" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+                    <span class="text-[10px] text-white font-medium truncate">Sala Principal</span>
+                  </div>
+                  <button type="button" onclick="event.stopPropagation(); this.closest('.thumbnail-card').remove(); actualizarContadorGaleria();" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-xs shadow-md transition-transform hover:scale-110 focus:outline-none" title="Eliminar foto">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+
+                <!-- Miniatura 2: Cocina Gourmet -->
+                <div class="thumbnail-card relative aspect-video rounded-xl overflow-hidden shadow-sm border border-slate-200 group bg-slate-100">
+                  <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=600&q=80" alt="Cocina Gourmet" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+                    <span class="text-[10px] text-white font-medium truncate">Cocina Gourmet</span>
+                  </div>
+                  <button type="button" onclick="event.stopPropagation(); this.closest('.thumbnail-card').remove(); actualizarContadorGaleria();" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-xs shadow-md transition-transform hover:scale-110 focus:outline-none" title="Eliminar foto">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+
+                <!-- Miniatura 3: Máster Suite -->
+                <div class="thumbnail-card relative aspect-video rounded-xl overflow-hidden shadow-sm border border-slate-200 group bg-slate-100">
+                  <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80" alt="Máster Suite" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+                    <span class="text-[10px] text-white font-medium truncate">Máster Suite</span>
+                  </div>
+                  <button type="button" onclick="event.stopPropagation(); this.closest('.thumbnail-card').remove(); actualizarContadorGaleria();" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-xs shadow-md transition-transform hover:scale-110 focus:outline-none" title="Eliminar foto">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+
+                <!-- Miniatura 4: Piscina y Jardín -->
+                <div class="thumbnail-card relative aspect-video rounded-xl overflow-hidden shadow-sm border border-slate-200 group bg-slate-100">
+                  <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80" alt="Piscina y Jardín" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+                    <span class="text-[10px] text-white font-medium truncate">Piscina y Jardín</span>
+                  </div>
+                  <button type="button" onclick="event.stopPropagation(); this.closest('.thumbnail-card').remove(); actualizarContadorGaleria();" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-xs shadow-md transition-transform hover:scale-110 focus:outline-none" title="Eliminar foto">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- 4. PIE DE PÁGINA DE LA SECCIÓN -->
+            <div class="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+              <span class="flex items-center gap-1.5">
+                <i class="fa-brands fa-google-drive text-emerald-600"></i>
+                ¿Tienes las fotos en Google Drive? Puedes pegar los enlaces separados por comas en tu Google Sheet oficial.
+              </span>
+              <span class="font-bold text-teal-600 uppercase tracking-wider text-[11px]">SINCRONIZACIÓN AUTOMÁTICA</span>
+            </div>
+          </div>
+
           <!-- ========================================================
                BOTÓN GIGANTE VERDE "PUBLICAR PROPIEDAD"
                ======================================================== -->
@@ -516,6 +640,72 @@
         }, 3500);
       }
     }
+  
+    // ========================================================
+    // DRAG & DROP Y GESTIÓN DE GALERÍA ADICIONAL
+    // ========================================================
+    const dropZoneGaleria = document.getElementById('drop-zone-galeria');
+    const galeriaInput = document.getElementById('galeria-input');
+    const galeriaGrid = document.getElementById('galeria-grid');
+    const galeriaContador = document.getElementById('galeria-contador');
+
+    if (dropZoneGaleria) {
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropZoneGaleria.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZoneGaleria.classList.add('border-teal-500', 'bg-teal-50/40', 'scale-[1.01]');
+          dropZoneGaleria.classList.remove('border-gray-300', 'bg-slate-50/70');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropZoneGaleria.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZoneGaleria.classList.remove('border-teal-500', 'bg-teal-50/40', 'scale-[1.01]');
+          dropZoneGaleria.classList.add('border-gray-300', 'bg-slate-50/70');
+        }, false);
+      });
+
+      dropZoneGaleria.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files && files.length > 0) {
+          manejarGaleriaSeleccionada(files);
+        }
+      });
+    }
+
+    function manejarGaleriaSeleccionada(files) {
+      if (!files || files.length === 0) return;
+      Array.from(files).forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const card = document.createElement('div');
+          card.className = 'thumbnail-card relative aspect-video rounded-xl overflow-hidden shadow-sm border border-slate-200 group bg-slate-100';
+          card.innerHTML = `
+            <img src="${e.target.result}" alt="${file.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+              <span class="text-[10px] text-white font-medium truncate">${file.name}</span>
+            </div>
+            <button type="button" onclick="event.stopPropagation(); this.closest('.thumbnail-card').remove(); actualizarContadorGaleria();" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-xs shadow-md transition-transform hover:scale-110 focus:outline-none" title="Eliminar foto">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          `;
+          galeriaGrid.appendChild(card);
+          actualizarContadorGaleria();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function actualizarContadorGaleria() {
+      const count = document.querySelectorAll('#galeria-grid .thumbnail-card').length;
+      if (galeriaContador) galeriaContador.textContent = count;
+    }
+
   </script>
 </body>
 </html>
