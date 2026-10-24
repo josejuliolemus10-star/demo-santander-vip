@@ -1543,25 +1543,557 @@
     </a>
   </div>
 
+  <!-- ========================================================
+       10. MODAL DE DETALLES DE PROPIEDAD VIP
+       - Tema claro (blanco/gris), glassmorphism sutil y sombras profundas.
+       - Grid de fotos interiores, badge dorado "💎 Propiedad Exclusiva",
+         especificaciones completas, amenidades, distancias clave,
+         tarjeta de asesor con avatar dinámico UI-Avatars y botón sticky de WhatsApp.
+       ======================================================== -->
+  <div id="modal-propiedad" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
+      
+      <!-- 1. Botón de cerrar (X) en la esquina superior derecha -->
+      <button type="button" onclick="cerrarModal()" class="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors shadow-sm focus:outline-none" aria-label="Cerrar modal">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <!-- 2. Grid superior para "Más fotos de la propiedad" (3 fotos de interiores) -->
+      <div class="mb-6">
+        <span class="text-xs uppercase tracking-wider text-[#2A9D8F] font-bold block mb-2">Galería de Espacios Interiores</span>
+        <div id="modal-fotos" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- Inyectado dinámicamente -->
+        </div>
+      </div>
+
+      <!-- 3. Título grande, Precio y Badge dorado "💎 Propiedad Exclusiva" -->
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-2">
+        <div class="flex-1 pr-6">
+          <span id="modal-ubicacion" class="text-xs uppercase tracking-wider text-gray-400 font-semibold block mb-1"></span>
+          <h3 id="modal-titulo" class="font-serif text-2xl sm:text-3xl font-bold text-gray-900 leading-tight"></h3>
+        </div>
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold whitespace-nowrap self-start shadow-sm">
+          💎 Propiedad Exclusiva
+        </div>
+      </div>
+      <p id="modal-precio" class="font-serif text-2xl sm:text-3xl font-bold text-[#2A9D8F] mb-4"></p>
+
+      <!-- 4. Fila de íconos detallados: Cuartos, Baños, Metros Cuadrados -->
+      <div class="grid grid-cols-3 gap-4 py-4 my-4 border-y border-gray-100 text-center">
+        <div class="flex flex-col items-center">
+          <svg class="w-5 h-5 text-gray-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 7v13m0-5h18m0-8v13M3 10h18M7 10V7a2 2 0 012-2h6a2 2 0 012 2v3"/>
+          </svg>
+          <span class="text-xs text-gray-400 font-medium">Cuartos</span>
+          <span id="modal-cuartos" class="font-bold text-gray-900 text-base sm:text-lg"></span>
+        </div>
+        <div class="flex flex-col items-center">
+          <svg class="w-5 h-5 text-gray-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 12h16v3a5 5 0 01-5 5H9a5 5 0 01-5-5v-3zm3-7a2 2 0 012-2h1a2 2 0 012 2v7H7V5zm-1 16v1.5m12-1.5v1.5"/>
+          </svg>
+          <span class="text-xs text-gray-400 font-medium">Baños</span>
+          <span id="modal-banos" class="font-bold text-gray-900 text-base sm:text-lg"></span>
+        </div>
+        <div class="flex flex-col items-center">
+          <svg class="w-5 h-5 text-gray-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5h-4m4 0v-4m0 4l-5-5"/>
+          </svg>
+          <span class="text-xs text-gray-400 font-medium">Metros Cuadrados</span>
+          <span id="modal-metros" class="font-bold text-gray-900 text-base sm:text-lg"></span>
+        </div>
+      </div>
+
+      <!-- 5. Dos columnas de texto: "Amenidades del área" y "Distancias clave" -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 my-6 text-sm">
+        <div class="bg-slate-50 p-5 rounded-xl border border-slate-100">
+          <h4 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-[#2A9D8F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Amenidades del área
+          </h4>
+          <ul id="modal-amenidades" class="space-y-2 text-gray-600">
+            <!-- Inyectado dinámicamente -->
+          </ul>
+        </div>
+        <div class="bg-slate-50 p-5 rounded-xl border border-slate-100">
+          <h4 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-[#2A9D8F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            Distancias clave
+          </h4>
+          <ul id="modal-cercanias" class="space-y-2 text-gray-600">
+            <!-- Inyectado dinámicamente -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- 6. Tarjeta del Asesor: Fondo bg-slate-50, Avatar UI-Avatars, Nombre y Puesto -->
+      <div class="bg-slate-50 rounded-xl p-4 flex items-center gap-4 border border-slate-100 mb-6">
+        <img id="modal-asesor-avatar" src="" alt="Asesor Inmobiliario" class="w-14 h-14 rounded-full shadow-sm ring-2 ring-[#2A9D8F]/20 object-cover">
+        <div class="flex-1">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-[#2A9D8F] block">Asesor Asignado</span>
+          <h5 id="modal-asesor-nombre" class="font-bold text-gray-900 text-base sm:text-lg"></h5>
+          <span id="modal-asesor-puesto" class="text-xs text-gray-500 block">Senior Luxury Property Specialist</span>
+        </div>
+      </div>
+
+      <!-- 7. Botón Sticky de WhatsApp: Color verde teal (bg-teal-600), gigante, "Solicitar Información VIP" -->
+      <div class="sticky bottom-0 pt-2 bg-gradient-to-t from-white via-white to-transparent">
+        <button id="modal-btn-whatsapp" type="button" class="w-full bg-teal-600 hover:bg-teal-700 active:scale-[0.99] text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all text-base sm:text-lg flex items-center justify-center gap-3 focus:outline-none">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.969.54 1.772.82 2.791.82 3.181 0 5.768-2.587 5.768-5.766.001-3.182-2.585-5.806-5.768-5.806zm3.377 8.219c-.14.394-.813.73-1.127.777-.306.046-.703.064-2.155-.544-1.745-.733-2.859-2.518-2.946-2.634-.087-.116-.708-.942-.708-1.796 0-.855.449-1.275.609-1.449.16-.174.349-.218.465-.218.116 0 .233.001.334.006.107.005.25-.041.391.298.145.349.494 1.206.538 1.293.044.087.073.189.015.305-.058.116-.087.189-.174.291-.087.102-.184.228-.263.306-.088.087-.18.182-.077.359.102.176.455.751.977 1.216.671.597 1.236.782 1.411.869.175.087.277.073.379-.044.102-.116.437-.508.553-.683.116-.175.233-.146.393-.087.16.058 1.018.48 1.193.567.175.087.291.131.335.204.043.072.043.422-.097.816z"/>
+            <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.982-1.398A9.957 9.957 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18.158c-1.637 0-3.167-.478-4.463-1.303l-.32-.204-2.962.83.824-2.909-.211-.336A8.125 8.125 0 013.842 12c0-4.508 3.65-8.158 8.158-8.158s8.158 3.65 8.158 8.158-3.65 8.158-8.158 8.158z"/>
+          </svg>
+          <span>Solicitar Información VIP</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Swiper.js Script via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
   <!-- Scripts Interactivos Unificados -->
   <script>
-    // ----------------------------------------------------
-    // 1. MENÚ MÓVIL (Toggle y Cierre Automático)
-    // ----------------------------------------------------
+    // ========================================================
+    // BASE DE DATOS DE ASESORES (Datos Reales)
+    // ========================================================
+    const asesores = {
+      "carmen": { nombre: "Carmen Coloma", tel: "50252945088", puesto: "Directora Comercial & VIP Estates" },
+      "santiago": { nombre: "Santiago Leoni", tel: "50231507820", puesto: "Especialista en Residencias de Lujo" },
+      "joseluis": { nombre: "Jose Luis Coloma", tel: "50258365894", puesto: "Director Inmobiliario Senior" },
+      "madeleine": { nombre: "Madeleine Mazat", tel: "50250174606", puesto: "Asesora Senior de Inversiones" },
+      "mariaelena": { nombre: "Maria Elena de Ruiz", tel: "50255237951", puesto: "Consultora Inmobiliaria Exclusiva" },
+      "bitia": { nombre: "Bitia Carballo", tel: "50256324236", puesto: "Especialista en Rentas Corporativas" },
+      "sonia": { nombre: "Sonia Mejía", tel: "50241191773", puesto: "Asesora Patrimonial Senior" },
+      "sofia": { nombre: "Sofia Deón", tel: "50230001208", puesto: "Especialista en Desarrollos VIP" },
+      "william": { nombre: "William Cabrera", tel: "50255105971", puesto: "Consultor de Propiedades de Lujo" }
+    };
+
+    // ========================================================
+    // BASE DE DATOS DE PROPIEDADES (Catálogo VIP Detallado)
+    // ========================================================
+    const propiedades = [
+      {
+        id: 1,
+        titulo: "Penthouse Exclusivo - Zona 15",
+        precio: "$770,000 USD",
+        ubicacion: "Zona 15 • Vista Hermosa",
+        cuartos: "3 Habs",
+        banos: "2.5 Baños",
+        metros: "292 m²",
+        id_asesor: "carmen",
+        fotos_extra: [
+          "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80"
+        ],
+        amenidades: [
+          "Terraza privada con vista panorámica 360° a los volcanes",
+          "Elevador directo con control de acceso biométrico",
+          "Acabados en mármol italiano y carpintería en maderas finas",
+          "Seguridad privada 24/7 y circuito cerrado de cámaras"
+        ],
+        cercanias: [
+          "A 3 min de prestigiosos colegios y universidades de Zona 15",
+          "A 5 min de centros hospitalarios y médicos de primer nivel",
+          "A 8 min de Ciudad Cayalá y Distrito Financiero de Zona 10",
+          "Fácil acceso por Bulevar Vista Hermosa"
+        ]
+      },
+      {
+        id: 2,
+        titulo: "Mansión Moderna en Cayalá",
+        precio: "$1,250,000 USD",
+        ubicacion: "Zona 16 • Paseo Cayalá",
+        cuartos: "4 Habs",
+        banos: "5 Baños",
+        metros: "650 m²",
+        id_asesor: "santiago",
+        fotos_extra: [
+          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80"
+        ],
+        amenidades: [
+          "Piscina privada climatizada con deck de teca y cascada",
+          "Club house con canchas de tenis y canchas de pádel",
+          "Amplio jardín paisajista diseñado por arquitecto de renombre",
+          "Garaje techado para 4 vehículos grandes"
+        ],
+        cercanias: [
+          "A 2 min de Paseo Cayalá (restaurantes gourmet y boutiques)",
+          "A 5 min de Colegios Americano, Interamericano y Maya",
+          "A 10 min de la Zona 10 de la Ciudad de Guatemala",
+          "Seguridad con triple garita y patrullaje motorizado 24/7"
+        ]
+      },
+      {
+        id: 3,
+        titulo: "Apartamento Ideal Inversión - Zona 14",
+        precio: "$285,000 USD",
+        ubicacion: "Zona 14 • Las Américas",
+        cuartos: "2 Habs",
+        banos: "2 Baños",
+        metros: "115 m²",
+        id_asesor: "joseluis",
+        fotos_extra: [
+          "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=600&q=80"
+        ],
+        amenidades: [
+          "Rooftop lounge con área de BBQ, fogateras y vista panorámica",
+          "Gimnasio equipado con tecnología cardio y pesas libres",
+          "Alta rentabilidad proyectada en Airbnb y perfil corporativo",
+          "Parqueo techado de visitas y business center privado"
+        ],
+        cercanias: [
+          "A pasos de la caminata peatonal de Avenida Las Américas",
+          "A 4 min de la Zona Viva en Zona 10",
+          "A 7 min del Aeropuerto Internacional La Aurora",
+          "Rodeado de los cafés de especialidad más exclusivos"
+        ]
+      },
+      {
+        id: 4,
+        titulo: "Loft de Lujo Amueblado - Zona 10",
+        precio: "$1,500 USD/mes",
+        ubicacion: "Zona 10 • Zona Viva",
+        cuartos: "1 Hab",
+        banos: "1 Baño",
+        metros: "85 m²",
+        id_asesor: "madeleine",
+        fotos_extra: [
+          "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?auto=format&fit=crop&w=600&q=80"
+        ],
+        amenidades: [
+          "Completamente amueblado y decorado por firma de interiores",
+          "Cocina con electrodomésticos empotrados de acero inoxidable",
+          "Ventanales termo-acústicos de doble vidrio con vista a la ciudad",
+          "Piscina infinity en azotea y salas de coworking"
+        ],
+        cercanias: [
+          "En el epicentro financiero, diplomático y gastronómico",
+          "A 2 min a pie de cadenas hoteleras de lujo internacionales",
+          "A 5 min de Plaza Fontabella y Oakland Mall",
+          "A 10 min del Aeropuerto Internacional"
+        ]
+      },
+      {
+        id: 5,
+        titulo: "Casa Familiar en Condominio - Carr. El Salvador",
+        precio: "$450,000 USD",
+        ubicacion: "Carretera a El Salvador",
+        cuartos: "4 Habs",
+        banos: "3.5 Baños",
+        metros: "320 m²",
+        id_asesor: "mariaelena",
+        fotos_extra: [
+          "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=600&q=80"
+        ],
+        amenidades: [
+          "Rodeada de bosque protegido con aire puro de montaña",
+          "Senderos privados de caminata, canchas y juegos infantiles",
+          "Pérgola techada con horno de leña y asador argentino",
+          "Habitación máster con walk-in closet y tina de hidromasaje"
+        ],
+        cercanias: [
+          "A 5 min de centros comerciales y supermercados premium",
+          "A 8 min de colegios internacionales bilingües",
+          "Accesos fluidos a pasos a desnivel y retornos",
+          "A 25 min del corazón corporativo de la capital"
+        ]
+      },
+      {
+        id: 6,
+        titulo: "Oficina Corporativa - Edificio Burgó",
+        precio: "$3,200 USD/mes",
+        ubicacion: "Zona 14 • Edificio Burgó",
+        cuartos: "0 Habs",
+        banos: "2 Baños",
+        metros: "150 m²",
+        id_asesor: "bitia",
+        fotos_extra: [
+          "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=600&q=80"
+        ],
+        amenidades: [
+          "Edificio con certificación de sustentabilidad y alta eficiencia",
+          "Salas corporativas de conferencias con soporte multimedia",
+          "Acceso inteligente por torniquetes y tarjeta de proximidad",
+          "Red de fibra óptica redundante y respaldo eléctrico 100%"
+        ],
+        cercanias: [
+          "A 3 min de Bulevar Los Próceres",
+          "A 5 min de la Zona Financiera de Zona 10",
+          "A 8 min del Aeropuerto Internacional",
+          "Acceso peatonal a sedes bancarias y cafés ejecutivos"
+        ]
+      },
+      {
+        id: 7,
+        titulo: "Residencia Clásica - Muxbal",
+        precio: "$890,000 USD",
+        ubicacion: "Santa Catarina Pinula • Muxbal",
+        cuartos: "5 Habs",
+        banos: "4 Baños",
+        metros: "500 m²",
+        id_asesor: "sonia",
+        fotos_extra: [
+          "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=600&q=80"
+        ],
+        amenidades: [
+          "Propiedad de más de 1,800 v² con árboles centenarios",
+          "Cava subterránea para conservación de vinos",
+          "Área de relajación con sauna seco y tina de hidromasaje",
+          "Doble garita de seguridad con monitoreo permanente"
+        ],
+        cercanias: [
+          "A 8 min de Zona 10 a través de la vía Muxbal",
+          "A 10 min de Pradera Concepción y centros de entretenimiento",
+          "A 7 min de instituciones educativas de alto prestigio",
+          "Entorno de máxima serenidad y contacto con la naturaleza"
+        ]
+      },
+      {
+        id: 8,
+        titulo: "Apartamento Vista a Volcanes - Zona 14",
+        precio: "$2,100 USD/mes",
+        ubicacion: "Zona 14 • Panorámica Premium",
+        cuartos: "3 Habs",
+        banos: "2 Baños",
+        metros: "180 m²",
+        id_asesor: "sofia",
+        fotos_extra: [
+          "https://images.unsplash.com/photo-1567496898669-ee935f5f647a?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80"
+        ],
+        amenidades: [
+          "Balcón corrido con vista frontal sin obstáculos a los volcanes",
+          "Piscina climatizada con carril de nado y deck para tomar sol",
+          "Cocina con isla central de cuarzo y muebles europeos",
+          "Bodega individual y 2 parqueos subterráneos exclusivos"
+        ],
+        cercanias: [
+          "A 1 min de Avenida Las Américas y ciclo-vía dominical",
+          "A 5 min de Zona Pradera y Europlaza",
+          "A 6 min de centros comerciales y clínicas de Zona 10",
+          "A 10 min de Vista Hermosa en Zona 15"
+        ]
+      },
+      {
+        id: 9,
+        titulo: "Terreno Premium para Desarrollo - Zona 16",
+        precio: "$1,100,000 USD",
+        ubicacion: "Zona 16 • San Isidro",
+        cuartos: "0 Habs",
+        banos: "0 Baños",
+        metros: "1200 m²",
+        id_asesor: "william",
+        fotos_extra: [
+          "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80"
+        ],
+        amenidades: [
+          "Topografía óptima con leve pendiente positiva para vistas",
+          "Estudios de mecánica de suelos y permisos en regla",
+          "Servicios a pie de lote: agua potable de pozo propio y luz",
+          "Condominio residencial con alta plusvalía patrimonial"
+        ],
+        cercanias: [
+          "A 4 min del centro comercial y cines de Paseo Cayalá",
+          "A 6 min del Club Deportivo y Social San Isidro",
+          "A 8 min de campus universitarios de primer orden",
+          "Acceso ágil hacia Bulevar Austriaco y Calzada La Paz"
+        ]
+      },
+      {
+        id: 10,
+        titulo: "Villa de Descanso - Antigua Guatemala",
+        precio: "$650,000 USD",
+        ubicacion: "Sacatepéquez • Antigua Guatemala",
+        cuartos: "3 Habs",
+        banos: "3 Baños",
+        metros: "250 m²",
+        id_asesor: "carmen",
+        fotos_extra: [
+          "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80"
+        ],
+        amenidades: [
+          "Patio interior colonial con fuente tradicional de cantera",
+          "Cielos altos con vigas de madera noble talladas a mano",
+          "Terraza apergolada con vista panorámica al Volcán de Agua",
+          "Seguridad privada con garita colonial y control permanente"
+        ],
+        cercanias: [
+          "A 5 min del Parque Central y monumentos históricos de Antigua",
+          "A 3 min de San Pedro Las Huertas",
+          "A corta distancia de restaurantes de alta cocina y galerías",
+          "A 45 min de la Ciudad de Guatemala"
+        ]
+      }
+    ];
+
+    // ========================================================
+    // FUNCIONES DEL MODAL DE PROPIEDADES VIP
+    // ========================================================
+
+    // 1. Abrir Modal de Propiedad y poblar datos dinámicamente
+    function abrirModal(idPropiedad) {
+      const prop = propiedades.find(p => p.id === Number(idPropiedad));
+      if (!prop) return;
+
+      const asesor = asesores[prop.id_asesor] || {
+        nombre: "Carmen Coloma",
+        tel: "50252945088",
+        puesto: "Directora Comercial & VIP Estates"
+      };
+
+      // Inyectar 3 fotos de interiores en el grid
+      const fotosContainer = document.getElementById('modal-fotos');
+      if (fotosContainer && prop.fotos_extra) {
+        fotosContainer.innerHTML = prop.fotos_extra.map((foto, idx) => `
+          <div class="relative h-44 rounded-xl overflow-hidden shadow-sm group bg-slate-100">
+            <img src="${foto}" alt="Espacio ${idx + 1} de ${prop.titulo}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          </div>
+        `).join('');
+      }
+
+      // Inyectar ubicación, título y precio
+      const elemUbicacion = document.getElementById('modal-ubicacion');
+      if (elemUbicacion) elemUbicacion.textContent = prop.ubicacion;
+
+      const elemTitulo = document.getElementById('modal-titulo');
+      if (elemTitulo) elemTitulo.textContent = prop.titulo;
+
+      const elemPrecio = document.getElementById('modal-precio');
+      if (elemPrecio) elemPrecio.textContent = prop.precio;
+
+      // Inyectar especificaciones (cuartos, baños, metros)
+      const elemCuartos = document.getElementById('modal-cuartos');
+      if (elemCuartos) elemCuartos.textContent = prop.cuartos;
+
+      const elemBanos = document.getElementById('modal-banos');
+      if (elemBanos) elemBanos.textContent = prop.banos;
+
+      const elemMetros = document.getElementById('modal-metros');
+      if (elemMetros) elemMetros.textContent = prop.metros;
+
+      // Inyectar lista de amenidades
+      const elemAmenidades = document.getElementById('modal-amenidades');
+      if (elemAmenidades && prop.amenidades) {
+        elemAmenidades.innerHTML = prop.amenidades.map(item => `
+          <li class="flex items-start gap-2">
+            <span class="text-[#2A9D8F] font-bold text-base leading-none mt-0.5">•</span>
+            <span>${item}</span>
+          </li>
+        `).join('');
+      }
+
+      // Inyectar lista de distancias clave
+      const elemCercanias = document.getElementById('modal-cercanias');
+      if (elemCercanias && prop.cercanias) {
+        elemCercanias.innerHTML = prop.cercanias.map(item => `
+          <li class="flex items-start gap-2">
+            <span class="text-[#2A9D8F] font-bold text-base leading-none mt-0.5">•</span>
+            <span>${item}</span>
+          </li>
+        `).join('');
+      }
+
+      // Inyectar tarjeta del asesor con avatar dinámico UI-Avatars
+      const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(asesor.nombre)}&background=0D9488&color=fff&rounded=true`;
+      const elemAvatar = document.getElementById('modal-asesor-avatar');
+      if (elemAvatar) {
+        elemAvatar.src = avatarUrl;
+        elemAvatar.alt = asesor.nombre;
+      }
+
+      const elemAsesorNombre = document.getElementById('modal-asesor-nombre');
+      if (elemAsesorNombre) elemAsesorNombre.textContent = asesor.nombre;
+
+      const elemAsesorPuesto = document.getElementById('modal-asesor-puesto');
+      if (elemAsesorPuesto) elemAsesorPuesto.textContent = asesor.puesto || "Director Inmobiliario Senior";
+
+      // Configurar acción del botón sticky de WhatsApp
+      const btnWhatsApp = document.getElementById('modal-btn-whatsapp');
+      if (btnWhatsApp) {
+        btnWhatsApp.onclick = function() {
+          enviarWhatsApp(prop.id);
+        };
+      }
+
+      // Mostrar modal y bloquear scroll de fondo
+      const modal = document.getElementById('modal-propiedad');
+      if (modal) {
+        modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+      }
+    }
+
+    // 2. Cerrar Modal de Propiedad
+    function cerrarModal() {
+      const modal = document.getElementById('modal-propiedad');
+      if (modal) {
+        modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
+    }
+
+    // 3. Enviar mensaje detallado al WhatsApp del Asesor específico
+    function enviarWhatsApp(idPropiedad) {
+      const prop = propiedades.find(p => p.id === Number(idPropiedad));
+      if (!prop) return;
+
+      const asesor = asesores[prop.id_asesor] || {
+        nombre: "Carmen Coloma",
+        tel: "50252945088"
+      };
+
+      const telefono = asesor.tel || asesor.telefono || "50252945088";
+      const mensaje = `Hola ${asesor.nombre}, me interesa la propiedad: ${prop.titulo} por ${prop.precio}. Vi las especificaciones (${prop.metros}, ${prop.cuartos}, etc). ¿Podemos agendar una visita?`;
+
+      const urlWhatsApp = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+      window.open(urlWhatsApp, '_blank');
+    }
+
+    // Exponer funciones en el ámbito global de window
+    window.abrirModal = abrirModal;
+    window.cerrarModal = cerrarModal;
+    window.enviarWhatsApp = enviarWhatsApp;
+
+    // ========================================================
+    // LOGICA EXISTENTE DE NAVEGACION, CALCULADORA Y TESTIMONIOS
+    // ========================================================
+
+    // 1. Menú Móvil
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
     const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
 
     if (mobileMenuBtn && mobileMenu) {
-      // Toggle de visibilidad del menú
       mobileMenuBtn.addEventListener('click', () => {
         mobileMenu.classList.toggle('hidden');
       });
 
-      // Cierre automático al pulsar cualquier enlace móvil
       mobileNavLinks.forEach(link => {
         link.addEventListener('click', () => {
           mobileMenu.classList.add('hidden');
@@ -1569,15 +2101,12 @@
       });
     }
 
-    // ----------------------------------------------------
-    // 2. CALCULADORA DE PRESUPUESTO & FILTRADO CATÁLOGO VIP
-    // ----------------------------------------------------
+    // 2. Calculadora de Presupuesto & Filtrado del Catálogo VIP
     const precioSlider = document.getElementById('precio-slider');
     const precioDisplay = document.getElementById('precio-display');
     const btnCalcular = document.getElementById('btn-calcular');
     const catalogoCompleto = document.getElementById('catalogo-completo');
 
-    // Función auxiliar para formatear a moneda USD
     function formatearUSD(valor) {
       return new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -1586,7 +2115,6 @@
       }).format(valor);
     }
 
-    // a) Actualización en tiempo real del slider
     if (precioSlider && precioDisplay) {
       precioSlider.addEventListener('input', (e) => {
         const valorActual = parseFloat(e.target.value);
@@ -1599,13 +2127,10 @@
       });
     }
 
-    // b) Clic en 'btn-calcular': Scroll suave y filtrado de las 10 casas
     if (btnCalcular && catalogoCompleto && precioSlider) {
       btnCalcular.addEventListener('click', () => {
-        // Scroll suave hacia el catálogo de propiedades
         catalogoCompleto.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-        // Leer valor del slider y filtrar tarjetas
         const valorPresupuesto = parseFloat(precioSlider.value);
         const tarjetas = catalogoCompleto.querySelectorAll('.property-card');
 
@@ -1623,14 +2148,13 @@
       });
     }
 
-    // Slider secundario de Pago Mensual
     function updateMonthlyPayment(val) {
-      document.getElementById('monthly-payment-display').textContent = formatearUSD(val) + ' USD/mes';
+      const elem = document.getElementById('monthly-payment-display');
+      if (elem) elem.textContent = formatearUSD(val) + ' USD/mes';
     }
+    window.updateMonthlyPayment = updateMonthlyPayment;
 
-    // ----------------------------------------------------
-    // 3. FILTROS POR CATEGORÍA DEL CATÁLOGO (Todas / En Venta / En Renta)
-    // ----------------------------------------------------
+    // 3. Filtros por Categoría del Catálogo (Todas / En Venta / En Renta)
     function filterProperties(category) {
       const buttons = document.querySelectorAll('.filter-btn');
       buttons.forEach(btn => {
@@ -1655,10 +2179,9 @@
         }
       });
     }
+    window.filterProperties = filterProperties;
 
-    // ----------------------------------------------------
-    // 4. CARRUSEL SWIPER TESTIMONIOS (Autoplay Infinito)
-    // ----------------------------------------------------
+    // 4. Carrusel Swiper Testimonios
     const testimonialsSwiper = new Swiper('.testimonials-swiper', {
       slidesPerView: 1,
       spaceBetween: 24,
@@ -1677,6 +2200,50 @@
         768: { slidesPerView: 2, spaceBetween: 28 },
         1024: { slidesPerView: 3, spaceBetween: 32 }
       }
+    });
+
+    // ========================================================
+    // INTERACTIVIDAD EN TARJETAS DE PROPIEDADES & MODAL
+    // ========================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Vincular clics en tarjetas y botones de agendar al modal
+      const cards = document.querySelectorAll('.property-card');
+      cards.forEach((card, index) => {
+        const propId = index + 1;
+        card.style.cursor = 'pointer';
+
+        // Clic en la tarjeta abre el modal
+        card.addEventListener('click', () => {
+          abrirModal(propId);
+        });
+
+        // Clic en el botón interno de la tarjeta también abre el modal
+        const actionBtn = card.querySelector('a');
+        if (actionBtn) {
+          actionBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            abrirModal(propId);
+          });
+        }
+      });
+
+      // 2. Cerrar al hacer clic en el backdrop oscuro fuera del modal
+      const modal = document.getElementById('modal-propiedad');
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            cerrarModal();
+          }
+        });
+      }
+
+      // 3. Cerrar al presionar la tecla ESC
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          cerrarModal();
+        }
+      });
     });
   </script>
 </body>
