@@ -166,7 +166,7 @@
       <a href="#firma" class="mobile-nav-link block text-sm font-semibold text-[#1A1A1A] hover:text-[#2A9D8F] py-1">La Firma</a>
       <a href="#servicios" class="mobile-nav-link block text-sm font-semibold text-[#1A1A1A] hover:text-[#2A9D8F] py-1">Servicios VIP</a>
       <a href="#calculadora" class="mobile-nav-link block text-sm font-semibold text-[#1A1A1A] hover:text-[#2A9D8F] py-1">Calculadora de Presupuesto</a>
-      <a href="#catalogo" class="mobile-nav-link block text-sm font-semibold text-[#1A1A1A] hover:text-[#2A9D8F] py-1">Catálogo VIP (10 Propiedades)</a>
+      <a href="#catalogo" class="mobile-nav-link block text-sm font-semibold text-[#1A1A1A] hover:text-[#2A9D8F] py-1">Catálogo VIP</a>
       <a href="#testimonios" class="mobile-nav-link block text-sm font-semibold text-[#1A1A1A] hover:text-[#2A9D8F] py-1">Testimonios</a>
       <a href="#asesores" class="mobile-nav-link block text-sm font-semibold text-[#1A1A1A] hover:text-[#2A9D8F] py-1">Nuestros Asesores</a>
       <a href="#contacto" class="mobile-nav-link block text-sm font-semibold text-[#1A1A1A] hover:text-[#2A9D8F] py-1">Contacto & Oficinas</a>
@@ -712,18 +712,18 @@
         </div>
         <div class="mt-6 md:mt-0 flex items-center gap-2">
           <button onclick="filterProperties('all')" class="filter-btn active-filter px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-[#1A1A1A] text-white shadow-sm transition-all" data-category="all">
-            Todas (10)
+            Todas
           </button>
           <button onclick="filterProperties('venta')" class="filter-btn px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 transition-all" data-category="venta">
-            En Venta (7)
+            En Venta
           </button>
           <button onclick="filterProperties('renta')" class="filter-btn px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 transition-all" data-category="renta">
-            En Renta (3)
+            En Renta
           </button>
         </div>
       </div>
 
-      <!-- Grid de 10 Tarjetas -->
+      <!-- Grid de Propiedades VIP -->
       <div id="catalogo-completo" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- Placeholder elegante mientras carga Google Sheets -->
         <div class="col-span-full py-24 text-center flex flex-col items-center justify-center">
@@ -1599,6 +1599,30 @@
         });
       });
 
+      // Actualizar contadores dinámicamente en los botones de filtro y menú
+      const totalProps = propiedades.length;
+      let countVenta = 0;
+      let countRenta = 0;
+
+      propiedades.forEach((p) => {
+        const precioNum = parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0;
+        if (precioNum < 10000) {
+          countRenta++;
+        } else {
+          countVenta++;
+        }
+      });
+
+      const btnAll = document.querySelector('.filter-btn[data-category="all"]');
+      if (btnAll) btnAll.textContent = `Todas (${totalProps})`;
+      const btnVenta = document.querySelector('.filter-btn[data-category="venta"]');
+      if (btnVenta) btnVenta.textContent = `En Venta (${countVenta})`;
+      const btnRenta = document.querySelector('.filter-btn[data-category="renta"]');
+      if (btnRenta) btnRenta.textContent = `En Renta (${countRenta})`;
+
+      const mobileNav = document.querySelector('.mobile-nav-link[href="#catalogo"]');
+      if (mobileNav) mobileNav.textContent = `Catálogo VIP (${totalProps} Propiedades)`;
+
       calculateBudget();
     }
     window.renderizarTarjetas = renderizarTarjetas;
@@ -1813,14 +1837,22 @@
         }
       });
 
+      // Obtener categoría activa ('all', 'venta', 'renta')
+      const activeBtn = document.querySelector('.filter-btn.active-filter') || document.querySelector('.filter-btn.bg-\\[\\#1A1A1A\\]');
+      const activeCategory = activeBtn ? activeBtn.getAttribute('data-category') : 'all';
+
       // 2. Filtrar tarjetas en el Catálogo VIP (#catalogo-completo)
       if (catalogoCompleto) {
         const tarjetasCatalogo = catalogoCompleto.querySelectorAll('.property-card');
         tarjetasCatalogo.forEach(tarjeta => {
           const precioPropiedadStr = tarjeta.getAttribute('data-precio') || '';
           const precioPropiedadNumerico = parseInt(String(precioPropiedadStr).replace(/[^0-9]/g, ''), 10) || 0;
+          const cardType = tarjeta.getAttribute('data-type');
 
-          if (precioPropiedadNumerico <= presupuestoSliderNumerico) {
+          const categoryMatch = (activeCategory === 'all' || cardType === activeCategory);
+          const budgetMatch = (presupuestoSliderNumerico >= 1500000 || precioPropiedadNumerico <= presupuestoSliderNumerico);
+
+          if (categoryMatch && budgetMatch) {
             tarjeta.classList.remove('hidden');
             tarjeta.style.display = '';
           } else {
@@ -1866,25 +1898,15 @@
       const buttons = document.querySelectorAll('.filter-btn');
       buttons.forEach(btn => {
         if (btn.getAttribute('data-category') === category) {
-          btn.classList.add('bg-[#1A1A1A]', 'text-white');
+          btn.classList.add('bg-[#1A1A1A]', 'text-white', 'active-filter');
           btn.classList.remove('bg-white', 'text-gray-700', 'border', 'border-gray-200');
         } else {
-          btn.classList.remove('bg-[#1A1A1A]', 'text-white');
+          btn.classList.remove('bg-[#1A1A1A]', 'text-white', 'active-filter');
           btn.classList.add('bg-white', 'text-gray-700', 'border', 'border-gray-200');
         }
       });
 
-      const cards = document.querySelectorAll('.property-card');
-      cards.forEach(card => {
-        const type = card.getAttribute('data-type');
-        if (category === 'all' || type === category) {
-          card.classList.remove('hidden');
-          card.style.display = '';
-        } else {
-          card.classList.add('hidden');
-          card.style.display = 'none';
-        }
-      });
+      calculateBudget();
     }
     window.filterProperties = filterProperties;
 
