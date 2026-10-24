@@ -1285,8 +1285,12 @@
       return url;
     }
 
-    // Catálogo completo de 10 propiedades base (con portada y galería de espacios)
-    const propiedadesBase = [
+    // ========================================================
+    // 3. DATOS DE RESPALDO (FALLBACK) Y CARGA CON TIMEOUT
+    // ========================================================
+
+    // 3. DATOS DE RESPALDO (FALLBACK): Array local de propiedades VIP a prueba de fallos
+    const propiedadesRespaldo = [
       {
         id: "1",
         titulo: "Penthouse Exclusivo - Zona 15",
@@ -1304,7 +1308,8 @@
           "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80"
         ],
         id_asesor: "carmen",
-        estado: "Disponible"
+        estado: "Disponible",
+        es_vendida: false
       },
       {
         id: "2",
@@ -1323,7 +1328,8 @@
           "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=800&q=80"
         ],
         id_asesor: "santiago",
-        estado: "Disponible"
+        estado: "Disponible",
+        es_vendida: false
       },
       {
         id: "3",
@@ -1342,149 +1348,13 @@
           "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80"
         ],
         id_asesor: "joseluis",
-        estado: "Vendida"
-      },
-      {
-        id: "4",
-        titulo: "Loft de Lujo Amueblado - Zona 10",
-        precio: "$1,500 USD/mes",
-        cuartos: "1 Hab",
-        banos: "1 Baño",
-        metros: "85 m²",
-        ubicacion: "Zona 10 • Zona Viva",
-        amenidades: ["Completamente amueblado de diseño", "Cocina de cuarzo equipada", "Ventanales acústicos", "Infinity pool en azotea"],
-        cercanias: ["En corazón financiero de Zona 10", "A 2 min a pie de hoteles y embajadas", "A 5 min de Fontabella"],
-        imagen_portada: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
-        galeria_fotos: [
-          "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80",
-          "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?auto=format&fit=crop&w=800&q=80",
-          "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"
-        ],
-        id_asesor: "madeleine",
-        estado: "Disponible"
-      },
-      {
-        id: "5",
-        titulo: "Casa Familiar en Condominio - Carr. El Salvador",
-        precio: "$450,000 USD",
-        cuartos: "4 Habs",
-        banos: "3.5 Baños",
-        metros: "320 m²",
-        ubicacion: "Carretera a El Salvador",
-        amenidades: ["Entorno boscoso privado", "Senderos y áreas infantiles", "Pérgola amplia con asador", "Máster suite con jacuzzi"],
-        cercanias: ["A 5 min de centros comerciales", "A 8 min de colegios internacionales", "Retornos viales rápidos"],
-        imagen_portada: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
-        galeria_fotos: [
-          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
-          "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=800&q=80",
-          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"
-        ],
-        id_asesor: "mariaelena",
-        estado: "Disponible"
-      },
-      {
-        id: "6",
-        titulo: "Oficina Corporativa - Edificio Burgó",
-        precio: "$3,200 USD/mes",
-        cuartos: "0 Habs",
-        banos: "2 Baños",
-        metros: "150 m²",
-        ubicacion: "Zona 14 • Edificio Burgó",
-        amenidades: ["Certificación ambiental LEED", "Salas de juntas con tecnología AV", "Seguridad biométrica", "Fibra óptica redundante"],
-        cercanias: ["A 3 min de Bulevar Los Próceres", "A 5 min de Zona 10 y Zona 9", "A 8 min del Aeropuerto"],
-        imagen_portada: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80",
-        galeria_fotos: [
-          "https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=800&q=80",
-          "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=800&q=80",
-          "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80"
-        ],
-        id_asesor: "bitia",
-        estado: "Disponible"
-      },
-      {
-        id: "7",
-        titulo: "Residencia Clásica - Muxbal",
-        precio: "$890,000 USD",
-        cuartos: "5 Habs",
-        banos: "4 Baños",
-        metros: "500 m²",
-        ubicacion: "Santa Catarina Pinula • Muxbal",
-        amenidades: ["Terreno de 1,800 v² con árboles centenarios", "Cava subterránea privada", "Spa con sauna y jacuzzi", "Doble garita"],
-        cercanias: ["A 8 min de Zona 10 vía Muxbal", "A 10 min de Pradera Concepción", "A 7 min de colegios privados"],
-        imagen_portada: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=80",
-        galeria_fotos: [
-          "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80",
-          "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=800&q=80",
-          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"
-        ],
-        id_asesor: "sonia",
-        estado: "Vendida"
-      },
-      {
-        id: "8",
-        titulo: "Apartamento Vista a Volcanes - Zona 14",
-        precio: "$2,100 USD/mes",
-        cuartos: "3 Habs",
-        banos: "2 Baños",
-        metros: "180 m²",
-        ubicacion: "Zona 14 • Panorámica Premium",
-        amenidades: ["Balcón corrido con vista a volcanes", "Piscina semiolímpica climatizada", "Cocina de cuarzo con isla", "Bodega y 2 parqueos"],
-        cercanias: ["A 1 min de Av. Las Américas", "A 5 min de Zona Pradera", "A 6 min de Zona 10", "A 10 min de Zona 15"],
-        imagen_portada: "https://images.unsplash.com/photo-1567496898669-ee935f5f647a?auto=format&fit=crop&w=1200&q=80",
-        galeria_fotos: [
-          "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
-          "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80",
-          "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"
-        ],
-        id_asesor: "sofia",
-        estado: "Disponible"
-      },
-      {
-        id: "9",
-        titulo: "Terreno Premium para Desarrollo - Zona 16",
-        precio: "$1,100,000 USD",
-        cuartos: "0 Habs",
-        banos: "0 Baños",
-        metros: "1200 m²",
-        ubicacion: "Zona 16 • San Isidro",
-        amenidades: ["Topografía óptima con leve pendiente", "Estudios de suelo y licencias en regla", "Agua de pozo propio y luz", "Condominio cerrado VIP"],
-        cercanias: ["A 4 min de Ciudad Cayalá", "A 6 min de Club San Isidro", "A 8 min de universidades"],
-        imagen_portada: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80",
-        galeria_fotos: [
-          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
-          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
-          "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80"
-        ],
-        id_asesor: "william",
-        estado: "Disponible"
-      },
-      {
-        id: "10",
-        titulo: "Villa de Descanso - Antigua Guatemala",
-        precio: "$650,000 USD",
-        cuartos: "3 Habs",
-        banos: "3 Baños",
-        metros: "250 m²",
-        ubicacion: "Sacatepéquez • Antigua Guatemala",
-        amenidades: ["Patio colonial con fuente de cantera", "Cielos altos con vigas nobles", "Terraza mirador al Volcán de Agua", "Seguridad colonial 24h"],
-        cercanias: ["A 5 min del Parque Central de Antigua", "A 3 min de San Pedro Las Huertas", "A pasos de restaurantes gourmet"],
-        imagen_portada: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80",
-        galeria_fotos: [
-          "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80",
-          "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80",
-          "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80"
-        ],
-        id_asesor: "carmen",
-        estado: "Disponible"
+        estado: "Vendida",
+        es_vendida: true
       }
     ];
 
-    // Array dinámico de propiedades
-    let propiedades = [...propiedadesBase];
-
-    // ========================================================
-    // 3. PARSER Y CARGA ASÍNCRONA DESDE GOOGLE SHEETS (CSV)
-    // ========================================================
+    // Array dinámico de propiedades (inicia con el respaldo)
+    let propiedades = [...propiedadesRespaldo];
 
     // Función auxiliar para parsear líneas CSV respetando comillas dobles
     function parseCSVLine(line) {
@@ -1511,15 +1381,32 @@
       return values;
     }
 
-    // Función asíncrona principal para cargar desde Google Sheets CSV
+    // Función asíncrona principal para cargar desde Google Sheets CSV (A prueba de fallos con Timeout y Fallback)
     async function cargarPropiedadesDesdeExcel() {
+      // 1. ESTADO DE CARGA: Inyectar mensaje temporal mientras se obtienen los datos
+      const catalogoCompleto = document.getElementById('catalogo-completo');
+      if (catalogoCompleto) {
+        catalogoCompleto.innerHTML = '<p class="text-center text-gray-500 py-10 col-span-full">Cargando catálogo VIP...</p>';
+      }
+
       if (!CSV_URL || CSV_URL === "AQUI_VA_EL_LINK_DEL_CSV") {
+        propiedades = [...propiedadesRespaldo];
         renderizarTarjetas();
         return;
       }
 
+      // 2. TIMEOUT Y CONTROLADOR: AbortController con timeout estricto de 4000ms (4 segundos)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+      }, 4000);
+
+      // 4. LÓGICA TRY/CATCH: Intentar fetch con signal y cache-buster
       try {
-        const response = await fetch(CSV_URL);
+        const urlConCacheBuster = CSV_URL + (CSV_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+        const response = await fetch(urlConCacheBuster, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
         if (!response.ok) {
           throw new Error(`Error de red: ${response.status} ${response.statusText}`);
         }
@@ -1527,8 +1414,7 @@
 
         const filas = dataCSV.trim().split(/\r?\n/).filter(f => f.trim().length > 0);
         if (filas.length <= 1) {
-          renderizarTarjetas();
-          return;
+          throw new Error("El archivo CSV no contiene registros válidos.");
         }
 
         // Mapeo inteligente de columnas según encabezados
@@ -1609,10 +1495,14 @@
 
         if (propiedadesMapeadas.length > 0) {
           propiedades = propiedadesMapeadas;
+        } else {
+          throw new Error("No se encontraron propiedades válidas en el CSV.");
         }
+        renderizarTarjetas();
       } catch (error) {
-        console.warn("Aviso: No fue posible cargar el CSV remoto. Utilizando catálogo base:", error);
-      } finally {
+        clearTimeout(timeoutId);
+        console.warn("Aviso: Falló la petición a Google Sheets CSV (timeout o error de red/CORS). Activando portafolio de respaldo local:", error);
+        propiedades = [...propiedadesRespaldo];
         renderizarTarjetas();
       }
     }
