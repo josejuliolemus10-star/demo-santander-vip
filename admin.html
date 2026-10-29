@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-50">
+<html lang="es" class="h-full bg-slate-900">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Santander VIP | Panel Interno de Agentes</title>
+  <title>Santander VIP | Panel de Control de Agentes</title>
 
   <!-- Google Fonts: Outfit, DM Sans & Montserrat -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,528 +39,2161 @@
       }
     };
   </script>
+  <style>
+    /* Estilos para scrollbars elegantes */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
 </head>
-<body class="h-full font-sans text-slate-800 antialiased flex overflow-hidden">
+<body class="h-full font-sans text-slate-800 antialiased flex overflow-hidden bg-slate-50">
+
+  <!-- Overlay para menú móvil -->
+  <div id="mobile-overlay" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-950/70 z-40 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
 
   <!-- ========================================================
-       SIDEBAR LATERAL OSCURO
+       SIDEBAR LATERAL OSCURO VIP
        ======================================================== -->
-  <aside class="w-64 bg-brand-darker text-slate-300 flex flex-col justify-between shrink-0 border-r border-slate-800 select-none hidden md:flex">
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-[#0B0F17] text-slate-300 flex flex-col justify-between shrink-0 border-r border-slate-800/80 select-none transform -translate-x-full md:translate-x-0 md:static transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
     <div>
       <!-- Logo Santander VIP -->
-      <div class="h-20 flex items-center px-6 border-b border-slate-800/80 gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white font-serif font-black text-xl shadow-lg shadow-teal-900/40">
-          S
+      <div class="h-20 flex items-center justify-between px-6 border-b border-slate-800/80">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white font-serif font-black text-xl shadow-lg shadow-teal-900/40">
+            S
+          </div>
+          <div>
+            <span class="font-serif text-lg font-bold tracking-wider text-white block leading-tight">SANTANDER</span>
+            <span class="text-[10px] tracking-widest text-teal-400 uppercase font-semibold block">VIP Estates • Control</span>
+          </div>
         </div>
-        <div>
-          <span class="font-serif text-lg font-bold tracking-wider text-white block leading-tight">SANTANDER</span>
-          <span class="text-[10px] tracking-widest text-teal-400 uppercase font-semibold block">VIP Estates • Agentes</span>
-        </div>
+        <button type="button" onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white p-2">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
       </div>
 
-      <!-- Navegación del Panel -->
-      <nav class="p-4 space-y-1.5">
-        <div class="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-          Gestión Inmobiliaria
+      <!-- Navegación del Panel (Tabs SPA) -->
+      <nav class="p-4 space-y-1.5" id="sidebar-nav">
+        <div class="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center justify-between">
+          <span>Gestión Inmobiliaria</span>
+          <span class="text-[10px] text-teal-400 font-mono">v2.4 Live</span>
         </div>
 
-        <a href="#" class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors">
-          <i class="fa-solid fa-chart-pie w-5 text-center text-slate-400"></i>
+        <!-- 1. Dashboard -->
+        <button type="button" onclick="navegarA('dashboard')" data-tab="dashboard" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-semibold text-white bg-teal-600/15 border-l-4 border-teal-500 text-teal-300 shadow-sm transition-all text-left">
+          <i class="fa-solid fa-chart-pie w-5 text-center text-teal-400"></i>
           <span>Dashboard</span>
-        </a>
+          <span class="ml-auto text-[10px] bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full font-bold">Métricas</span>
+        </button>
 
-        <a href="#" class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-semibold text-white bg-teal-600/15 border-l-4 border-teal-500 text-teal-300 shadow-sm transition-colors">
-          <i class="fa-solid fa-building-circle-arrow-right w-5 text-center text-teal-400"></i>
+        <!-- 2. Propiedades -->
+        <button type="button" onclick="navegarA('propiedades')" data-tab="propiedades" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
+          <i class="fa-solid fa-building-circle-arrow-right w-5 text-center text-slate-400"></i>
           <span>Propiedades</span>
-          <span class="ml-auto text-[11px] bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full font-bold">12 VIP</span>
-        </a>
+          <span id="badge-total-props" class="ml-auto text-[11px] bg-slate-800 text-teal-300 px-2.5 py-0.5 rounded-full font-bold border border-slate-700">10 VIP</span>
+        </button>
 
-        <a href="#" class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors">
+        <!-- 3. Asesores VIP -->
+        <button type="button" onclick="navegarA('asesores')" data-tab="asesores" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
           <i class="fa-solid fa-user-tie w-5 text-center text-slate-400"></i>
           <span>Asesores VIP</span>
-        </a>
+          <span class="ml-auto text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-bold border border-slate-700">9 Asesores</span>
+        </button>
 
-        <a href="#" class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors">
+        <!-- 4. Google Sheet CSV -->
+        <button type="button" onclick="navegarA('sheets')" data-tab="sheets" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
           <i class="fa-solid fa-table-list w-5 text-center text-slate-400"></i>
           <span>Google Sheet CSV</span>
-          <span class="ml-auto w-2 h-2 rounded-full bg-emerald-400"></span>
-        </a>
+          <span class="ml-auto flex items-center gap-1.5 text-[11px] text-emerald-400 font-semibold bg-emerald-950/60 border border-emerald-800/50 px-2 py-0.5 rounded-full">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Sync
+          </span>
+        </button>
 
-        <div class="pt-6 px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-          Sistema
+        <div class="pt-5 px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+          Accesos Directos
         </div>
 
-        <a href="#" class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors">
+        <!-- 5. Configuración -->
+        <button type="button" onclick="navegarA('configuracion')" data-tab="configuracion" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left">
           <i class="fa-solid fa-sliders w-5 text-center text-slate-400"></i>
           <span>Configuración</span>
-        </a>
+        </button>
 
-        <a href="index.html" target="_blank" class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-teal-400 hover:text-teal-300 hover:bg-teal-950/40 border border-teal-800/40 transition-colors">
-          <i class="fa-solid fa-arrow-up-right-from-square w-5 text-center"></i>
+        <!-- 6. Enlace a la Web Pública -->
+        <a href="index.html" target="_blank" class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-teal-300 hover:text-white hover:bg-teal-900/40 border border-teal-800/50 transition-all">
+          <i class="fa-solid fa-arrow-up-right-from-square w-5 text-center text-teal-400"></i>
           <span>Ver Sitio Web en Vivo</span>
+          <span class="ml-auto text-[10px] text-teal-400"><i class="fa-solid fa-external-link"></i></span>
         </a>
       </nav>
     </div>
 
     <!-- Perfil del Agente Activo -->
-    <div class="p-4 border-t border-slate-800 bg-slate-900/40">
+    <div class="p-4 border-t border-slate-800/80 bg-slate-950/60">
       <div class="flex items-center gap-3">
-        <img src="https://ui-avatars.com/api/?name=Carmen+Coloma&background=0D9488&color=fff&rounded=true" alt="Carmen Coloma" class="w-10 h-10 rounded-full ring-2 ring-teal-500/40">
+        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80" alt="Carmen Coloma" class="w-10 h-10 rounded-full object-cover ring-2 ring-teal-500/50">
         <div class="flex-1 min-w-0">
           <p class="text-sm font-bold text-white truncate">Carmen Coloma</p>
-          <p class="text-xs text-slate-400 truncate">Directora Comercial VIP</p>
+          <p class="text-[11px] text-teal-400 truncate font-medium">Directora Comercial VIP</p>
         </div>
-        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20" title="Sesión activa"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20" title="Sesión activa en línea"></span>
       </div>
     </div>
   </aside>
 
   <!-- ========================================================
-       ÁREA DE CONTENIDO PRINCIPAL BLANCA
+       ÁREA DE CONTENIDO PRINCIPAL
        ======================================================== -->
-  <div class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
+  <div class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50 min-w-0">
 
     <!-- Topbar Superior -->
-    <header class="h-20 bg-white border-b border-slate-200 px-6 sm:px-10 flex items-center justify-between shrink-0">
-      <!-- Migas de Pan / Estado -->
+    <header class="h-20 bg-white border-b border-slate-200 px-4 sm:px-8 flex items-center justify-between shrink-0 z-10 shadow-xs">
+      <!-- Botón menú móvil + Migas de Pan -->
       <div class="flex items-center gap-3 text-sm">
-        <span class="text-slate-400 font-medium">Panel de Agentes</span>
-        <i class="fa-solid fa-chevron-right text-xs text-slate-300"></i>
-        <span class="text-slate-400 font-medium">Propiedades</span>
-        <i class="fa-solid fa-chevron-right text-xs text-slate-300"></i>
-        <span class="text-teal-700 font-bold bg-teal-50 px-2.5 py-1 rounded-md border border-teal-100">Nueva Carga</span>
+        <button type="button" onclick="toggleMobileSidebar()" class="md:hidden text-slate-700 hover:text-teal-600 p-2 rounded-lg hover:bg-slate-100">
+          <i class="fa-solid fa-bars text-lg"></i>
+        </button>
+
+        <div class="flex items-center gap-2 font-medium">
+          <span class="text-slate-400">Panel Santander</span>
+          <i class="fa-solid fa-chevron-right text-[10px] text-slate-300"></i>
+          <span id="breadcrumb-view" class="text-teal-700 font-bold bg-teal-50 px-2.5 py-1 rounded-md border border-teal-100">
+            Dashboard Ejecutivo
+          </span>
+        </div>
       </div>
 
-      <div class="flex items-center gap-4">
-        <!-- Badge de Sincronización -->
-        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold">
+      <!-- Acciones Rápidas del Topbar -->
+      <div class="flex items-center gap-3 sm:gap-4">
+        
+        <!-- Estado de Sincronización con Google Sheets -->
+        <button type="button" onclick="sincronizarAhora(true)" title="Clic para recargar datos desde Google Sheets" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold transition-all">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Google Sheets Conectado</span>
-        </div>
+          <span id="sync-status-text" class="hidden sm:inline">Google Sheets Conectado</span>
+          <i id="sync-spinner" class="fa-solid fa-arrows-rotate text-emerald-600 text-xs ml-1"></i>
+        </button>
 
-        <a href="index.html" class="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-teal-600 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors">
-          <i class="fa-solid fa-globe"></i>
-          <span>Portal Público</span>
+        <!-- Botón Rápido + Agregar Propiedad -->
+        <button type="button" onclick="irAAgregarPropiedad()" class="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-xl shadow-sm transition-all">
+          <i class="fa-solid fa-plus"></i>
+          <span class="hidden sm:inline">Nueva Propiedad</span>
+        </button>
+
+        <!-- Enlace a Portal Público -->
+        <a href="index.html" class="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-teal-700 px-3 py-2 rounded-xl hover:bg-slate-100 border border-slate-200 transition-all">
+          <i class="fa-solid fa-globe text-slate-400"></i>
+          <span class="hidden md:inline">Portal Público</span>
         </a>
       </div>
     </header>
 
-    <!-- Contenido con Scroll -->
-    <main class="flex-1 overflow-y-auto p-6 sm:p-10">
-      <div class="max-w-5xl mx-auto">
+    <!-- Contenedor Principal con Scroll -->
+    <main class="flex-1 overflow-y-auto p-4 sm:p-8">
+      <div class="max-w-7xl mx-auto">
 
-        <!-- Encabezado de la Pantalla -->
-        <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 class="font-serif text-3xl font-extrabold text-slate-900 tracking-tight">
-              Agregar Nueva Propiedad VIP
+        <!-- ========================================================
+             VISTA 1: DASHBOARD EJECUTIVO
+             ======================================================== -->
+        <section id="view-dashboard" class="view-panel space-y-8">
+          
+          <!-- Encabezado del Dashboard -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
+            <div>
+              <h1 class="font-serif text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Dashboard Ejecutivo VIP
+              </h1>
+              <p class="text-slate-500 text-sm mt-1">
+                Monitoreo en tiempo real de cartera inmobiliaria, ventas, rentas y estado de asesores.
+              </p>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <button type="button" onclick="sincronizarAhora(true)" class="px-3.5 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl shadow-xs transition-all flex items-center gap-2">
+                <i class="fa-solid fa-rotate text-teal-600"></i>
+                <span>Sincronizar Google Sheets</span>
+              </button>
+              <button type="button" onclick="irAAgregarPropiedad()" class="px-3.5 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-xl shadow-md transition-all flex items-center gap-2">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Publicar Nueva</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Banner Informativo de Conexión en Vivo -->
+          <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-teal-950 text-white rounded-2xl p-5 sm:p-6 shadow-md border border-slate-700/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-2xl bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-teal-300 text-2xl shrink-0">
+                <i class="fa-brands fa-google-drive"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-serif text-base sm:text-lg font-bold">Google Sheet Oficial Conectado</h3>
+                  <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2 py-0.5 rounded-full">En Vivo</span>
+                </div>
+                <p class="text-xs text-slate-300 mt-1 max-w-xl">
+                  Las propiedades provienen de la hoja de cálculo publicada en Google Sheets. Puedes consultar el catálogo, registrar nuevas propiedades o actualizar estados de disponibilidad.
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2.5 shrink-0">
+              <button type="button" onclick="navegarA('sheets')" class="px-3.5 py-2 text-xs font-bold text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl transition-all">
+                Ver Hoja Google Sheets
+              </button>
+              <button type="button" onclick="exportarCSVCompleto()" class="px-3.5 py-2 text-xs font-bold text-teal-300 bg-teal-500/20 hover:bg-teal-500/30 border border-teal-500/30 rounded-xl transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-download"></i>
+                Exportar CSV
+              </button>
+            </div>
+          </div>
+
+          <!-- 6 Tarjetas KPI del Dashboard -->
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            
+            <!-- KPI 1: Total Propiedades -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Cartera</span>
+                <span class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm font-bold">
+                  <i class="fa-solid fa-building"></i>
+                </span>
+              </div>
+              <div class="mt-3">
+                <p id="kpi-total-propiedades" class="font-serif text-2xl sm:text-3xl font-extrabold text-slate-900">--</p>
+                <p class="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                  <i class="fa-solid fa-arrow-trend-up"></i> Portafolio Activo
+                </p>
+              </div>
+            </div>
+
+            <!-- KPI 2: En Venta -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">En Venta</span>
+                <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold">
+                  <i class="fa-solid fa-house-circle-check"></i>
+                </span>
+              </div>
+              <div class="mt-3">
+                <p id="kpi-en-venta" class="font-serif text-2xl sm:text-3xl font-extrabold text-slate-900">--</p>
+                <p id="kpi-en-venta-pct" class="text-[11px] text-slate-400 font-medium mt-1">--% del total</p>
+              </div>
+            </div>
+
+            <!-- KPI 3: En Renta -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">En Renta</span>
+                <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm font-bold">
+                  <i class="fa-solid fa-key"></i>
+                </span>
+              </div>
+              <div class="mt-3">
+                <p id="kpi-en-renta" class="font-serif text-2xl sm:text-3xl font-extrabold text-slate-900">--</p>
+                <p id="kpi-en-renta-pct" class="text-[11px] text-slate-400 font-medium mt-1">--% del total</p>
+              </div>
+            </div>
+
+            <!-- KPI 4: Vendidas (SOLD) -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Vendidas</span>
+                <span class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center text-sm font-bold">
+                  <i class="fa-solid fa-lock"></i>
+                </span>
+              </div>
+              <div class="mt-3">
+                <p id="kpi-vendidas" class="font-serif text-2xl sm:text-3xl font-extrabold text-red-600">--</p>
+                <p class="text-[11px] text-red-600 font-semibold mt-1">Listón SOLD Activo</p>
+              </div>
+            </div>
+
+            <!-- KPI 5: Valor Estimado de Cartera -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Valor Cartera</span>
+                <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold">
+                  $
+                </span>
+              </div>
+              <div class="mt-3">
+                <p id="kpi-valor-cartera" class="font-serif text-xl sm:text-2xl font-extrabold text-slate-900 truncate">--</p>
+                <p class="text-[11px] text-slate-400 font-medium mt-1">Suma USD Venta</p>
+              </div>
+            </div>
+
+            <!-- KPI 6: Asesores VIP -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Asesores</span>
+                <span class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-sm font-bold">
+                  <i class="fa-solid fa-user-group"></i>
+                </span>
+              </div>
+              <div class="mt-3">
+                <p id="kpi-total-asesores" class="font-serif text-2xl sm:text-3xl font-extrabold text-slate-900">9</p>
+                <p class="text-[11px] text-teal-600 font-semibold mt-1">Directores VIP</p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Sección Analítica: Distribución del Portafolio y Zonas -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Barra Visual de Distribución -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs lg:col-span-2">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="font-serif text-lg font-bold text-slate-900">Composición del Inventario</h3>
+                  <p class="text-xs text-slate-400">Relación de inmuebles por categoría comercial y disponibilidad.</p>
+                </div>
+                <span class="text-xs text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md font-bold border border-teal-100">
+                  Actualizado en vivo
+                </span>
+              </div>
+
+              <!-- Barra Progresiva Segmentada -->
+              <div class="h-4 w-full bg-slate-100 rounded-full overflow-hidden flex shadow-inner mb-4">
+                <div id="bar-venta" class="bg-blue-600 transition-all duration-700" style="width: 60%;" title="En Venta"></div>
+                <div id="bar-renta" class="bg-amber-500 transition-all duration-700" style="width: 25%;" title="En Renta"></div>
+                <div id="bar-sold" class="bg-red-500 transition-all duration-700" style="width: 15%;" title="Vendidas"></div>
+              </div>
+
+              <!-- Leyenda con métricas -->
+              <div class="grid grid-cols-3 gap-4 text-center pt-2 border-t border-slate-100">
+                <div class="flex flex-col items-center">
+                  <span class="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> En Venta
+                  </span>
+                  <span id="legend-venta" class="font-serif font-bold text-slate-900 text-sm mt-0.5">--</span>
+                </div>
+                <div class="flex flex-col items-center">
+                  <span class="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> En Renta
+                  </span>
+                  <span id="legend-renta" class="font-serif font-bold text-slate-900 text-sm mt-0.5">--</span>
+                </div>
+                <div class="flex flex-col items-center">
+                  <span class="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+                    <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Vendidas
+                  </span>
+                  <span id="legend-sold" class="font-serif font-bold text-slate-900 text-sm mt-0.5">--</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Zonas Prime Más Representadas -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+              <div>
+                <h3 class="font-serif text-lg font-bold text-slate-900 mb-1">Distribución por Zona</h3>
+                <p class="text-xs text-slate-400 mb-4">Presencia en las áreas de mayor plusvalía.</p>
+                
+                <div id="dashboard-zonas-list" class="space-y-2.5 text-xs">
+                  <!-- Se genera dinámicamente -->
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-400 flex items-center justify-between">
+                <span>Guatemala & Sacatepéquez</span>
+                <span class="text-teal-600 font-bold">100% Exclusivo</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Tabla de Propiedades Recientes en el Dashboard -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h3 class="font-serif text-lg font-bold text-slate-900">Propiedades VIP en Portafolio</h3>
+                <p class="text-xs text-slate-400">Listado interactivo conectado directamente con Google Sheets.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="navegarA('propiedades')" class="px-3.5 py-2 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-xl transition-all">
+                  Ver Inventario Completo <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm text-slate-600">
+                <thead class="text-xs uppercase bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
+                  <tr>
+                    <th class="py-3.5 px-6">Propiedad</th>
+                    <th class="py-3.5 px-4">Precio</th>
+                    <th class="py-3.5 px-4">Tipo / Specs</th>
+                    <th class="py-3.5 px-4">Asesor Asignado</th>
+                    <th class="py-3.5 px-4 text-center">Disponibilidad</th>
+                    <th class="py-3.5 px-6 text-right">Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboard-recientes-tbody" class="divide-y divide-slate-100">
+                  <!-- Inyectado dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ========================================================
+             VISTA 2: GESTIÓN DE PROPIEDADES (INVENTARIO & AGREGAR)
+             ======================================================== -->
+        <section id="view-propiedades" class="view-panel hidden space-y-6">
+          
+          <!-- Selector de Sub-pestañas: Inventario vs Agregar Nueva -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 pb-4">
+            <div>
+              <h1 class="font-serif text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Gestión de Propiedades VIP
+              </h1>
+              <p class="text-slate-500 text-sm mt-1">
+                Administra el portafolio en tiempo real, cambia estados y añade nuevas residencias.
+              </p>
+            </div>
+
+            <div class="flex items-center bg-slate-200/80 p-1 rounded-2xl">
+              <button type="button" onclick="setPropiedadesSubTab('inventario')" id="btn-subtab-inventario" class="px-4 py-2 text-xs font-bold rounded-xl transition-all bg-white text-slate-900 shadow-sm">
+                <i class="fa-solid fa-list-check mr-1.5 text-teal-600"></i>Inventario (<span id="count-subtab-inv">10</span>)
+              </button>
+              <button type="button" onclick="setPropiedadesSubTab('nueva')" id="btn-subtab-nueva" class="px-4 py-2 text-xs font-bold rounded-xl transition-all text-slate-600 hover:text-slate-900">
+                <i class="fa-solid fa-plus mr-1.5 text-teal-600"></i>Agregar Nueva
+              </button>
+            </div>
+          </div>
+
+          <!-- SUB-PESTAÑA A: INVENTARIO COMPLETO (TABLA / CARDS) -->
+          <div id="subtab-inventario-content" class="space-y-6">
+            
+            <!-- Barra de Filtros y Búsqueda -->
+            <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+              
+              <!-- Buscador -->
+              <div class="relative flex-1 max-w-md">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input 
+                  type="text" 
+                  id="inventario-search" 
+                  oninput="aplicarFiltrosInventario()" 
+                  placeholder="Buscar por título, zona, asesor o precio..." 
+                  class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 transition-all outline-none"
+                >
+              </div>
+
+              <!-- Filtros por Categoría Comercial -->
+              <div class="flex flex-wrap items-center gap-2">
+                <button type="button" onclick="filtrarInventarioPorEstado('todos')" class="inv-filter-btn active-filter px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-900 text-white shadow-xs" data-filter="todos">
+                  Todas (<span id="filter-count-todos">--</span>)
+                </button>
+                <button type="button" onclick="filtrarInventarioPorEstado('venta')" class="inv-filter-btn px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-white text-slate-700 hover:bg-slate-100 border border-slate-200" data-filter="venta">
+                  En Venta (<span id="filter-count-venta">--</span>)
+                </button>
+                <button type="button" onclick="filtrarInventarioPorEstado('renta')" class="inv-filter-btn px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-white text-slate-700 hover:bg-slate-100 border border-slate-200" data-filter="renta">
+                  En Renta (<span id="filter-count-renta">--</span>)
+                </button>
+                <button type="button" onclick="filtrarInventarioPorEstado('vendida')" class="inv-filter-btn px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-white text-slate-700 hover:bg-slate-100 border border-slate-200" data-filter="vendida">
+                  Vendidas (<span id="filter-count-vendida">--</span>)
+                </button>
+              </div>
+
+              <!-- Selector Modo Vista (Tabla / Grid) -->
+              <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl shrink-0 self-end md:self-auto">
+                <button type="button" onclick="setVistaModo('tabla')" id="btn-view-tabla" class="p-2 rounded-lg text-slate-900 bg-white shadow-xs text-xs font-bold" title="Vista en Tabla">
+                  <i class="fa-solid fa-table-cells"></i>
+                </button>
+                <button type="button" onclick="setVistaModo('grid')" id="btn-view-grid" class="p-2 rounded-lg text-slate-500 hover:text-slate-900 text-xs font-bold" title="Vista en Tarjetas">
+                  <i class="fa-solid fa-grip"></i>
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Contenedor Modo Tabla -->
+            <div id="inventario-view-tabla" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                  <thead class="text-xs uppercase bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
+                    <tr>
+                      <th class="py-3.5 px-6">ID & Foto</th>
+                      <th class="py-3.5 px-4">Título & Ubicación</th>
+                      <th class="py-3.5 px-4">Precio</th>
+                      <th class="py-3.5 px-4">Especificaciones</th>
+                      <th class="py-3.5 px-4">Asesor</th>
+                      <th class="py-3.5 px-4 text-center">Estado (Clic para alternar)</th>
+                      <th class="py-3.5 px-6 text-right">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="inventario-tbody" class="divide-y divide-slate-100">
+                    <!-- Filas inyectadas dinámicamente -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Contenedor Modo Grid de Tarjetas VIP -->
+            <div id="inventario-view-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Tarjetas inyectadas dinámicamente -->
+            </div>
+
+          </div>
+
+          <!-- SUB-PESTAÑA B: AGREGAR NUEVA PROPIEDAD (FORMULARIO ORIGINAL CON DRAG & DROP Y GALERÍA) -->
+          <div id="subtab-nueva-content" class="hidden">
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-10 max-w-4xl mx-auto">
+              
+              <div class="mb-8 flex items-center justify-between border-b border-slate-100 pb-6">
+                <div>
+                  <h2 class="font-serif text-2xl font-bold text-slate-900">Formulario de Nueva Propiedad VIP</h2>
+                  <p class="text-xs text-slate-400 mt-1">Ingresa las especificaciones y carga las fotografías oficiales para integrarla a la web.</p>
+                </div>
+                <button type="button" onclick="limpiarFormulario()" class="px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all">
+                  <i class="fa-solid fa-rotate-left mr-1"></i>Limpiar
+                </button>
+              </div>
+
+              <!-- Formulario Principal -->
+              <form id="propiedad-form" onsubmit="event.preventDefault(); guardarNuevaPropiedad();" class="space-y-8">
+
+                <!-- 1. Detalles Principales -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                  <!-- Título -->
+                  <div class="md:col-span-2">
+                    <label for="titulo" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                      Título de la Propiedad <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-signature"></i>
+                      </span>
+                      <input type="text" id="titulo" name="titulo" required placeholder="Ej. Penthouse de Lujo en Zona 14" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-900 placeholder:text-slate-400 transition-all outline-none">
+                    </div>
+                  </div>
+
+                  <!-- Precio -->
+                  <div>
+                    <label for="precio" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                      Precio Oficial <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-bold">$</span>
+                      <input type="text" id="precio" name="precio" required placeholder="Ej. $850,000 USD o $2,500 USD/mes" class="w-full pl-9 pr-4 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-900 placeholder:text-slate-400 transition-all outline-none">
+                    </div>
+                    <span class="text-[11px] text-slate-400 mt-1 block">Para renta añade sufijo, ej: $2,500 USD/mes</span>
+                  </div>
+
+                  <!-- Asesor Asignado -->
+                  <div>
+                    <label for="asesor" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                      Asesor Asignado <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-user-check"></i>
+                      </span>
+                      <select id="asesor" name="asesor" required class="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-900 bg-white transition-all outline-none appearance-none cursor-pointer">
+                        <option value="" disabled selected>Selecciona un Asesor VIP...</option>
+                        <option value="carmen">Carmen Coloma — Directora Comercial & VIP Estates</option>
+                        <option value="santiago">Santiago Leoni — Especialista en Residencias de Lujo</option>
+                        <option value="joseluis">Jose Luis Coloma — Director Inmobiliario Senior</option>
+                        <option value="madeleine">Madeleine Mazat — Asesora Senior de Inversiones</option>
+                        <option value="mariaelena">Maria Elena de Ruiz — Consultora Inmobiliaria Exclusiva</option>
+                        <option value="bitia">Bitia Carballo — Especialista en Rentas Corporativas</option>
+                        <option value="sonia">Sonia Mejía — Asesora Patrimonial Senior</option>
+                        <option value="sofia">Sofia Deón — Especialista en Desarrollos VIP</option>
+                        <option value="william">William Cabrera — Consultor de Propiedades de Lujo</option>
+                      </select>
+                      <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Habitaciones -->
+                  <div>
+                    <label for="cuartos" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                      Habitaciones <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-bed"></i>
+                      </span>
+                      <input type="text" id="cuartos" name="cuartos" required placeholder="Ej. 4 Habs" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-900 placeholder:text-slate-400 transition-all outline-none">
+                    </div>
+                  </div>
+
+                  <!-- Baños -->
+                  <div>
+                    <label for="banos" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                      Baños <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-bath"></i>
+                      </span>
+                      <input type="text" id="banos" name="banos" required placeholder="Ej. 3.5 Baños" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-900 placeholder:text-slate-400 transition-all outline-none">
+                    </div>
+                  </div>
+
+                  <!-- Metros Cuadrados -->
+                  <div>
+                    <label for="metros" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                      Área (m²)
+                    </label>
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-ruler-combined"></i>
+                      </span>
+                      <input type="text" id="metros" name="metros" placeholder="Ej. 450 m²" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-900 placeholder:text-slate-400 transition-all outline-none">
+                    </div>
+                  </div>
+
+                  <!-- Ubicación -->
+                  <div>
+                    <label for="ubicacion" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                      Ubicación Exclusiva
+                    </label>
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-location-dot"></i>
+                      </span>
+                      <input type="text" id="ubicacion" name="ubicacion" placeholder="Ej. Zona 14 • Las Américas" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-900 placeholder:text-slate-400 transition-all outline-none">
+                    </div>
+                  </div>
+
+                  <!-- Disponibilidad (Dropdown) -->
+                  <div class="md:col-span-2">
+                    <label for="estado" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                      Disponibilidad Inicial
+                    </label>
+                    <div class="relative">
+                      <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-tag"></i>
+                      </span>
+                      <select id="estado" name="estado" class="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-900 bg-white transition-all outline-none appearance-none cursor-pointer">
+                        <option value="Disponible" selected>Disponible (En Catálogo Activo)</option>
+                        <option value="Vendida">Vendida (Mostrar con listón diagonal rojo SOLD)</option>
+                      </select>
+                      <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                      </span>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- 2. Fotografía Principal Drag & Drop -->
+                <div>
+                  <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                    <div class="flex items-center gap-2">
+                      <i class="fa-solid fa-image text-teal-600"></i>
+                      <h3 class="font-serif text-base font-bold text-slate-900">Fotografía Principal de Portada</h3>
+                    </div>
+                    <span class="text-[11px] font-bold text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded-full uppercase">Requerida</span>
+                  </div>
+
+                  <div 
+                    id="drop-zone"
+                    class="border-dashed border-2 border-gray-300 hover:border-teal-500 bg-slate-50/70 hover:bg-teal-50/20 rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center group relative overflow-hidden"
+                    onclick="document.getElementById('foto-input').click();"
+                  >
+                    <input type="file" id="foto-input" accept="image/*" class="hidden" onchange="manejarArchivoSeleccionado(this.files)">
+
+                    <div id="dropzone-prompt" class="flex flex-col items-center">
+                      <div class="w-16 h-16 rounded-2xl bg-teal-100/60 text-teal-600 flex items-center justify-center text-3xl mb-3 group-hover:scale-110 group-hover:bg-teal-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                      </div>
+                      <p class="font-serif text-base sm:text-lg font-bold text-slate-800 mb-1 group-hover:text-teal-700 transition-colors">
+                        Arrastra la fotografía principal aquí o haz clic para explorar
+                      </p>
+                      <p class="text-slate-400 text-xs font-medium max-w-md">
+                        Formatos: JPG, PNG, WebP o Google Drive. Tamaño máximo recomendado: 25MB.
+                      </p>
+                      <div class="mt-4 inline-flex items-center gap-2 bg-white border border-slate-300 text-slate-700 text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-xl">
+                        <i class="fa-regular fa-folder-open text-teal-600"></i>
+                        <span>Seleccionar archivo</span>
+                      </div>
+                    </div>
+
+                    <div id="dropzone-preview" class="hidden w-full max-w-md">
+                      <div class="relative rounded-xl overflow-hidden shadow-md border border-slate-200 group/img">
+                        <img id="preview-img" src="" alt="Vista previa de portada" class="w-full h-56 object-cover">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                          <button type="button" onclick="event.stopPropagation(); document.getElementById('foto-input').click();" class="px-3 py-1.5 bg-white text-slate-800 text-xs font-bold rounded-lg shadow-md hover:bg-slate-100">
+                            Cambiar
+                          </button>
+                          <button type="button" onclick="event.stopPropagation(); removerFoto();" class="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-lg shadow-md hover:bg-red-700">
+                            Eliminar
+                          </button>
+                        </div>
+                      </div>
+                      <div class="mt-2.5 flex items-center justify-between text-xs text-slate-600">
+                        <span id="preview-nombre" class="font-medium truncate max-w-xs"></span>
+                        <span class="text-teal-600 font-bold"><i class="fa-solid fa-circle-check"></i> Foto lista</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Galería Adicional de Interiores -->
+                <div>
+                  <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                    <div class="flex items-center gap-2">
+                      <i class="fa-solid fa-images text-teal-600"></i>
+                      <h3 class="font-serif text-base font-bold text-slate-900">Galería de Imágenes Adicionales (Interiores y Áreas)</h3>
+                    </div>
+                    <span class="text-[11px] font-bold text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded-full uppercase">Opcional</span>
+                  </div>
+
+                  <div 
+                    id="drop-zone-galeria"
+                    class="border-dashed border-2 border-gray-300 hover:border-teal-500 bg-slate-50/70 hover:bg-teal-50/20 rounded-xl p-6 sm:p-8 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center group relative overflow-hidden"
+                    onclick="document.getElementById('galeria-input').click();"
+                  >
+                    <input type="file" id="galeria-input" accept="image/*" multiple class="hidden" onchange="manejarGaleriaSeleccionada(this.files)">
+                    <div class="flex flex-col items-center">
+                      <div class="w-12 h-12 rounded-xl bg-teal-100/60 text-teal-600 flex items-center justify-center text-2xl mb-2 group-hover:scale-110 group-hover:bg-teal-600 group-hover:text-white transition-all">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                      </div>
+                      <p class="font-serif text-sm font-bold text-slate-800">Arrastra fotos adicionales aquí (Cocina, dormitorios, vistas)</p>
+                      <p class="text-slate-400 text-xs mt-1">Puedes subir múltiples imágenes simultáneamente.</p>
+                    </div>
+                  </div>
+
+                  <!-- Miniaturas de galería -->
+                  <div class="mt-4">
+                    <div class="flex items-center justify-between mb-2 text-xs font-bold text-slate-600">
+                      <span>Fotos en Galería (<span id="galeria-contador">0</span>/15)</span>
+                    </div>
+                    <div id="galeria-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                      <!-- Miniaturas dinámicas -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Botón de Envío -->
+                <div class="pt-4">
+                  <button 
+                    type="submit" 
+                    class="w-full py-4 px-8 bg-teal-600 hover:bg-teal-700 active:scale-[0.99] text-white font-serif font-bold text-lg rounded-2xl shadow-xl shadow-teal-700/25 hover:shadow-teal-700/40 transition-all flex items-center justify-center gap-3 cursor-pointer"
+                  >
+                    <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+                    <span>Publicar Propiedad en Portafolio</span>
+                  </button>
+                  <p class="text-center text-xs text-slate-400 mt-2.5">
+                    Al publicar, los contadores se actualizarán automáticamente y obtendrás la fila lista para Google Sheets.
+                  </p>
+                </div>
+
+              </form>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ========================================================
+             VISTA 3: ASESORES VIP SANTANDER (100% FUNCIONAL)
+             ======================================================== -->
+        <section id="view-asesores" class="view-panel hidden space-y-8">
+          
+          <!-- Encabezado de Asesores -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
+            <div>
+              <h1 class="font-serif text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Directorio Oficial de Asesores VIP
+              </h1>
+              <p class="text-slate-500 text-sm mt-1">
+                Equipo de directores comerciales e inversión patrimonial exclusiva en Guatemala.
+              </p>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <span class="text-xs font-bold text-teal-800 bg-teal-50 border border-teal-200 px-3.5 py-2 rounded-xl">
+                <i class="fa-solid fa-shield-halved text-teal-600 mr-1.5"></i>9 Asesores Oficiales
+              </span>
+              <button type="button" onclick="abrirModalNuevoAsesor()" class="px-3.5 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-xl shadow-md transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Nuevo Asesor</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Grid de los 9 Asesores VIP -->
+          <div id="asesores-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Inyectado dinámicamente con fotos de alta resolución, stats y WhatsApp -->
+          </div>
+
+        </section>
+
+        <!-- ========================================================
+             VISTA 4: GOOGLE SHEET CSV (CONEXIÓN EN VIVO)
+             ======================================================== -->
+        <section id="view-sheets" class="view-panel hidden space-y-8">
+          
+          <!-- Encabezado de Sheets -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
+            <div>
+              <h1 class="font-serif text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Centro de Sincronización Google Sheets
+              </h1>
+              <p class="text-slate-500 text-sm mt-1">
+                Conexión bidireccional en tiempo real entre la nube de Google y el catálogo VIP de propiedades.
+              </p>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <button type="button" onclick="sincronizarAhora(true)" class="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md transition-all flex items-center gap-2">
+                <i class="fa-solid fa-rotate"></i>
+                <span>Sincronizar Ahora</span>
+              </button>
+              <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vTy-h3jWds9tF7OQzGIKUnFaw65cFd-UHJuhNZlkvfC6g2hWYxurIpl3qyifcqdWNq2H-Tn04VucX0b/pubhtml" target="_blank" class="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl shadow-xs transition-all flex items-center gap-2">
+                <i class="fa-solid fa-arrow-up-right-from-square text-teal-600"></i>
+                <span>Abrir en Google Drive</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Tarjetas de Estado y Diagnóstico -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg font-bold">
+                  <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                  <h3 class="font-serif font-bold text-slate-900 text-base">Estado de Conexión</h3>
+                  <p class="text-xs text-emerald-600 font-semibold">🟢 HTTP 200 OK • En Vivo</p>
+                </div>
+              </div>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                El endpoint CSV responde correctamente y entrega las propiedades con codificación UTF-8.
+              </p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg font-bold">
+                  <i class="fa-solid fa-database"></i>
+                </div>
+                <div>
+                  <h3 class="font-serif font-bold text-slate-900 text-base">Registros Sincronizados</h3>
+                  <p id="sheets-total-rows-text" class="text-xs text-blue-600 font-semibold">-- Propiedades VIP</p>
+                </div>
+              </div>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                Se descargan los encabezados oficiales de título, precio, cuartos, baños, metros, asesor y fotos.
+              </p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-lg font-bold">
+                  <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div>
+                  <h3 class="font-serif font-bold text-slate-900 text-base">Caché & Anti-Flicker</h3>
+                  <p class="text-xs text-purple-600 font-semibold">Cache-Buster Dinámico Activo</p>
+                </div>
+              </div>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                Cada consulta agrega timestamp <code class="text-purple-700 font-mono">?t=Date.now()</code> para garantizar que no veas datos obsoletos.
+              </p>
+            </div>
+
+          </div>
+
+          <!-- Visor Embebido Interactivo de Google Sheets -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="p-5 border-b border-slate-100 bg-slate-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-table text-teal-600 text-lg"></i>
+                <div>
+                  <h3 class="font-serif font-bold text-slate-900 text-base">Visualizador en Vivo de Google Sheets</h3>
+                  <p class="text-xs text-slate-400">Hoja oficial publicada en la web (Lectura en tiempo real).</p>
+                </div>
+              </div>
+              <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vTy-h3jWds9tF7OQzGIKUnFaw65cFd-UHJuhNZlkvfC6g2hWYxurIpl3qyifcqdWNq2H-Tn04VucX0b/pubhtml" target="_blank" class="text-xs text-teal-700 font-bold hover:underline inline-flex items-center gap-1.5">
+                <span>Pantalla Completa</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+              </a>
+            </div>
+            
+            <div class="relative w-full h-[520px] bg-slate-100">
+              <iframe 
+                src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTy-h3jWds9tF7OQzGIKUnFaw65cFd-UHJuhNZlkvfC6g2hWYxurIpl3qyifcqdWNq2H-Tn04VucX0b/pubhtml?widget=true&amp;headers=false"
+                class="w-full h-full border-0"
+                title="Google Sheets Publicado"
+              ></iframe>
+            </div>
+          </div>
+
+          <!-- Guía de Columnas Oficiales para Google Sheets -->
+          <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
+            <h3 class="font-serif font-bold text-slate-900 text-base mb-2">Estructura Oficial de Columnas en Google Sheets</h3>
+            <p class="text-xs text-slate-500 mb-4">Asegúrate de que tu hoja mantenga este orden exacto de columnas en la primera fila:</p>
+            <div class="overflow-x-auto">
+              <div class="inline-flex gap-2 p-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-mono text-slate-700">
+                <span class="bg-white px-2 py-1 rounded shadow-xs font-bold text-teal-700">1. id</span>
+                <span class="bg-white px-2 py-1 rounded shadow-xs font-bold text-teal-700">2. titulo</span>
+                <span class="bg-white px-2 py-1 rounded shadow-xs font-bold text-teal-700">3. precio</span>
+                <span class="bg-white px-2 py-1 rounded shadow-xs font-bold text-teal-700">4. cuartos</span>
+                <span class="bg-white px-2 py-1 rounded shadow-xs font-bold text-teal-700">5. banos</span>
+                <span class="bg-white px-2 py-1 rounded shadow-xs font-bold text-teal-700">6. metros</span>
+                <span class="bg-white px-2 py-1 rounded shadow-xs font-bold text-teal-700">7. ubicacion</span>
+                <span class="bg-white px-2 py-1 rounded shadow-xs font-bold text-teal-700">8. amenidades</span>
+                <span class="bg-white px-2 py-1 rounded shadow-xs font-bold text-teal-700">9. cercanias</span>
+                <span class="bg-white px-2 py-1 rounded shadow-xs font-bold text-teal-700">10. imagen_portada</span>
+                <span class="bg-white px-2 py-1 rounded shadow-xs font-bold text-teal-700">11. galeria_fotos</span>
+                <span class="bg-white px-2 py-1 rounded shadow-xs font-bold text-teal-700">12. id_asesor</span>
+                <span class="bg-white px-2 py-1 rounded shadow-xs font-bold text-teal-700">13. estado</span>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ========================================================
+             VISTA 5: CONFIGURACIÓN DEL SISTEMA
+             ======================================================== -->
+        <section id="view-configuracion" class="view-panel hidden space-y-6">
+          
+          <div class="pb-2 border-b border-slate-200">
+            <h1 class="font-serif text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Configuración del Panel
             </h1>
             <p class="text-slate-500 text-sm mt-1">
-              Ingresa las especificaciones del inmueble y carga la fotografía oficial para publicarla en el catálogo en tiempo real.
+              Ajustes de integración, orígenes de datos y preferencias del sistema.
             </p>
           </div>
 
-          <div class="flex items-center gap-2">
-            <button type="button" onclick="limpiarFormulario()" class="px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-slate-900 bg-white border border-slate-300 hover:bg-slate-100 rounded-xl transition-all shadow-sm">
-              <i class="fa-solid fa-rotate-left mr-1.5"></i>Limpiar
-            </button>
-            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-800 bg-teal-50 px-3 py-2 rounded-xl border border-teal-200">
-              <i class="fa-solid fa-shield-halved text-teal-600"></i>
-              Exclusiva Santander
-            </span>
-          </div>
-        </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
+            
+            <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+              <h3 class="font-serif font-bold text-slate-900 text-base">URL del Archivo CSV (Google Sheets)</h3>
+              <p class="text-xs text-slate-400">Endpoint publicado desde donde el sitio web y el panel leen las propiedades:</p>
+              <input type="text" id="config-csv-url" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vTy-h3jWds9tF7OQzGIKUnFaw65cFd-UHJuhNZlkvfC6g2hWYxurIpl3qyifcqdWNq2H-Tn04VucX0b/pub?output=csv" class="w-full text-xs font-mono p-3 bg-slate-50 rounded-xl border border-slate-300 select-all outline-none">
+              <button type="button" onclick="guardarConfigCsv()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all">
+                Guardar URL
+              </button>
+            </div>
 
-        <!-- Formulario Principal -->
-        <form id="propiedad-form" onsubmit="event.preventDefault(); simularPublicacion();" class="space-y-8">
-
-          <!-- Tarjeta 1: Información Básica del Inmueble (Grid a dos columnas) -->
-          <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8">
-            <div class="flex items-center gap-3 pb-5 border-b border-slate-100 mb-6">
-              <div class="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 font-bold">
-                <i class="fa-solid fa-circle-info"></i>
-              </div>
-              <div>
-                <h2 class="font-serif text-lg font-bold text-slate-900">Detalles de la Propiedad</h2>
-                <p class="text-xs text-slate-400">Información principal que se mostrará en las tarjetas del catálogo.</p>
+            <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+              <h3 class="font-serif font-bold text-slate-900 text-base">Caché Local de Propiedades</h3>
+              <p class="text-xs text-slate-400">Si agregaste propiedades locales en demo y deseas limpiar el caché del navegador:</p>
+              <div class="pt-2">
+                <button type="button" onclick="limpiarCacheLocal()" class="px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-bold text-xs rounded-xl transition-all flex items-center gap-2">
+                  <i class="fa-solid fa-trash-can"></i>
+                  <span>Restablecer Solo a Datos de Google Sheets</span>
+                </button>
               </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-              <!-- Título de la propiedad (Full width en móviles, span 2 opcional) -->
-              <div class="md:col-span-2">
-                <label for="titulo" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-                  Título de la Propiedad <span class="text-red-500">*</span>
-                </label>
-                <div class="relative">
-                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <i class="fa-solid fa-signature"></i>
-                  </span>
-                  <input type="text" id="titulo" name="titulo" required placeholder="Ej. Mansión Contemporánea con Vista Panorámica" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-900 placeholder:text-slate-400 transition-all outline-none">
-                </div>
-              </div>
-
-              <!-- Precio -->
-              <div>
-                <label for="precio" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-                  Precio <span class="text-red-500">*</span>
-                </label>
-                <div class="relative">
-                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-bold">
-                    $
-                  </span>
-                  <input type="text" id="precio" name="precio" required placeholder="Ej. $850,000 USD" class="w-full pl-9 pr-4 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-900 placeholder:text-slate-400 transition-all outline-none">
-                </div>
-                <span class="text-[11px] text-slate-400 mt-1 block">Para renta añade sufijo, ej: $2,500 USD/mes</span>
-              </div>
-
-              <!-- Asesor Asignado (Dropdown) -->
-              <div>
-                <label for="asesor" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-                  Asesor Asignado <span class="text-red-500">*</span>
-                </label>
-                <div class="relative">
-                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <i class="fa-solid fa-user-check"></i>
-                  </span>
-                  <select id="asesor" name="asesor" required class="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-900 bg-white transition-all outline-none appearance-none cursor-pointer">
-                    <option value="" disabled selected>Selecciona un Asesor VIP...</option>
-                    <option value="carmen">Carmen Coloma — Directora Comercial & VIP Estates</option>
-                    <option value="santiago">Santiago Leoni — Especialista en Residencias de Lujo</option>
-                    <option value="joseluis">Jose Luis Coloma — Director Inmobiliario Senior</option>
-                    <option value="madeleine">Madeleine Mazat — Asesora Senior de Inversiones</option>
-                    <option value="mariaelena">Maria Elena de Ruiz — Consultora Inmobiliaria Exclusiva</option>
-                    <option value="bitia">Bitia Carballo — Especialista en Rentas Corporativas</option>
-                    <option value="sonia">Sonia Mejía — Asesora Patrimonial Senior</option>
-                    <option value="sofia">Sofia Deón — Especialista en Desarrollos VIP</option>
-                    <option value="william">William Cabrera — Consultor de Propiedades de Lujo</option>
-                  </select>
-                  <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
-                    <i class="fa-solid fa-chevron-down text-xs"></i>
-                  </span>
-                </div>
-              </div>
-
-              <!-- Habitaciones -->
-              <div>
-                <label for="cuartos" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-                  Habitaciones (Cuartos) <span class="text-red-500">*</span>
-                </label>
-                <div class="relative">
-                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <i class="fa-solid fa-bed"></i>
-                  </span>
-                  <input type="text" id="cuartos" name="cuartos" required placeholder="Ej. 4 Habs" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-900 placeholder:text-slate-400 transition-all outline-none">
-                </div>
-              </div>
-
-              <!-- Baños -->
-              <div>
-                <label for="banos" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-                  Baños <span class="text-red-500">*</span>
-                </label>
-                <div class="relative">
-                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <i class="fa-solid fa-bath"></i>
-                  </span>
-                  <input type="text" id="banos" name="banos" required placeholder="Ej. 3.5 Baños" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-900 placeholder:text-slate-400 transition-all outline-none">
-                </div>
-              </div>
-
-              <!-- Metros Cuadrados -->
-              <div>
-                <label for="metros" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-                  Metros Cuadrados (Área)
-                </label>
-                <div class="relative">
-                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <i class="fa-solid fa-ruler-combined"></i>
-                  </span>
-                  <input type="text" id="metros" name="metros" placeholder="Ej. 450 m²" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-900 placeholder:text-slate-400 transition-all outline-none">
-                </div>
-              </div>
-
-              <!-- Ubicación / Zona -->
-              <div>
-                <label for="ubicacion" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-                  Ubicación Exclusiva
-                </label>
-                <div class="relative">
-                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <i class="fa-solid fa-location-dot"></i>
-                  </span>
-                  <input type="text" id="ubicacion" name="ubicacion" placeholder="Ej. Zona 14 • Las Américas" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-900 placeholder:text-slate-400 transition-all outline-none">
-                </div>
-              </div>
-
-              <!-- Estado de la Propiedad (Dropdown Disponible / Vendida con listón rojo) -->
-              <div class="md:col-span-2">
-                <label for="estado" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-                  Disponibilidad de la Propiedad
-                </label>
-                <div class="relative">
-                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <i class="fa-solid fa-tag"></i>
-                  </span>
-                  <select id="estado" name="estado" class="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-900 bg-white transition-all outline-none appearance-none cursor-pointer">
-                    <option value="Disponible" selected>Disponible (En Catálogo Activo)</option>
-                    <option value="Vendida">Vendida (Mostrar listón diagonal rojo SOLD)</option>
-                  </select>
-                  <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
-                    <i class="fa-solid fa-chevron-down text-xs"></i>
-                  </span>
-                </div>
-              </div>
-
-            </div>
           </div>
 
-          <!-- ========================================================
-               LA ESTRELLA DEL SHOW: ÁREA GIGANTE DE DRAG & DROP
-               ======================================================== -->
-          <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8">
-            <div class="flex items-center justify-between pb-5 border-b border-slate-100 mb-6">
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 font-bold">
-                  <i class="fa-solid fa-image"></i>
-                </div>
-                <div>
-                  <h2 class="font-serif text-lg font-bold text-slate-900">Fotografía Principal de Portada</h2>
-                  <p class="text-xs text-slate-400">Imagen frontal de ultra alta resolución que encabezará la tarjeta y el modal.</p>
-                </div>
-              </div>
-
-              <span class="text-[11px] font-bold text-teal-700 bg-teal-50 border border-teal-200 px-3 py-1 rounded-full uppercase tracking-wider">
-                Requerida
-              </span>
-            </div>
-
-            <!-- Zona de Carga Drag & Drop -->
-            <div 
-              id="drop-zone"
-              class="border-dashed border-2 border-gray-300 hover:border-teal-500 bg-slate-50/70 hover:bg-teal-50/20 rounded-2xl p-10 sm:p-14 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center group relative overflow-hidden"
-              onclick="document.getElementById('foto-input').click();"
-            >
-              <!-- Input nativo oculto -->
-              <input type="file" id="foto-input" accept="image/*" class="hidden" onchange="manejarArchivoSeleccionado(this.files)">
-
-              <!-- Contenido Inicial del Dropzone -->
-              <div id="dropzone-prompt" class="flex flex-col items-center">
-                <div class="w-20 h-20 rounded-2xl bg-teal-100/60 text-teal-600 flex items-center justify-center text-4xl mb-4 group-hover:scale-110 group-hover:bg-teal-600 group-hover:text-white transition-all duration-300 shadow-sm">
-                  <i class="fa-solid fa-cloud-arrow-up"></i>
-                </div>
-
-                <p class="font-serif text-lg sm:text-xl font-bold text-slate-800 mb-1 group-hover:text-teal-700 transition-colors">
-                  Arrastra la fotografía principal aquí o haz clic para explorar
-                </p>
-
-                <p class="text-slate-400 text-xs sm:text-sm font-medium max-w-md mt-1">
-                  Formatos admitidos: JPG, PNG, WebP o enlaces directos de Google Drive. Tamaño máximo recomendado: 25MB.
-                </p>
-
-                <div class="mt-5 inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-xl shadow-xs group-hover:border-teal-300 group-hover:text-teal-700 transition-colors">
-                  <i class="fa-regular fa-folder-open text-teal-600"></i>
-                  <span>Seleccionar desde el equipo</span>
-                </div>
-              </div>
-
-              <!-- Vista Previa de la Fotografía Cargada (Oculta por defecto) -->
-              <div id="dropzone-preview" class="hidden w-full max-w-lg">
-                <div class="relative rounded-xl overflow-hidden shadow-md border border-slate-200 group/img">
-                  <img id="preview-img" src="" alt="Vista previa de portada" class="w-full h-64 object-cover">
-                  <div class="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                    <button type="button" onclick="event.stopPropagation(); document.getElementById('foto-input').click();" class="px-3.5 py-2 bg-white text-slate-800 text-xs font-bold rounded-lg shadow-md hover:bg-slate-100 transition-colors">
-                      <i class="fa-solid fa-rotate mr-1.5"></i>Cambiar Foto
-                    </button>
-                    <button type="button" onclick="event.stopPropagation(); removerFoto();" class="px-3.5 py-2 bg-red-600 text-white text-xs font-bold rounded-lg shadow-md hover:bg-red-700 transition-colors">
-                      <i class="fa-solid fa-trash mr-1.5"></i>Eliminar
-                    </button>
-                  </div>
-                </div>
-                <div class="mt-3 flex items-center justify-between text-xs text-slate-500">
-                  <span id="preview-nombre" class="font-medium truncate max-w-xs text-slate-700"></span>
-                  <span class="text-teal-600 font-bold flex items-center gap-1">
-                    <i class="fa-solid fa-circle-check"></i> Lista para subir
-                  </span>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Opción alternativa: Pegar Link de Google Drive o URL -->
-            <div class="mt-4 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-              <span class="flex items-center gap-1.5">
-                <i class="fa-brands fa-google-drive text-emerald-600"></i>
-                ¿Tienes la foto en Google Drive? También puedes pegar el enlace compartido en tu Google Sheet oficial.
-              </span>
-              <span class="font-bold text-teal-600 uppercase tracking-wider text-[11px]">Sincronización Automática</span>
-            </div>
-          </div>
-
-          
-          <!-- ========================================================
-               GALERÍA DE IMÁGENES ADICIONALES (INTERIORES Y ÁREAS)
-               ======================================================== -->
-          <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8">
-            <!-- 1. ENCABEZADO DE LA SECCIÓN -->
-            <div class="flex items-center justify-between pb-5 border-b border-slate-100 mb-6">
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 font-bold">
-                  <i class="fa-solid fa-images"></i>
-                </div>
-                <div>
-                  <h2 class="font-serif text-lg font-bold text-slate-900">Galería de Imágenes Adicionales (Interiores y Áreas)</h2>
-                  <p class="text-xs text-slate-400">Agrega fotos de interiores, amenidades, planos o áreas comunes para el carrusel de detalles. Hasta 15 imágenes.</p>
-                </div>
-              </div>
-
-              <!-- Badge suave y redondeado OPCIONAL -->
-              <span class="text-[11px] font-bold text-teal-700 bg-teal-50 border border-teal-200 px-3 py-1 rounded-full uppercase tracking-wider">
-                OPCIONAL
-              </span>
-            </div>
-
-            <!-- 2. ÁREA DE ARRASTRAR Y SOLTAR (DRAG & DROP) -->
-            <div 
-              id="drop-zone-galeria"
-              class="border-dashed border-2 border-gray-300 hover:border-teal-500 bg-slate-50/70 hover:bg-teal-50/20 rounded-xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center group relative overflow-hidden"
-              onclick="document.getElementById('galeria-input').click();"
-            >
-              <input type="file" id="galeria-input" accept="image/*" multiple class="hidden" onchange="manejarGaleriaSeleccionada(this.files)">
-
-              <div class="flex flex-col items-center">
-                <!-- Ícono central de nube de carga en verde teal -->
-                <div class="w-16 h-16 rounded-2xl bg-teal-100/60 text-teal-600 flex items-center justify-center text-3xl mb-3 group-hover:scale-110 group-hover:bg-teal-600 group-hover:text-white transition-all duration-300 shadow-sm">
-                  <i class="fa-solid fa-cloud-arrow-up"></i>
-                </div>
-
-                <!-- Texto principal en negrita y buen tamaño -->
-                <p class="font-serif text-base sm:text-lg font-bold text-slate-800 mb-1 group-hover:text-teal-700 transition-colors">
-                  Arrastra el resto de imágenes aquí o haz clic para explorar
-                </p>
-
-                <!-- Subtexto informativo -->
-                <p class="text-slate-400 text-xs sm:text-sm font-medium max-w-lg mt-1 mb-4">
-                  Formatos admitidos: JPG, PNG, WebP. Puedes subir varias fotos a la vez. Tamaño máximo por archivo: 15MB.
-                </p>
-
-                <!-- Botón centrado SELECCIONAR DESDE EL EQUIPO -->
-                <div class="inline-flex items-center gap-2 bg-white border border-slate-300 hover:border-teal-500 text-slate-700 hover:text-teal-700 text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-xl shadow-xs transition-all">
-                  <span>📁 SELECCIONAR DESDE EL EQUIPO</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- 3. PREVISUALIZACIÓN DE MINIATURAS (THUMBNAILS) -->
-            <div class="mt-6">
-              <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
-                  <i class="fa-solid fa-layer-group text-teal-600"></i>
-                  Fotos en Galería (<span id="galeria-contador">4</span>/15)
-                </span>
-                <span class="text-[11px] text-slate-400">Pasa el cursor o presiona 'X' para eliminar</span>
-              </div>
-
-              <!-- Grid de miniaturas simuladas -->
-              <div id="galeria-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
-                
-                <!-- Miniatura 1: Sala Principal -->
-                <div class="thumbnail-card relative aspect-video rounded-xl overflow-hidden shadow-sm border border-slate-200 group bg-slate-100">
-                  <img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80" alt="Sala Principal" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
-                    <span class="text-[10px] text-white font-medium truncate">Sala Principal</span>
-                  </div>
-                  <button type="button" onclick="event.stopPropagation(); this.closest('.thumbnail-card').remove(); actualizarContadorGaleria();" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-xs shadow-md transition-transform hover:scale-110 focus:outline-none" title="Eliminar foto">
-                    <i class="fa-solid fa-xmark"></i>
-                  </button>
-                </div>
-
-                <!-- Miniatura 2: Cocina Gourmet -->
-                <div class="thumbnail-card relative aspect-video rounded-xl overflow-hidden shadow-sm border border-slate-200 group bg-slate-100">
-                  <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=600&q=80" alt="Cocina Gourmet" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
-                    <span class="text-[10px] text-white font-medium truncate">Cocina Gourmet</span>
-                  </div>
-                  <button type="button" onclick="event.stopPropagation(); this.closest('.thumbnail-card').remove(); actualizarContadorGaleria();" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-xs shadow-md transition-transform hover:scale-110 focus:outline-none" title="Eliminar foto">
-                    <i class="fa-solid fa-xmark"></i>
-                  </button>
-                </div>
-
-                <!-- Miniatura 3: Máster Suite -->
-                <div class="thumbnail-card relative aspect-video rounded-xl overflow-hidden shadow-sm border border-slate-200 group bg-slate-100">
-                  <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80" alt="Máster Suite" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
-                    <span class="text-[10px] text-white font-medium truncate">Máster Suite</span>
-                  </div>
-                  <button type="button" onclick="event.stopPropagation(); this.closest('.thumbnail-card').remove(); actualizarContadorGaleria();" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-xs shadow-md transition-transform hover:scale-110 focus:outline-none" title="Eliminar foto">
-                    <i class="fa-solid fa-xmark"></i>
-                  </button>
-                </div>
-
-                <!-- Miniatura 4: Piscina y Jardín -->
-                <div class="thumbnail-card relative aspect-video rounded-xl overflow-hidden shadow-sm border border-slate-200 group bg-slate-100">
-                  <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80" alt="Piscina y Jardín" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
-                    <span class="text-[10px] text-white font-medium truncate">Piscina y Jardín</span>
-                  </div>
-                  <button type="button" onclick="event.stopPropagation(); this.closest('.thumbnail-card').remove(); actualizarContadorGaleria();" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-xs shadow-md transition-transform hover:scale-110 focus:outline-none" title="Eliminar foto">
-                    <i class="fa-solid fa-xmark"></i>
-                  </button>
-                </div>
-
-              </div>
-            </div>
-
-            <!-- 4. PIE DE PÁGINA DE LA SECCIÓN -->
-            <div class="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-              <span class="flex items-center gap-1.5">
-                <i class="fa-brands fa-google-drive text-emerald-600"></i>
-                ¿Tienes las fotos en Google Drive? Puedes pegar los enlaces separados por comas en tu Google Sheet oficial.
-              </span>
-              <span class="font-bold text-teal-600 uppercase tracking-wider text-[11px]">SINCRONIZACIÓN AUTOMÁTICA</span>
-            </div>
-          </div>
-
-          <!-- ========================================================
-               BOTÓN GIGANTE VERDE "PUBLICAR PROPIEDAD"
-               ======================================================== -->
-          <div class="pt-2">
-            <button 
-              type="submit" 
-              class="w-full py-4 sm:py-5 px-8 bg-teal-600 hover:bg-teal-700 active:scale-[0.99] text-white font-serif font-bold text-lg sm:text-xl rounded-2xl shadow-xl shadow-teal-700/25 hover:shadow-teal-700/40 transition-all flex items-center justify-center gap-3 focus:outline-none cursor-pointer"
-            >
-              <i class="fa-solid fa-cloud-arrow-up text-xl sm:text-2xl"></i>
-              <span>Publicar Propiedad</span>
-            </button>
-            <p class="text-center text-xs text-slate-400 mt-3 font-medium">
-              Al hacer clic, la propiedad se integrará automáticamente al portafolio y estará disponible para clientes y asesores.
-            </p>
-          </div>
-
-        </form>
+        </section>
 
       </div>
     </main>
+
   </div>
 
-  <!-- Modal / Notificación Toast de Éxito (Demo Interactivo) -->
-  <div id="toast-exito" class="fixed bottom-6 right-6 z-50 transform translate-y-32 opacity-0 transition-all duration-500 pointer-events-none">
+  <!-- ========================================================
+       MODALES FUNCIONALES
+       ======================================================== -->
+
+  <!-- Modal 1: Fila CSV Copiada para Google Sheets -->
+  <div id="modal-csv-copiado" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 transform transition-all">
+      <div class="flex items-center gap-4 pb-4 border-b border-slate-100 mb-5">
+        <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl shrink-0">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div>
+          <h3 class="font-serif text-xl font-bold text-slate-900">¡Propiedad Publicada con Éxito!</h3>
+          <p class="text-xs text-slate-400">Se ha integrado al portafolio y está lista para Google Sheets.</p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Ya se actualizó el panel y el sitio web en tu navegador. Para que quede guardada permanentemente en la nube, copia esta fila y pégala al final de tu Google Sheet:
+        </p>
+
+        <div class="relative">
+          <textarea id="modal-csv-textarea" readonly rows="3" class="w-full text-xs font-mono p-3 bg-slate-50 border border-slate-300 rounded-xl resize-none select-all text-slate-700"></textarea>
+          <button type="button" onclick="copiarTextoDesdeModal()" class="absolute top-2 right-2 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-lg shadow-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-copy"></i>
+            <span>Copiar Fila</span>
+          </button>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100">
+          <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vTy-h3jWds9tF7OQzGIKUnFaw65cFd-UHJuhNZlkvfC6g2hWYxurIpl3qyifcqdWNq2H-Tn04VucX0b/pubhtml" target="_blank" class="text-xs text-teal-600 font-bold hover:underline flex items-center gap-1.5">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            <span>Abrir Hoja Google Sheets</span>
+          </a>
+          <button type="button" onclick="cerrarModalCsv()" class="w-full sm:w-auto px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all">
+            Entendido, Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Detalle Completo de Propiedad -->
+  <div id="modal-detalle-propiedad" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+        <div class="flex items-center gap-3">
+          <span id="modal-prop-id-badge" class="px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-mono font-bold rounded-lg">#ID</span>
+          <span id="modal-prop-estado-badge" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">--</span>
+        </div>
+        <button type="button" onclick="cerrarModalDetalle()" class="text-slate-400 hover:text-slate-700 p-2">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div class="h-64 rounded-2xl overflow-hidden bg-slate-100 shadow-xs relative">
+          <img id="modal-prop-img" src="" alt="" class="w-full h-full object-cover">
+          <div id="modal-prop-sold-banner" class="hidden absolute top-4 right-4 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-md shadow-md">
+            VENDIDA (SOLD)
+          </div>
+        </div>
+
+        <div>
+          <span id="modal-prop-ubicacion" class="text-xs uppercase font-semibold text-slate-400 block tracking-wider"></span>
+          <h3 id="modal-prop-titulo" class="font-serif text-2xl font-bold text-slate-900 mt-0.5"></h3>
+          <p id="modal-prop-precio" class="font-serif text-xl font-extrabold text-teal-600 mt-1"></p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl text-center text-xs">
+          <div>
+            <span class="text-slate-400 block">Habitaciones</span>
+            <span id="modal-prop-cuartos" class="font-bold text-slate-800 text-sm"></span>
+          </div>
+          <div>
+            <span class="text-slate-400 block">Baños</span>
+            <span id="modal-prop-banos" class="font-bold text-slate-800 text-sm"></span>
+          </div>
+          <div>
+            <span class="text-slate-400 block">Área</span>
+            <span id="modal-prop-metros" class="font-bold text-slate-800 text-sm"></span>
+          </div>
+        </div>
+
+        <!-- Asesor Asignado -->
+        <div class="p-3.5 bg-slate-100/70 rounded-xl flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <img id="modal-prop-asesor-avatar" src="" alt="" class="w-10 h-10 rounded-full object-cover">
+            <div>
+              <p id="modal-prop-asesor-nombre" class="text-xs font-bold text-slate-900"></p>
+              <p id="modal-prop-asesor-puesto" class="text-[11px] text-slate-500"></p>
+            </div>
+          </div>
+          <a id="modal-prop-asesor-wa" href="#" target="_blank" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm flex items-center gap-1.5">
+            <i class="fa-brands fa-whatsapp"></i> WhatsApp
+          </a>
+        </div>
+
+        <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+          <button id="modal-prop-toggle-btn" type="button" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition-all">
+            Cambiar Disponibilidad
+          </button>
+          <button type="button" onclick="cerrarModalDetalle()" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Registrar Nuevo Asesor VIP -->
+  <div id="modal-nuevo-asesor" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-lg font-bold">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+          <div>
+            <h3 class="font-serif text-lg font-bold text-slate-900">Registrar Nuevo Asesor VIP</h3>
+            <p class="text-xs text-slate-400">Agrega un nuevo director comercial al equipo oficial.</p>
+          </div>
+        </div>
+        <button type="button" onclick="cerrarModalNuevoAsesor()" class="text-slate-400 hover:text-slate-700 p-2">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="event.preventDefault(); guardarNuevoAsesor();" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Nombre Completo *</label>
+          <input type="text" id="nuevo-asesor-nombre" required placeholder="Ej. Roberto Morales" class="w-full p-2.5 text-sm rounded-xl border border-slate-300 focus:border-teal-500 outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Cargo Oficial *</label>
+          <input type="text" id="nuevo-asesor-puesto" required placeholder="Ej. Director de Inversiones Prime" class="w-full p-2.5 text-sm rounded-xl border border-slate-300 focus:border-teal-500 outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Teléfono WhatsApp (Con código de país 502) *</label>
+          <input type="text" id="nuevo-asesor-tel" required placeholder="Ej. 50255554444" class="w-full p-2.5 text-sm rounded-xl border border-slate-300 focus:border-teal-500 outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Correo Electrónico</label>
+          <input type="email" id="nuevo-asesor-email" placeholder="asesor@santandervip.gt" class="w-full p-2.5 text-sm rounded-xl border border-slate-300 focus:border-teal-500 outline-none">
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
+          <button type="button" onclick="cerrarModalNuevoAsesor()" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
+          <button type="submit" class="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow-md">Guardar Asesor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast de Notificaciones -->
+  <div id="toast-notificacion" class="fixed bottom-6 right-6 z-50 transform translate-y-32 opacity-0 transition-all duration-500 pointer-events-none">
     <div class="bg-slate-900 text-white px-5 py-4 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-4 max-w-md">
-      <div class="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-xl shrink-0">
-        <i class="fa-solid fa-circle-check"></i>
+      <div id="toast-icon-container" class="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-xl shrink-0">
+        <i id="toast-icon" class="fa-solid fa-circle-check"></i>
       </div>
       <div>
-        <h4 class="font-serif font-bold text-sm text-white">¡Propiedad Publicada con Éxito!</h4>
-        <p class="text-xs text-slate-300 mt-0.5">Los datos han sido validados y están listos para sincronizarse con el catálogo VIP.</p>
+        <h4 id="toast-title" class="font-serif font-bold text-sm text-white">Notificación</h4>
+        <p id="toast-desc" class="text-xs text-slate-300 mt-0.5">Operación realizada con éxito.</p>
       </div>
     </div>
   </div>
 
   <!-- ========================================================
-       SCRIPTS INTERACTIVOS PARA DRAG & DROP Y DEMO VISUAL
+       SCRIPTS JAVASCRIPT: LÓGICA COMPLETA DEL PANEL
        ======================================================== -->
   <script>
+    // ========================================================
+    // 1. CONFIGURACIÓN Y ESTADO GLOBAL
+    // ========================================================
+    let CSV_URL = localStorage.getItem('santander_csv_url') || "https://docs.google.com/spreadsheets/d/e/2PACX-1vTy-h3jWds9tF7OQzGIKUnFaw65cFd-UHJuhNZlkvfC6g2hWYxurIpl3qyifcqdWNq2H-Tn04VucX0b/pub?output=csv";
+    
+    // Directorio de los 9 Asesores VIP Santander Oficiales
+    let asesores = {
+      "carmen": { 
+        nombre: "Carmen Coloma", 
+        tel: "50252945088", 
+        puesto: "Directora Comercial & VIP Estates", 
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80", 
+        email: "carmen.coloma@santandervip.gt" 
+      },
+      "santiago": { 
+        nombre: "Santiago Leoni", 
+        tel: "50231507820", 
+        puesto: "Especialista en Residencias de Lujo", 
+        avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80", 
+        email: "santiago.leoni@santandervip.gt" 
+      },
+      "joseluis": { 
+        nombre: "Jose Luis Coloma", 
+        tel: "50258365894", 
+        puesto: "Director Inmobiliario Senior", 
+        avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80", 
+        email: "joseluis.coloma@santandervip.gt" 
+      },
+      "madeleine": { 
+        nombre: "Madeleine Mazat", 
+        tel: "50250174606", 
+        puesto: "Asesora Senior de Inversiones", 
+        avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80", 
+        email: "madeleine.mazat@santandervip.gt" 
+      },
+      "mariaelena": { 
+        nombre: "Maria Elena de Ruiz", 
+        tel: "50255237951", 
+        puesto: "Consultora Inmobiliaria Exclusiva", 
+        avatar: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=400&q=80", 
+        email: "mariaelena.ruiz@santandervip.gt" 
+      },
+      "bitia": { 
+        nombre: "Bitia Carballo", 
+        tel: "50256324236", 
+        puesto: "Especialista en Rentas Corporativas", 
+        avatar: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=400&q=80", 
+        email: "bitia.carballo@santandervip.gt" 
+      },
+      "sonia": { 
+        nombre: "Sonia Mejía", 
+        tel: "50241191773", 
+        puesto: "Asesora Patrimonial Senior", 
+        avatar: "https://images.unsplash.com/photo-1598550874175-4d0ef436c909?auto=format&fit=crop&w=400&q=80", 
+        email: "sonia.mejia@santandervip.gt" 
+      },
+      "sofia": { 
+        nombre: "Sofia Deón", 
+        tel: "50230001208", 
+        puesto: "Especialista en Desarrollos VIP", 
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80", 
+        email: "sofia.deon@santandervip.gt" 
+      },
+      "william": { 
+        nombre: "William Cabrera", 
+        tel: "50255105971", 
+        puesto: "Consultor de Propiedades de Lujo", 
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80", 
+        email: "william.cabrera@santandervip.gt" 
+      }
+    };
+
+    // Propiedades de respaldo local por si Google Sheets no responde
+    const propiedadesRespaldo = [
+      { id: "1", titulo: "Penthouse Exclusivo - Zona 15", precio: "$770,000 USD", cuartos: "3 Habs", banos: "2.5 Baños", metros: "292 m²", ubicacion: "Zona 15 • Vista Hermosa", imagen_portada: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80", id_asesor: "carmen", estado: "Disponible", es_vendida: false },
+      { id: "2", titulo: "Mansión Moderna en Cayalá", precio: "$1,250,000 USD", cuartos: "4 Habs", banos: "5 Baños", metros: "650 m²", ubicacion: "Zona 16 • Paseo Cayalá", imagen_portada: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80", id_asesor: "santiago", estado: "Disponible", es_vendida: false },
+      { id: "3", titulo: "Apartamento Ideal Inversión - Zona 14", precio: "$285,000 USD", cuartos: "2 Habs", banos: "2 Baños", metros: "115 m²", ubicacion: "Zona 14 • Las Américas", imagen_portada: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80", id_asesor: "joseluis", estado: "Vendida", es_vendida: true }
+    ];
+
+    let propiedades = [...propiedadesRespaldo];
+    let filtroEstadoActivo = 'todos';
+    let filtroAsesorActivo = '';
+    let vistaModoActivo = 'tabla';
+
+    // Normalizar enlaces de imágenes de Google Drive o web
+    function normalizarUrlImagen(url) {
+      if (!url) return '';
+      url = url.trim();
+      if (url.includes('drive.google.com')) {
+        let fileId = '';
+        const matchD = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (matchD) fileId = matchD[1];
+        if (!fileId) {
+          const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+          if (matchId) fileId = matchId[1];
+        }
+        if (fileId) {
+          return `https://lh3.googleusercontent.com/d/${fileId}=s1600`;
+        }
+      }
+      return url;
+    }
+
+    function formatearUSD(val) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0
+      }).format(val);
+    }
+
+    // ========================================================
+    // 2. PARSEO Y SINCRONIZACIÓN DE GOOGLE SHEETS CSV
+    // ========================================================
+    function parseCSVLine(line) {
+      const values = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          values.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      values.push(current.trim());
+      return values;
+    }
+
+    async function cargarPropiedadesDesdeGoogleSheets() {
+      const syncStatus = document.getElementById('sync-status-text');
+      const syncSpinner = document.getElementById('sync-spinner');
+      if (syncSpinner) syncSpinner.classList.add('fa-spin');
+
+      try {
+        const urlConCacheBuster = CSV_URL + (CSV_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+        const response = await fetch(urlConCacheBuster);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const dataCSV = await response.text();
+        const filas = dataCSV.trim().split(/\r?\n/).filter(f => f.trim().length > 0);
+        if (filas.length <= 1) throw new Error("CSV vacío");
+
+        const headers = parseCSVLine(filas[0]).map(h => h.replace(/^"+|"+$/g, '').trim().toLowerCase());
+        const getCol = (cols, name, alt = '') => {
+          let idx = headers.indexOf(name);
+          if (idx === -1 && alt) idx = headers.indexOf(alt);
+          return idx !== -1 ? (cols[idx] || '').replace(/^"+|"+$/g, '').trim() : '';
+        };
+
+        const mapeadas = [];
+        filas.slice(1).forEach((fila, idx) => {
+          const cols = parseCSVLine(fila);
+          if (cols.length < 3) return;
+
+          const id = getCol(cols, 'id') || String(idx + 1);
+          const titulo = getCol(cols, 'titulo');
+          const precioRaw = getCol(cols, 'precio');
+          const cuartos = getCol(cols, 'cuartos');
+          const banos = getCol(cols, 'banos');
+          const metros = getCol(cols, 'metros');
+          const ubicacion = getCol(cols, 'ubicacion');
+          const imagenPortadaRaw = getCol(cols, 'imagen_portada', 'imagen');
+          const galeriaRaw = getCol(cols, 'galeria_fotos', 'fotos_extra');
+          const id_asesor = getCol(cols, 'id_asesor').toLowerCase();
+          const estadoRaw = getCol(cols, 'estado', 'status');
+
+          const estadoLower = (estadoRaw || '').toLowerCase();
+          const esVendida = estadoLower.includes('vendid') || estadoLower.includes('sold');
+          const estado = esVendida ? 'Vendida' : 'Disponible';
+
+          const precioNum = parseInt(precioRaw.replace(/[^0-9]/g, ''), 10) || 0;
+          let precioLimpio = precioRaw;
+          if (!precioLimpio.includes('$') && precioNum > 0) {
+            precioLimpio = formatearUSD(precioNum) + (precioNum < 10000 ? ' USD/mes' : ' USD');
+          }
+
+          const imagenPortada = normalizarUrlImagen(imagenPortadaRaw) || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80';
+          const galeriaArray = galeriaRaw
+            ? galeriaRaw.split(/[|;]/).map(item => normalizarUrlImagen(item.replace(/^"+|"+$/g, '').trim())).filter(Boolean)
+            : [];
+
+          mapeadas.push({
+            id,
+            titulo: titulo || 'Propiedad Exclusiva Santander',
+            precio: precioLimpio,
+            cuartos: cuartos.includes('Hab') ? cuartos : `${cuartos} Habs`,
+            banos: banos.includes('Baño') ? banos : `${banos} Baños`,
+            metros: metros.includes('m') ? metros : `${metros} m²`,
+            ubicacion: ubicacion || 'Guatemala',
+            imagen_portada: imagenPortada,
+            galeria_fotos: galeriaArray,
+            id_asesor: id_asesor || 'carmen',
+            estado: estado,
+            es_vendida: esVendida
+          });
+        });
+
+        if (mapeadas.length > 0) {
+          propiedades = mapeadas;
+        }
+
+        // Combinar con propiedades agregadas localmente en el navegador
+        try {
+          const locales = JSON.parse(localStorage.getItem('santander_propiedades_locales') || '[]');
+          if (Array.isArray(locales) && locales.length > 0) {
+            locales.forEach(loc => {
+              if (!propiedades.some(p => String(p.id) === String(loc.id))) {
+                propiedades.unshift(loc);
+              }
+            });
+          }
+        } catch (e) { console.warn(e); }
+
+        renderizarTodo();
+
+        const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        if (syncStatus) syncStatus.textContent = `Sincronizado ${hora}`;
+      } catch (err) {
+        console.warn("Aviso Google Sheets:", err);
+        if (syncStatus) syncStatus.textContent = "Google Sheets (Offline)";
+        renderizarTodo();
+      } finally {
+        if (syncSpinner) syncSpinner.classList.remove('fa-spin');
+      }
+    }
+
+    function sincronizarAhora(mostrarToast = false) {
+      cargarPropiedadesDesdeGoogleSheets();
+      if (mostrarToast) {
+        lanzarToast("Sincronización en Proceso", "Descargando las últimas propiedades de Google Sheets...");
+      }
+    }
+
+    // ========================================================
+    // 3. RENDERIZADO GLOBAL (DASHBOARD, INVENTARIO, ASESORES)
+    // ========================================================
+    function renderizarTodo() {
+      renderizarDashboard();
+      renderizarInventario();
+      renderizarAsesores();
+      actualizarBadges();
+    }
+
+    function actualizarBadges() {
+      const badgeTotal = document.getElementById('badge-total-props');
+      if (badgeTotal) badgeTotal.textContent = `${propiedades.length} VIP`;
+      
+      const countSubtab = document.getElementById('count-subtab-inv');
+      if (countSubtab) countSubtab.textContent = propiedades.length;
+
+      const sheetsRows = document.getElementById('sheets-total-rows-text');
+      if (sheetsRows) sheetsRows.textContent = `${propiedades.length} Propiedades VIP`;
+    }
+
+    // 3.1 RENDERIZAR DASHBOARD
+    function renderizarDashboard() {
+      const total = propiedades.length;
+      let enVenta = 0;
+      let enRenta = 0;
+      let vendidas = 0;
+      let valorTotalVenta = 0;
+      const zonasMap = {};
+
+      propiedades.forEach(p => {
+        const precioNum = parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0;
+        const esRenta = precioNum < 10000;
+        const esVendida = p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid');
+
+        if (esVendida) {
+          vendidas++;
+        }
+        if (esRenta) {
+          enRenta++;
+        } else {
+          enVenta++;
+          valorTotalVenta += precioNum;
+        }
+
+        // Conteo por zonas
+        const zonaRaw = (p.ubicacion || 'Guatemala').split('•')[0].trim();
+        zonasMap[zonaRaw] = (zonasMap[zonaRaw] || 0) + 1;
+      });
+
+      // KPI cards
+      document.getElementById('kpi-total-propiedades').textContent = total;
+      document.getElementById('kpi-en-venta').textContent = enVenta;
+      document.getElementById('kpi-en-venta-pct').textContent = total > 0 ? `${Math.round((enVenta/total)*100)}% del total` : '0%';
+      document.getElementById('kpi-en-renta').textContent = enRenta;
+      document.getElementById('kpi-en-renta-pct').textContent = total > 0 ? `${Math.round((enRenta/total)*100)}% del total` : '0%';
+      document.getElementById('kpi-vendidas').textContent = vendidas;
+      document.getElementById('kpi-valor-cartera').textContent = formatearUSD(valorTotalVenta);
+
+      // Barra de distribución
+      const pctVenta = total > 0 ? Math.round((enVenta / total) * 100) : 0;
+      const pctRenta = total > 0 ? Math.round((enRenta / total) * 100) : 0;
+      const pctSold = total > 0 ? Math.round((vendidas / total) * 100) : 0;
+
+      document.getElementById('bar-venta').style.width = `${pctVenta}%`;
+      document.getElementById('bar-renta').style.width = `${pctRenta}%`;
+      document.getElementById('bar-sold').style.width = `${pctSold}%`;
+
+      document.getElementById('legend-venta').textContent = `${enVenta} (${pctVenta}%)`;
+      document.getElementById('legend-renta').textContent = `${enRenta} (${pctRenta}%)`;
+      document.getElementById('legend-sold').textContent = `${vendidas} (${pctSold}%)`;
+
+      // Lista de Zonas
+      const zonasList = document.getElementById('dashboard-zonas-list');
+      if (zonasList) {
+        zonasList.innerHTML = Object.entries(zonasMap)
+          .sort((a,b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([zona, count]) => `
+            <div class="flex items-center justify-between py-1.5 border-b border-slate-100 last:border-0">
+              <span class="font-medium text-slate-700 truncate max-w-[180px]">${zona}</span>
+              <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold">${count} ${count === 1 ? 'prop' : 'props'}</span>
+            </div>
+          `).join('');
+      }
+
+      // Tabla de Recientes en el Dashboard
+      const dashboardTbody = document.getElementById('dashboard-recientes-tbody');
+      if (dashboardTbody) {
+        dashboardTbody.innerHTML = propiedades.slice(0, 6).map(p => {
+          const asesor = asesores[p.id_asesor] || asesores['carmen'];
+          const esVendida = p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid');
+          const precioNum = parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0;
+          const tipoBadge = precioNum < 10000 ? '<span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-bold">Renta</span>' : '<span class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-bold">Venta</span>';
+
+          return `
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="py-3 px-6">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 shrink-0 relative">
+                    <img src="${p.imagen_portada}" alt="${p.titulo}" class="w-full h-full object-cover">
+                    ${esVendida ? '<div class="absolute inset-0 bg-red-600/30 flex items-center justify-center text-[10px] font-black text-white">SOLD</div>' : ''}
+                  </div>
+                  <div class="min-w-0">
+                    <p class="font-bold text-slate-900 truncate max-w-xs hover:text-teal-600 cursor-pointer" onclick="verDetallePropiedad('${p.id}')">${p.titulo}</p>
+                    <p class="text-xs text-slate-400 truncate max-w-xs">${p.ubicacion}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="py-3 px-4 font-serif font-bold text-slate-900">${p.precio}</td>
+              <td class="py-3 px-4">
+                <div class="space-y-1">
+                  ${tipoBadge}
+                  <p class="text-xs text-slate-400">${p.cuartos} • ${p.metros}</p>
+                </div>
+              </td>
+              <td class="py-3 px-4">
+                <div class="flex items-center gap-2">
+                  <img src="${asesor.avatar}" class="w-6 h-6 rounded-full object-cover">
+                  <span class="text-xs font-medium text-slate-700 truncate max-w-[120px]">${asesor.nombre}</span>
+                </div>
+              </td>
+              <td class="py-3 px-4 text-center">
+                <button type="button" onclick="toggleEstadoPropiedad('${p.id}')" class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${esVendida ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'}" title="Clic para cambiar estado">
+                  ${esVendida ? '<i class="fa-solid fa-lock mr-1"></i> Vendida' : '<i class="fa-solid fa-check mr-1"></i> Disponible'}
+                </button>
+              </td>
+              <td class="py-3 px-6 text-right">
+                <div class="inline-flex items-center gap-1.5">
+                  <button type="button" onclick="verDetallePropiedad('${p.id}')" class="p-2 text-slate-400 hover:text-teal-600 rounded-lg hover:bg-slate-100" title="Ver detalles">
+                    <i class="fa-regular fa-eye"></i>
+                  </button>
+                  <button type="button" onclick="copiarFilaCSV('${p.id}')" class="p-2 text-slate-400 hover:text-emerald-600 rounded-lg hover:bg-slate-100" title="Copiar fila Google Sheets">
+                    <i class="fa-regular fa-copy"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    // 3.2 RENDERIZAR INVENTARIO DE PROPIEDADES
+    function renderizarInventario() {
+      const search = (document.getElementById('inventario-search')?.value || '').toLowerCase().trim();
+      
+      let filtradas = propiedades.filter(p => {
+        // Filtro por texto
+        const matchSearch = !search || 
+          p.titulo.toLowerCase().includes(search) || 
+          p.ubicacion.toLowerCase().includes(search) || 
+          p.precio.toLowerCase().includes(search) ||
+          (asesores[p.id_asesor]?.nombre || '').toLowerCase().includes(search);
+
+        // Filtro por estado / categoría
+        const precioNum = parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0;
+        const esRenta = precioNum < 10000;
+        const esVendida = p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid');
+
+        let matchEstado = true;
+        if (filtroEstadoActivo === 'venta') matchEstado = !esRenta;
+        else if (filtroEstadoActivo === 'renta') matchEstado = esRenta;
+        else if (filtroEstadoActivo === 'vendida') matchEstado = esVendida;
+        else if (filtroEstadoActivo === 'disponible') matchEstado = !esVendida;
+
+        // Filtro por asesor específico
+        let matchAsesor = true;
+        if (filtroAsesorActivo) {
+          matchAsesor = (p.id_asesor === filtroAsesorActivo);
+        }
+
+        return matchSearch && matchEstado && matchAsesor;
+      });
+
+      // Actualizar contadores de los botones de filtro
+      const totalVenta = propiedades.filter(p => (parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0) >= 10000).length;
+      const totalRenta = propiedades.filter(p => (parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0) < 10000).length;
+      const totalVendidas = propiedades.filter(p => p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid')).length;
+
+      document.getElementById('filter-count-todos').textContent = propiedades.length;
+      document.getElementById('filter-count-venta').textContent = totalVenta;
+      document.getElementById('filter-count-renta').textContent = totalRenta;
+      document.getElementById('filter-count-vendida').textContent = totalVendidas;
+
+      // Render Modo Tabla
+      const tbody = document.getElementById('inventario-tbody');
+      if (tbody) {
+        if (filtradas.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="py-12 text-center text-slate-400">
+                <i class="fa-solid fa-folder-open text-3xl mb-2 block text-slate-300"></i>
+                No se encontraron propiedades con los filtros seleccionados.
+              </td>
+            </tr>
+          `;
+        } else {
+          tbody.innerHTML = filtradas.map(p => {
+            const asesor = asesores[p.id_asesor] || asesores['carmen'];
+            const esVendida = p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid');
+            const precioNum = parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0;
+            const esRenta = precioNum < 10000;
+
+            return `
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="py-3 px-6">
+                  <div class="flex items-center gap-3">
+                    <span class="text-xs font-mono font-bold text-slate-400">#${p.id}</span>
+                    <div class="w-14 h-14 rounded-xl overflow-hidden bg-slate-100 shrink-0 relative cursor-pointer" onclick="verDetallePropiedad('${p.id}')">
+                      <img src="${p.imagen_portada}" alt="${p.titulo}" class="w-full h-full object-cover hover:scale-110 transition-transform">
+                      ${esVendida ? '<div class="absolute inset-0 bg-red-600/40 flex items-center justify-center text-[10px] font-black text-white">SOLD</div>' : ''}
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3 px-4">
+                  <p class="font-bold text-slate-900 hover:text-teal-600 cursor-pointer" onclick="verDetallePropiedad('${p.id}')">${p.titulo}</p>
+                  <p class="text-xs text-slate-400">${p.ubicacion}</p>
+                </td>
+                <td class="py-3 px-4 font-serif font-bold text-slate-900">${p.precio}</td>
+                <td class="py-3 px-4 text-xs text-slate-500">
+                  <span>${p.cuartos}</span> • <span>${p.banos}</span><br>
+                  <span class="text-slate-400">${p.metros}</span>
+                </td>
+                <td class="py-3 px-4">
+                  <div class="flex items-center gap-2">
+                    <img src="${asesor.avatar}" class="w-7 h-7 rounded-full object-cover">
+                    <div class="min-w-0">
+                      <p class="text-xs font-bold text-slate-800 truncate max-w-[130px]">${asesor.nombre}</p>
+                      <a href="https://wa.me/${asesor.tel}?text=Hola ${encodeURIComponent(asesor.nombre)}, sobre la propiedad: ${encodeURIComponent(p.titulo)}" target="_blank" class="text-[11px] text-emerald-600 hover:underline flex items-center gap-1">
+                        <i class="fa-brands fa-whatsapp"></i> Chat
+                      </a>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3 px-4 text-center">
+                  <button type="button" onclick="toggleEstadoPropiedad('${p.id}')" class="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${esVendida ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'}" title="Clic para alternar Disponible/Vendida">
+                    ${esVendida ? '<i class="fa-solid fa-lock mr-1"></i> Vendida (SOLD)' : '<i class="fa-solid fa-check mr-1"></i> Disponible'}
+                  </button>
+                </td>
+                <td class="py-3 px-6 text-right">
+                  <div class="inline-flex items-center gap-2">
+                    <button type="button" onclick="verDetallePropiedad('${p.id}')" class="px-2.5 py-1 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all" title="Ver ficha">
+                      Ver
+                    </button>
+                    <button type="button" onclick="copiarFilaCSV('${p.id}')" class="px-2.5 py-1 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-lg transition-all flex items-center gap-1" title="Copiar fila para Google Sheets">
+                      <i class="fa-regular fa-copy"></i> Fila
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+      }
+
+      // Render Modo Grid
+      const grid = document.getElementById('inventario-view-grid');
+      if (grid) {
+        grid.innerHTML = filtradas.map(p => {
+          const asesor = asesores[p.id_asesor] || asesores['carmen'];
+          const esVendida = p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid');
+          const precioNum = parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0;
+          const esRenta = precioNum < 10000;
+
+          return `
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+              <div class="relative h-48 overflow-hidden bg-slate-100">
+                <img src="${p.imagen_portada}" alt="${p.titulo}" class="w-full h-full object-cover">
+                ${esVendida ? `
+                  <div class="absolute top-0 right-0 w-28 h-28 overflow-hidden pointer-events-none z-10">
+                    <div class="absolute transform rotate-45 bg-red-600 text-white font-black text-[10px] py-1 -right-8 top-5 w-32 text-center shadow uppercase tracking-wider">
+                      SOLD
+                    </div>
+                  </div>
+                  <div class="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-md shadow flex items-center gap-1">
+                    <i class="fa-solid fa-lock text-[10px]"></i> VENDIDA
+                  </div>
+                ` : `
+                  <div class="absolute top-3 left-3 bg-emerald-600 text-white text-xs font-bold px-2.5 py-1 rounded-md shadow">
+                    DISPONIBLE
+                  </div>
+                  <div class="absolute top-3 right-3 ${esRenta ? 'bg-gray-700' : 'bg-slate-900'} text-white text-xs font-bold px-2.5 py-1 rounded-md shadow uppercase">
+                    ${esRenta ? 'En Renta' : 'En Venta'}
+                  </div>
+                `}
+              </div>
+              <div class="p-5 flex-1 flex flex-col justify-between">
+                <div>
+                  <span class="text-xs uppercase font-semibold text-slate-400 block tracking-wider truncate">${p.ubicacion}</span>
+                  <h4 class="font-serif text-lg font-bold text-slate-900 mt-1 hover:text-teal-600 cursor-pointer line-clamp-1" onclick="verDetallePropiedad('${p.id}')">${p.titulo}</h4>
+                  <p class="font-serif text-xl font-extrabold ${esVendida ? 'text-slate-400 line-through' : 'text-teal-600'} mt-2">${p.precio}</p>
+                </div>
+                <div class="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                  <span>${p.cuartos} • ${p.banos} • ${p.metros}</span>
+                  <button type="button" onclick="toggleEstadoPropiedad('${p.id}')" class="text-xs font-bold text-teal-700 hover:underline">
+                    Cambiar Estado
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function aplicarFiltrosInventario() {
+      renderizarInventario();
+    }
+
+    function filtrarInventarioPorEstado(estado) {
+      filtroEstadoActivo = estado;
+      document.querySelectorAll('.inv-filter-btn').forEach(btn => {
+        if (btn.getAttribute('data-filter') === estado) {
+          btn.classList.add('bg-slate-900', 'text-white', 'shadow-xs');
+          btn.classList.remove('bg-white', 'text-slate-700');
+        } else {
+          btn.classList.remove('bg-slate-900', 'text-white', 'shadow-xs');
+          btn.classList.add('bg-white', 'text-slate-700');
+        }
+      });
+      renderizarInventario();
+    }
+
+    function setVistaModo(modo) {
+      vistaModoActivo = modo;
+      const viewTabla = document.getElementById('inventario-view-tabla');
+      const viewGrid = document.getElementById('inventario-view-grid');
+      const btnTabla = document.getElementById('btn-view-tabla');
+      const btnGrid = document.getElementById('btn-view-grid');
+
+      if (modo === 'tabla') {
+        viewTabla?.classList.remove('hidden');
+        viewGrid?.classList.add('hidden');
+        btnTabla?.classList.add('bg-white', 'text-slate-900', 'shadow-xs');
+        btnTabla?.classList.remove('text-slate-500');
+        btnGrid?.classList.remove('bg-white', 'text-slate-900', 'shadow-xs');
+        btnGrid?.classList.add('text-slate-500');
+      } else {
+        viewTabla?.classList.add('hidden');
+        viewGrid?.classList.remove('hidden');
+        btnGrid?.classList.add('bg-white', 'text-slate-900', 'shadow-xs');
+        btnGrid?.classList.remove('text-slate-500');
+        btnTabla?.classList.remove('bg-white', 'text-slate-900', 'shadow-xs');
+        btnTabla?.classList.add('text-slate-500');
+      }
+    }
+
+    // Alternar disponibilidad Disponible <-> Vendida
+    function toggleEstadoPropiedad(id) {
+      const prop = propiedades.find(p => String(p.id) === String(id));
+      if (!prop) return;
+
+      const nuevoEstado = prop.es_vendida ? false : true;
+      prop.es_vendida = nuevoEstado;
+      prop.estado = nuevoEstado ? 'Vendida' : 'Disponible';
+
+      // Actualizar en localStorage si es local o persistir el cambio
+      try {
+        let locales = JSON.parse(localStorage.getItem('santander_propiedades_locales') || '[]');
+        const idx = locales.findIndex(l => String(l.id) === String(id));
+        if (idx !== -1) {
+          locales[idx].es_vendida = nuevoEstado;
+          locales[idx].estado = prop.estado;
+        } else {
+          locales.unshift({ ...prop });
+        }
+        localStorage.setItem('santander_propiedades_locales', JSON.stringify(locales));
+      } catch (e) { console.error(e); }
+
+      renderizarTodo();
+      lanzarToast("Estado Actualizado", `La propiedad "${prop.titulo}" ahora está: ${prop.estado.toUpperCase()}.`);
+    }
+
+    // 3.3 RENDERIZAR ASESORES VIP (100% FUNCIONAL)
+    function renderizarAsesores() {
+      const grid = document.getElementById('asesores-grid');
+      if (!grid) return;
+
+      const entries = Object.entries(asesores);
+      grid.innerHTML = entries.map(([key, a]) => {
+        // Calcular propiedades asignadas
+        const propsAsignadas = propiedades.filter(p => p.id_asesor === key);
+        const countProps = propsAsignadas.length;
+        const vendidasCount = propsAsignadas.filter(p => p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid')).length;
+
+        // Sumar volumen de cartera
+        let volumenUSD = 0;
+        propsAsignadas.forEach(p => {
+          const num = parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0;
+          if (num >= 10000) volumenUSD += num;
+        });
+
+        const waMsg = encodeURIComponent(`Hola ${a.nombre}, te contacto desde el Panel Administrativo de Santander VIP Estates.`);
+
+        return `
+          <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+            <div>
+              <!-- Header Asesor -->
+              <div class="flex items-center gap-4 mb-4">
+                <div class="relative">
+                  <img src="${a.avatar}" alt="${a.nombre}" class="w-16 h-16 rounded-2xl object-cover ring-2 ring-teal-500/30">
+                  <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-white" title="Asesor Activo"></span>
+                </div>
+                <div class="min-w-0">
+                  <h3 class="font-serif font-bold text-slate-900 text-lg leading-tight truncate">${a.nombre}</h3>
+                  <p class="text-xs text-teal-700 font-semibold mt-0.5 leading-snug">${a.puesto}</p>
+                  <p class="text-[11px] text-slate-400 font-mono mt-1">${a.email || 'contacto@santandervip.gt'}</p>
+                </div>
+              </div>
+
+              <!-- Métricas del Asesor -->
+              <div class="grid grid-cols-3 gap-2 py-3 px-3.5 bg-slate-50 rounded-2xl text-center text-xs mb-4">
+                <div>
+                  <span class="text-slate-400 block text-[10px] uppercase font-bold">Props</span>
+                  <span class="font-serif font-bold text-slate-900 text-base">${countProps}</span>
+                </div>
+                <div>
+                  <span class="text-slate-400 block text-[10px] uppercase font-bold">Cartera</span>
+                  <span class="font-serif font-bold text-slate-900 text-xs sm:text-sm">${volumenUSD > 0 ? ('$' + (volumenUSD/1000000).toFixed(1) + 'M') : '$0'}</span>
+                </div>
+                <div>
+                  <span class="text-slate-400 block text-[10px] uppercase font-bold">Vendidas</span>
+                  <span class="font-serif font-bold text-red-600 text-base">${vendidasCount}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botones de Acción Funcionales -->
+            <div class="space-y-2 pt-2 border-t border-slate-100">
+              <div class="grid grid-cols-2 gap-2">
+                <a href="https://wa.me/${a.tel}?text=${waMsg}" target="_blank" class="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5">
+                  <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                </a>
+                <a href="tel:+${a.tel}" class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5">
+                  <i class="fa-solid fa-phone text-xs"></i> Llamar
+                </a>
+              </div>
+              <button type="button" onclick="filtrarInventarioPorAsesor('${key}')" class="w-full py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-building text-teal-600"></i> Ver Sus ${countProps} Propiedades
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filtrarInventarioPorAsesor(key) {
+      filtroAsesorActivo = key;
+      navegarA('propiedades');
+      setPropiedadesSubTab('inventario');
+      lanzarToast("Filtro Aplicado", `Mostrando propiedades asignadas a ${asesores[key]?.nombre || key}.`);
+    }
+
+    // ========================================================
+    // 4. NAVEGACIÓN ENTRE VISTAS (SPA TABS)
+    // ========================================================
+    function navegarA(vistaId) {
+      document.querySelectorAll('.view-panel').forEach(panel => {
+        panel.classList.add('hidden');
+      });
+
+      const target = document.getElementById(`view-${vistaId}`);
+      if (target) target.classList.remove('hidden');
+
+      // Actualizar clases activas en el sidebar
+      document.querySelectorAll('#sidebar-nav .nav-item').forEach(btn => {
+        const tab = btn.getAttribute('data-tab');
+        if (tab === vistaId) {
+          btn.className = "nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-semibold text-white bg-teal-600/15 border-l-4 border-teal-500 text-teal-300 shadow-sm transition-all text-left";
+        } else {
+          btn.className = "nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-left";
+        }
+      });
+
+      // Actualizar breadcrumb
+      const titles = {
+        'dashboard': 'Dashboard Ejecutivo',
+        'propiedades': 'Gestión de Propiedades VIP',
+        'asesores': 'Directorio de Asesores VIP',
+        'sheets': 'Conexión Google Sheets CSV',
+        'configuracion': 'Configuración del Sistema'
+      };
+      const breadcrumb = document.getElementById('breadcrumb-view');
+      if (breadcrumb) breadcrumb.textContent = titles[vistaId] || 'Panel';
+
+      // Cerrar sidebar en móvil si está abierto
+      const overlay = document.getElementById('mobile-overlay');
+      const sidebar = document.getElementById('sidebar');
+      if (overlay && !overlay.classList.contains('hidden')) {
+        overlay.classList.add('hidden');
+        sidebar.classList.add('-translate-x-full');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleMobileSidebar() {
+      const overlay = document.getElementById('mobile-overlay');
+      const sidebar = document.getElementById('sidebar');
+      if (overlay.classList.contains('hidden')) {
+        overlay.classList.remove('hidden');
+        sidebar.classList.remove('-translate-x-full');
+      } else {
+        overlay.classList.add('hidden');
+        sidebar.classList.add('-translate-x-full');
+      }
+    }
+
+    function setPropiedadesSubTab(tab) {
+      const invContent = document.getElementById('subtab-inventario-content');
+      const nuevaContent = document.getElementById('subtab-nueva-content');
+      const btnInv = document.getElementById('btn-subtab-inventario');
+      const btnNueva = document.getElementById('btn-subtab-nueva');
+
+      if (tab === 'inventario') {
+        invContent.classList.remove('hidden');
+        nuevaContent.classList.add('hidden');
+        btnInv.className = "px-4 py-2 text-xs font-bold rounded-xl transition-all bg-white text-slate-900 shadow-sm";
+        btnNueva.className = "px-4 py-2 text-xs font-bold rounded-xl transition-all text-slate-600 hover:text-slate-900";
+      } else {
+        invContent.classList.add('hidden');
+        nuevaContent.classList.remove('hidden');
+        btnNueva.className = "px-4 py-2 text-xs font-bold rounded-xl transition-all bg-white text-slate-900 shadow-sm";
+        btnInv.className = "px-4 py-2 text-xs font-bold rounded-xl transition-all text-slate-600 hover:text-slate-900";
+      }
+    }
+
+    function irAAgregarPropiedad() {
+      navegarA('propiedades');
+      setPropiedadesSubTab('nueva');
+    }
+
+    // ========================================================
+    // 5. PUBLICACIÓN DE NUEVA PROPIEDAD CON COPIADO PARA GOOGLE SHEETS
+    // ========================================================
+    function guardarNuevaPropiedad() {
+      const titulo = document.getElementById('titulo').value.trim();
+      const precio = document.getElementById('precio').value.trim();
+      const asesor = document.getElementById('asesor').value;
+      const cuartos = document.getElementById('cuartos').value.trim();
+      const banos = document.getElementById('banos').value.trim();
+      const metros = document.getElementById('metros').value.trim();
+      const ubicacion = document.getElementById('ubicacion').value.trim();
+      const estado = document.getElementById('estado').value;
+      const previewImg = document.getElementById('preview-img');
+
+      if (!titulo || !precio || !asesor || !cuartos || !banos) {
+        alert("Por favor completa los campos requeridos.");
+        return;
+      }
+
+      const fotoPortada = previewImg.src || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80';
+      const esVendida = (estado === 'Vendida');
+
+      // Extraer fotos de galería
+      const galeriaImgs = Array.from(document.querySelectorAll('#galeria-grid img')).map(img => img.src);
+
+      // Generar nuevo ID
+      const nuevoId = String(propiedades.length + 1);
+
+      const nuevaProp = {
+        id: nuevoId,
+        titulo: titulo,
+        precio: precio.startsWith('$') ? precio : ('$' + precio + (parseInt(precio.replace(/[^0-9]/g, '')) < 10000 ? ' USD/mes' : ' USD')),
+        cuartos: cuartos.includes('Hab') ? cuartos : `${cuartos} Habs`,
+        banos: banos.includes('Baño') ? banos : `${banos} Baños`,
+        metros: metros ? (metros.includes('m') ? metros : `${metros} m²`) : '350 m²',
+        ubicacion: ubicacion || 'Zona 14 • Las Américas',
+        imagen_portada: fotoPortada,
+        galeria_fotos: galeriaImgs,
+        id_asesor: asesor,
+        estado: estado,
+        es_vendida: esVendida
+      };
+
+      // Agregar al inicio del inventario
+      propiedades.unshift(nuevaProp);
+
+      // Guardar en localStorage para persistencia y para que index.html también la cargue
+      try {
+        let locales = JSON.parse(localStorage.getItem('santander_propiedades_locales') || '[]');
+        locales.unshift(nuevaProp);
+        localStorage.setItem('santander_propiedades_locales', JSON.stringify(locales));
+      } catch (e) { console.error(e); }
+
+      // Actualizar toda la interfaz
+      renderizarTodo();
+
+      // Formatear la fila CSV exacta para Google Sheets
+      const amenidadesStr = '"Acabados de lujo | Seguridad 24/7 | Balcón panorámico"';
+      const cercaniasStr = '"Zona de alta plusvalía | Acceso inmediato"';
+      const galeriaStr = galeriaImgs.length > 0 ? `"${galeriaImgs.join(' | ')}"` : '""';
+      const csvRow = `${nuevaProp.id},"${nuevaProp.titulo}","${nuevaProp.precio}",${nuevaProp.cuartos},${nuevaProp.banos},${nuevaProp.metros},"${nuevaProp.ubicacion}",${amenidadesStr},${cercaniasStr},"${nuevaProp.imagen_portada}",${galeriaStr},${nuevaProp.id_asesor},${nuevaProp.estado}`;
+
+      // Abrir modal con la fila lista para copiar
+      const modal = document.getElementById('modal-csv-copiado');
+      const textarea = document.getElementById('modal-csv-textarea');
+      if (textarea) textarea.value = csvRow;
+      if (modal) modal.classList.remove('hidden');
+
+      limpiarFormulario();
+      lanzarToast("¡Propiedad Publicada!", "La nueva propiedad ha sido agregada con éxito al catálogo.");
+    }
+
+    function copiarTextoDesdeModal() {
+      const textarea = document.getElementById('modal-csv-textarea');
+      if (textarea) {
+        textarea.select();
+        navigator.clipboard.writeText(textarea.value).then(() => {
+          lanzarToast("Fila Copiada al Portapapeles", "Pégala en tu Google Sheet oficial presionando Ctrl+V.");
+        });
+      }
+    }
+
+    function cerrarModalCsv() {
+      document.getElementById('modal-csv-copiado')?.classList.add('hidden');
+      setPropiedadesSubTab('inventario');
+    }
+
+    function copiarFilaCSV(id) {
+      const p = propiedades.find(x => String(x.id) === String(id));
+      if (!p) return;
+
+      const galeriaStr = (p.galeria_fotos && p.galeria_fotos.length > 0) ? `"${p.galeria_fotos.join(' | ')}"` : '""';
+      const csvRow = `${p.id},"${p.titulo}","${p.precio}",${p.cuartos},${p.banos},${p.metros},"${p.ubicacion}","Acabados de lujo | Seguridad 24/7","Zona Prime",${p.imagen_portada},${galeriaStr},${p.id_asesor},${p.estado}`;
+
+      navigator.clipboard.writeText(csvRow).then(() => {
+        lanzarToast("Fila CSV Copiada", `Copiada la fila de "${p.titulo}". Pégala en tu Google Sheet.`);
+      });
+    }
+
+    // Modal de Detalle de Propiedad
+    function verDetallePropiedad(id) {
+      const p = propiedades.find(x => String(x.id) === String(id));
+      if (!p) return;
+
+      const asesor = asesores[p.id_asesor] || asesores['carmen'];
+      const esVendida = p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid');
+
+      document.getElementById('modal-prop-id-badge').textContent = `#ID ${p.id}`;
+      const badgeEstado = document.getElementById('modal-prop-estado-badge');
+      if (badgeEstado) {
+        badgeEstado.textContent = esVendida ? 'Vendida (SOLD)' : 'Disponible';
+        badgeEstado.className = esVendida ? 'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-100 text-red-700' : 'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700';
+      }
+
+      document.getElementById('modal-prop-img').src = p.imagen_portada;
+      document.getElementById('modal-prop-titulo').textContent = p.titulo;
+      document.getElementById('modal-prop-ubicacion').textContent = p.ubicacion;
+      document.getElementById('modal-prop-precio').textContent = p.precio;
+      document.getElementById('modal-prop-cuartos').textContent = p.cuartos;
+      document.getElementById('modal-prop-banos').textContent = p.banos;
+      document.getElementById('modal-prop-metros').textContent = p.metros;
+
+      document.getElementById('modal-prop-asesor-avatar').src = asesor.avatar;
+      document.getElementById('modal-prop-asesor-nombre').textContent = asesor.nombre;
+      document.getElementById('modal-prop-asesor-puesto').textContent = asesor.puesto;
+      document.getElementById('modal-prop-asesor-wa').href = `https://wa.me/${asesor.tel}?text=Hola ${encodeURIComponent(asesor.nombre)}, sobre la propiedad #${p.id} ${encodeURIComponent(p.titulo)}`;
+
+      const btnToggle = document.getElementById('modal-prop-toggle-btn');
+      if (btnToggle) {
+        btnToggle.textContent = esVendida ? 'Marcar como DISPONIBLE' : 'Marcar como VENDIDA (SOLD)';
+        btnToggle.onclick = () => {
+          toggleEstadoPropiedad(p.id);
+          verDetallePropiedad(p.id);
+        };
+      }
+
+      const soldBanner = document.getElementById('modal-prop-sold-banner');
+      if (soldBanner) {
+        if (esVendida) soldBanner.classList.remove('hidden');
+        else soldBanner.classList.add('hidden');
+      }
+
+      document.getElementById('modal-detalle-propiedad')?.classList.remove('hidden');
+    }
+
+    function cerrarModalDetalle() {
+      document.getElementById('modal-detalle-propiedad')?.classList.add('hidden');
+    }
+
+    // Modal Registrar Asesor
+    function abrirModalNuevoAsesor() {
+      document.getElementById('modal-nuevo-asesor')?.classList.remove('hidden');
+    }
+    function cerrarModalNuevoAsesor() {
+      document.getElementById('modal-nuevo-asesor')?.classList.add('hidden');
+    }
+
+    function guardarNuevoAsesor() {
+      const nombre = document.getElementById('nuevo-asesor-nombre').value.trim();
+      const puesto = document.getElementById('nuevo-asesor-puesto').value.trim();
+      const tel = document.getElementById('nuevo-asesor-tel').value.trim().replace(/[^0-9]/g, '');
+      const email = document.getElementById('nuevo-asesor-email').value.trim();
+
+      if (!nombre || !puesto || !tel) return;
+
+      const key = nombre.toLowerCase().replace(/[^a-z0-9]/g, '');
+      asesores[key] = {
+        nombre,
+        puesto,
+        tel,
+        email: email || `${key}@santandervip.gt`,
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=0D9488&color=fff&rounded=true`
+      };
+
+      // Actualizar select en formulario
+      const selectAsesor = document.getElementById('asesor');
+      if (selectAsesor) {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = `${nombre} — ${puesto}`;
+        selectAsesor.appendChild(opt);
+      }
+
+      cerrarModalNuevoAsesor();
+      renderizarAsesores();
+      lanzarToast("Asesor Registrado", `${nombre} ha sido agregado al directorio oficial.`);
+    }
+
+    // Exportar CSV Completo
+    function exportarCSVCompleto() {
+      const headers = "id,titulo,precio,cuartos,banos,metros,ubicacion,amenidades,cercanias,imagen_portada,galeria_fotos,id_asesor,estado";
+      const rows = propiedades.map(p => {
+        const gal = (p.galeria_fotos && p.galeria_fotos.length > 0) ? `"${p.galeria_fotos.join(' | ')}"` : '""';
+        return `${p.id},"${p.titulo}","${p.precio}",${p.cuartos},${p.banos},${p.metros},"${p.ubicacion}","Acabados de lujo | Seguridad 24/7","Zona Prime","${p.imagen_portada}",${gal},${p.id_asesor},${p.estado}`;
+      });
+      const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `santander_vip_propiedades_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      lanzarToast("CSV Descargado", "Archivo exportado con el formato oficial para Google Sheets.");
+    }
+
+    function guardarConfigCsv() {
+      const url = document.getElementById('config-csv-url')?.value.trim();
+      if (url) {
+        CSV_URL = url;
+        localStorage.setItem('santander_csv_url', url);
+        sincronizarAhora(true);
+        lanzarToast("Configuración Guardada", "URL del Google Sheet actualizada.");
+      }
+    }
+
+    function limpiarCacheLocal() {
+      if (confirm("¿Deseas restablecer los datos y conservar únicamente lo que está en Google Sheets?")) {
+        localStorage.removeItem('santander_propiedades_locales');
+        sincronizarAhora(true);
+        lanzarToast("Caché Restablecido", "Cargando propiedades oficiales de Google Sheets...");
+      }
+    }
+
+    // Notificación Toast
+    function lanzarToast(titulo, desc) {
+      const toast = document.getElementById('toast-notificacion');
+      const toastTitle = document.getElementById('toast-title');
+      const toastDesc = document.getElementById('toast-desc');
+      if (toast) {
+        if (toastTitle) toastTitle.textContent = titulo;
+        if (toastDesc) toastDesc.textContent = desc;
+        toast.classList.remove('translate-y-32', 'opacity-0', 'pointer-events-none');
+        setTimeout(() => {
+          toast.classList.add('translate-y-32', 'opacity-0', 'pointer-events-none');
+        }, 4000);
+      }
+    }
+
+    // ========================================================
+    // 6. CONTROLADORES DE DRAG & DROP Y FOTOGRAFÍAS
+    // ========================================================
     const dropZone = document.getElementById('drop-zone');
     const fotoInput = document.getElementById('foto-input');
     const dropzonePrompt = document.getElementById('dropzone-prompt');
@@ -568,112 +2201,86 @@
     const previewImg = document.getElementById('preview-img');
     const previewNombre = document.getElementById('preview-nombre');
 
-    // Drag & Drop visual highlights
-    ['dragenter', 'dragover'].forEach(eventName => {
-      dropZone.addEventListener(eventName, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropZone.classList.add('border-teal-500', 'bg-teal-50/40', 'scale-[1.01]');
-        dropZone.classList.remove('border-gray-300', 'bg-slate-50/70');
-      }, false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-      dropZone.addEventListener(eventName, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropZone.classList.remove('border-teal-500', 'bg-teal-50/40', 'scale-[1.01]');
-        dropZone.classList.add('border-gray-300', 'bg-slate-50/70');
-      }, false);
-    });
-
-    // Manejar archivos soltados
-    dropZone.addEventListener('drop', (e) => {
-      const dt = e.dataTransfer;
-      const files = dt.files;
-      if (files && files.length > 0) {
-        manejarArchivoSeleccionado(files);
-      }
-    });
-
-    // Mostrar vista previa de imagen cargada
-    function manejarArchivoSeleccionado(files) {
-      if (!files || files.length === 0) return;
-      const file = files[0];
-      if (!file.type.startsWith('image/')) {
-        alert('Por favor selecciona un archivo de imagen válido (JPG, PNG, WebP).');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        previewImg.src = e.target.result;
-        previewNombre.textContent = `${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
-        dropzonePrompt.classList.add('hidden');
-        dropzonePreview.classList.remove('hidden');
-      };
-      reader.readAsDataURL(file);
-    }
-
-    // Remover imagen cargada
-    function removerFoto() {
-      fotoInput.value = '';
-      previewImg.src = '';
-      previewNombre.textContent = '';
-      dropzonePreview.classList.add('hidden');
-      dropzonePrompt.classList.remove('hidden');
-    }
-
-    // Limpiar formulario completo
-    function limpiarFormulario() {
-      document.getElementById('propiedad-form').reset();
-      removerFoto();
-    }
-
-    // Simular publicación exitosa con Toast interactivo
-    function simularPublicacion() {
-      const toast = document.getElementById('toast-exito');
-      if (toast) {
-        toast.classList.remove('translate-y-32', 'opacity-0', 'pointer-events-none');
-        setTimeout(() => {
-          toast.classList.add('translate-y-32', 'opacity-0', 'pointer-events-none');
-        }, 3500);
-      }
-    }
-  
-    // ========================================================
-    // DRAG & DROP Y GESTIÓN DE GALERÍA ADICIONAL
-    // ========================================================
-    const dropZoneGaleria = document.getElementById('drop-zone-galeria');
-    const galeriaInput = document.getElementById('galeria-input');
-    const galeriaGrid = document.getElementById('galeria-grid');
-    const galeriaContador = document.getElementById('galeria-contador');
-
-    if (dropZoneGaleria) {
+    if (dropZone) {
       ['dragenter', 'dragover'].forEach(eventName => {
-        dropZoneGaleria.addEventListener(eventName, (e) => {
+        dropZone.addEventListener(eventName, (e) => {
           e.preventDefault();
           e.stopPropagation();
-          dropZoneGaleria.classList.add('border-teal-500', 'bg-teal-50/40', 'scale-[1.01]');
-          dropZoneGaleria.classList.remove('border-gray-300', 'bg-slate-50/70');
+          dropZone.classList.add('border-teal-500', 'bg-teal-50/40');
         }, false);
       });
 
       ['dragleave', 'drop'].forEach(eventName => {
-        dropZoneGaleria.addEventListener(eventName, (e) => {
+        dropZone.addEventListener(eventName, (e) => {
           e.preventDefault();
           e.stopPropagation();
-          dropZoneGaleria.classList.remove('border-teal-500', 'bg-teal-50/40', 'scale-[1.01]');
-          dropZoneGaleria.classList.add('border-gray-300', 'bg-slate-50/70');
+          dropZone.classList.remove('border-teal-500', 'bg-teal-50/40');
         }, false);
       });
 
+      dropZone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer?.files;
+        if (files && files.length > 0) manejarArchivoSeleccionado(files);
+      });
+    }
+
+    function manejarArchivoSeleccionado(files) {
+      if (!files || files.length === 0) return;
+      const file = files[0];
+      if (!file.type.startsWith('image/')) {
+        alert('Selecciona una imagen válida.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewImg.src = e.target.result;
+        previewNombre.textContent = `${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+        dropzonePrompt?.classList.add('hidden');
+        dropzonePreview?.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removerFoto() {
+      if (fotoInput) fotoInput.value = '';
+      if (previewImg) previewImg.src = '';
+      if (previewNombre) previewNombre.textContent = '';
+      dropzonePreview?.classList.add('hidden');
+      dropzonePrompt?.classList.remove('hidden');
+    }
+
+    function limpiarFormulario() {
+      document.getElementById('propiedad-form')?.reset();
+      removerFoto();
+      const gridGaleria = document.getElementById('galeria-grid');
+      if (gridGaleria) gridGaleria.innerHTML = '';
+      const cont = document.getElementById('galeria-contador');
+      if (cont) cont.textContent = '0';
+    }
+
+    // Drag & Drop para Galería Adicional
+    const dropZoneGaleria = document.getElementById('drop-zone-galeria');
+    const galeriaGrid = document.getElementById('galeria-grid');
+    const galeriaContador = document.getElementById('galeria-contador');
+
+    if (dropZoneGaleria) {
+      ['dragenter', 'dragover'].forEach(name => {
+        dropZoneGaleria.addEventListener(name, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZoneGaleria.classList.add('border-teal-500', 'bg-teal-50/40');
+        });
+      });
+      ['dragleave', 'drop'].forEach(name => {
+        dropZoneGaleria.addEventListener(name, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZoneGaleria.classList.remove('border-teal-500', 'bg-teal-50/40');
+        });
+      });
       dropZoneGaleria.addEventListener('drop', (e) => {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        if (files && files.length > 0) {
-          manejarGaleriaSeleccionada(files);
-        }
+        const files = e.dataTransfer?.files;
+        if (files) manejarGaleriaSeleccionada(files);
       });
     }
 
@@ -686,15 +2293,15 @@
           const card = document.createElement('div');
           card.className = 'thumbnail-card relative aspect-video rounded-xl overflow-hidden shadow-sm border border-slate-200 group bg-slate-100';
           card.innerHTML = `
-            <img src="${e.target.result}" alt="${file.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
-              <span class="text-[10px] text-white font-medium truncate">${file.name}</span>
+            <img src="${e.target.result}" alt="${file.name}" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-1.5">
+              <span class="text-[9px] text-white truncate">${file.name}</span>
             </div>
-            <button type="button" onclick="event.stopPropagation(); this.closest('.thumbnail-card').remove(); actualizarContadorGaleria();" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-xs shadow-md transition-transform hover:scale-110 focus:outline-none" title="Eliminar foto">
+            <button type="button" onclick="event.stopPropagation(); this.closest('.thumbnail-card').remove(); actualizarContadorGaleria();" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-[10px] shadow">
               <i class="fa-solid fa-xmark"></i>
             </button>
           `;
-          galeriaGrid.appendChild(card);
+          galeriaGrid?.appendChild(card);
           actualizarContadorGaleria();
         };
         reader.readAsDataURL(file);
@@ -706,6 +2313,22 @@
       if (galeriaContador) galeriaContador.textContent = count;
     }
 
+    // ========================================================
+    // 7. INICIALIZACIÓN AL CARGAR LA PÁGINA
+    // ========================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      // Cargar propiedades iniciales desde Google Sheets
+      cargarPropiedadesDesdeGoogleSheets();
+
+      // Cerrar modales con tecla Escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          cerrarModalCsv();
+          cerrarModalDetalle();
+          cerrarModalNuevoAsesor();
+        }
+      });
+    });
   </script>
 </body>
 </html>

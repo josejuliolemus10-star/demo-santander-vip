@@ -1498,11 +1498,42 @@
         } else {
           throw new Error("No se encontraron propiedades válidas en el CSV.");
         }
+
+        // Combinar con propiedades agregadas o actualizadas desde el Panel Admin
+        try {
+          const locales = JSON.parse(localStorage.getItem('santander_propiedades_locales') || '[]');
+          if (Array.isArray(locales) && locales.length > 0) {
+            locales.forEach(loc => {
+              const idxExistente = propiedades.findIndex(p => String(p.id) === String(loc.id));
+              if (idxExistente !== -1) {
+                propiedades[idxExistente] = { ...propiedades[idxExistente], ...loc };
+              } else {
+                propiedades.unshift(loc);
+              }
+            });
+          }
+        } catch (e) { console.warn("Error leyendo propiedades locales:", e); }
+
         renderizarTarjetas();
       } catch (error) {
         clearTimeout(timeoutId);
         console.warn("Aviso: Falló la petición a Google Sheets CSV (timeout o error de red/CORS). Activando portafolio de respaldo local:", error);
         propiedades = [...propiedadesRespaldo];
+
+        try {
+          const locales = JSON.parse(localStorage.getItem('santander_propiedades_locales') || '[]');
+          if (Array.isArray(locales) && locales.length > 0) {
+            locales.forEach(loc => {
+              const idxExistente = propiedades.findIndex(p => String(p.id) === String(loc.id));
+              if (idxExistente !== -1) {
+                propiedades[idxExistente] = { ...propiedades[idxExistente], ...loc };
+              } else {
+                propiedades.unshift(loc);
+              }
+            });
+          }
+        } catch (e) { console.warn("Error leyendo propiedades locales:", e); }
+
         renderizarTarjetas();
       }
     }
