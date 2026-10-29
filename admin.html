@@ -481,22 +481,28 @@
                 >
               </div>
 
-              <!-- Filtros por Categoría Comercial -->
+              <!-- Filtros por Categoría Comercial y Pestaña Dinámica de Asesor -->
               <div class="flex flex-wrap items-center gap-2">
-                <button type="button" onclick="filtrarInventarioPorEstado('todos')" class="inv-filter-btn active-filter px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-white text-black shadow-xs" data-filter="todos">
+                <button type="button" onclick="volverATodas()" id="btn-filtro-todas" class="inv-filter-btn active-filter px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-white text-black shadow-xs transition-all cursor-pointer" data-filter="todos">
                   Todas (<span id="filter-count-todos">--</span>)
                 </button>
-                <button type="button" onclick="filtrarInventarioPorEstado('venta')" class="inv-filter-btn px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-neutral-900 text-neutral-300 hover:bg-neutral-800 border border-neutral-700" data-filter="venta">
+                <!-- Pestaña Dinámica del Asesor (se crea al hacer clic en "Ver sus propiedades") -->
+                <button type="button" id="tab-filtro-asesor" onclick="activarFiltroAsesorTab()" class="hidden inv-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-white text-black shadow-xs border border-white flex items-center gap-2 transition-all cursor-pointer">
+                  <img id="tab-filtro-asesor-img" src="" class="w-4 h-4 rounded-full object-cover">
+                  <span id="tab-filtro-asesor-name">Asesor</span>
+                  <span id="tab-filtro-asesor-count" class="px-1.5 py-0.5 rounded-full bg-black/15 text-[10px] font-mono">0</span>
+                  <span onclick="event.stopPropagation(); volverATodas();" class="text-neutral-500 hover:text-black font-black text-xs ml-1" title="Cerrar pestaña de asesor y volver a todas">✕</span>
+                </button>
+                <button type="button" onclick="filtrarInventarioPorEstado('venta')" class="inv-filter-btn px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-neutral-900 text-neutral-300 hover:bg-neutral-800 border border-neutral-700 transition-all cursor-pointer" data-filter="venta">
                   En Venta (<span id="filter-count-venta">--</span>)
                 </button>
-                <button type="button" onclick="filtrarInventarioPorEstado('renta')" class="inv-filter-btn px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-neutral-900 text-neutral-300 hover:bg-neutral-800 border border-neutral-700" data-filter="renta">
+                <button type="button" onclick="filtrarInventarioPorEstado('renta')" class="inv-filter-btn px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-neutral-900 text-neutral-300 hover:bg-neutral-800 border border-neutral-700 transition-all cursor-pointer" data-filter="renta">
                   En Renta (<span id="filter-count-renta">--</span>)
                 </button>
-                <button type="button" onclick="filtrarInventarioPorEstado('vendida')" class="inv-filter-btn px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-neutral-900 text-neutral-300 hover:bg-neutral-800 border border-neutral-700" data-filter="vendida">
+                <button type="button" onclick="filtrarInventarioPorEstado('vendida')" class="inv-filter-btn px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-neutral-900 text-neutral-300 hover:bg-neutral-800 border border-neutral-700 transition-all cursor-pointer" data-filter="vendida">
                   Vendidas (<span id="filter-count-vendida">--</span>)
                 </button>
               </div>
-
               <!-- Selector Modo Vista (Tabla / Grid) -->
               <div class="flex items-center gap-1 bg-neutral-900 p-1 rounded-xl shrink-0 self-end md:self-auto border border-neutral-800">
                 <button type="button" onclick="setVistaModo('tabla')" id="btn-view-tabla" class="p-2 rounded-lg text-black bg-white shadow-xs text-xs font-bold" title="Vista en Tabla">
@@ -1786,26 +1792,26 @@
         return matchSearch && matchEstado && matchAsesor;
       });
 
-      const totalVenta = propiedades.filter(p => (parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0) >= 10000).length;
-      const totalRenta = propiedades.filter(p => (parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0) < 10000).length;
-      const totalVendidas = propiedades.filter(p => p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid')).length;
+      // Conjunto base para calcular conteos:
+      // Si hay un asesor seleccionado, los conteos de venta, renta y vendidas reflejan SUS propiedades.
+      // Si no, reflejan el total de todo el catálogo.
+      const baseParaConteos = filtroAsesorActivo 
+        ? propiedades.filter(p => p.id_asesor === filtroAsesorActivo)
+        : propiedades;
 
-      // Actualizar banner de filtro por asesor
-      const bannerAsesor = document.getElementById('filtro-asesor-banner');
-      const avatarAsesor = document.getElementById('filtro-asesor-avatar');
-      const nombreAsesor = document.getElementById('filtro-asesor-nombre');
-      if (filtroAsesorActivo && asesores[filtroAsesorActivo]) {
-        if (bannerAsesor) bannerAsesor.classList.remove('hidden');
-        if (avatarAsesor) avatarAsesor.src = asesores[filtroAsesorActivo].avatar;
-        if (nombreAsesor) nombreAsesor.textContent = `${asesores[filtroAsesorActivo].nombre} (${filtradas.length} de ${propiedades.length} propiedades)`;
-      } else {
-        if (bannerAsesor) bannerAsesor.classList.add('hidden');
-      }
+      const totalVenta = baseParaConteos.filter(p => (parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0) >= 10000).length;
+      const totalRenta = baseParaConteos.filter(p => (parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0) < 10000).length;
+      const totalVendidas = baseParaConteos.filter(p => p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid')).length;
 
       document.getElementById('filter-count-todos').textContent = propiedades.length;
       document.getElementById('filter-count-venta').textContent = totalVenta;
       document.getElementById('filter-count-renta').textContent = totalRenta;
       document.getElementById('filter-count-vendida').textContent = totalVendidas;
+
+      const tabCount = document.getElementById('tab-filtro-asesor-count');
+      if (tabCount && filtroAsesorActivo) {
+        tabCount.textContent = baseParaConteos.length;
+      }
 
       // Render Modo Tabla
       const tbody = document.getElementById('inventario-tbody');
@@ -1944,17 +1950,53 @@
       renderizarInventario();
     }
 
-    function filtrarInventarioPorEstado(estado) {
-      filtroEstadoActivo = estado;
-      document.querySelectorAll('.inv-filter-btn').forEach(btn => {
-        if (btn.getAttribute('data-filter') === estado) {
-          btn.classList.add('bg-white', 'text-black', 'shadow-xs');
-          btn.classList.remove('bg-neutral-900', 'text-neutral-300');
+    function actualizarEstilosFiltros() {
+      const btnTodas = document.getElementById('btn-filtro-todas');
+      const tabAsesor = document.getElementById('tab-filtro-asesor');
+
+      if (filtroAsesorActivo) {
+        btnTodas?.classList.remove('bg-white', 'text-black', 'shadow-xs');
+        btnTodas?.classList.add('bg-neutral-900', 'text-neutral-300');
+
+        if (filtroEstadoActivo === 'todos') {
+          tabAsesor?.classList.add('bg-white', 'text-black', 'shadow-xs');
+          tabAsesor?.classList.remove('bg-neutral-900', 'text-neutral-300');
         } else {
-          btn.classList.remove('bg-white', 'text-black', 'shadow-xs');
-          btn.classList.add('bg-neutral-900', 'text-neutral-300');
+          tabAsesor?.classList.remove('bg-white', 'text-black', 'shadow-xs');
+          tabAsesor?.classList.add('bg-neutral-900', 'text-neutral-300');
+        }
+      } else {
+        tabAsesor?.classList.add('hidden');
+        if (filtroEstadoActivo === 'todos') {
+          btnTodas?.classList.add('bg-white', 'text-black', 'shadow-xs');
+          btnTodas?.classList.remove('bg-neutral-900', 'text-neutral-300');
+        } else {
+          btnTodas?.classList.remove('bg-white', 'text-black', 'shadow-xs');
+          btnTodas?.classList.add('bg-neutral-900', 'text-neutral-300');
+        }
+      }
+
+      ['venta', 'renta', 'vendida'].forEach(cat => {
+        const btn = document.querySelector(`.inv-filter-btn[data-filter="${cat}"]`);
+        if (btn) {
+          if (filtroEstadoActivo === cat) {
+            btn.classList.add('bg-white', 'text-black', 'shadow-xs');
+            btn.classList.remove('bg-neutral-900', 'text-neutral-300');
+          } else {
+            btn.classList.remove('bg-white', 'text-black', 'shadow-xs');
+            btn.classList.add('bg-neutral-900', 'text-neutral-300');
+          }
         }
       });
+    }
+
+    function filtrarInventarioPorEstado(estado) {
+      if (estado === 'todos') {
+        volverATodas();
+        return;
+      }
+      filtroEstadoActivo = estado;
+      actualizarEstilosFiltros();
       renderizarInventario();
     }
 
@@ -2082,19 +2124,52 @@
       filtroEstadoActivo = 'todos';
       navegarA('propiedades');
       setPropiedadesSubTab('inventario');
+
+      const tabAsesor = document.getElementById('tab-filtro-asesor');
+      const tabImg = document.getElementById('tab-filtro-asesor-img');
+      const tabName = document.getElementById('tab-filtro-asesor-name');
+      const tabCount = document.getElementById('tab-filtro-asesor-count');
+
+      const asesor = asesores[key];
+      if (tabAsesor && asesor) {
+        tabAsesor.classList.remove('hidden');
+        if (tabImg) tabImg.src = asesor.avatar;
+        if (tabName) tabName.textContent = asesor.nombre;
+        const count = propiedades.filter(p => p.id_asesor === key).length;
+        if (tabCount) tabCount.textContent = count;
+      }
+
+      actualizarEstilosFiltros();
       renderizarInventario();
-      lanzarToast("Filtro de Asesor Aplicado", `Mostrando únicamente propiedades asignadas a ${asesores[key]?.nombre || key}.`);
+      lanzarToast("Pestaña de Asesor Creada", `Viendo propiedades de ${asesor?.nombre || key}. Haz clic en "Todas" para volver.`);
+    }
+
+    function activarFiltroAsesorTab() {
+      if (!filtroAsesorActivo) return;
+      filtroEstadoActivo = 'todos';
+      actualizarEstilosFiltros();
+      renderizarInventario();
+    }
+
+    function volverATodas() {
+      filtroAsesorActivo = null;
+      filtroEstadoActivo = 'todos';
+
+      const tabAsesor = document.getElementById('tab-filtro-asesor');
+      if (tabAsesor) tabAsesor.classList.add('hidden');
+
+      const bannerAsesor = document.getElementById('filtro-asesor-banner');
+      if (bannerAsesor) bannerAsesor.classList.add('hidden');
+
+      actualizarEstilosFiltros();
+      renderizarInventario();
+      lanzarToast("Inventario Completo", "Regresaste a la vista de todas las propiedades.");
     }
 
     function limpiarFiltroAsesor() {
-      filtroAsesorActivo = null;
-      renderizarInventario();
-      lanzarToast("Filtro Quitado", "Mostrando todas las propiedades del portafolio.");
+      volverATodas();
     }
 
-    // ========================================================
-    // 4. NAVEGACIÓN ENTRE VISTAS (SPA TABS)
-    // ========================================================
     function navegarA(vistaId) {
       document.querySelectorAll('.view-panel').forEach(panel => {
         panel.classList.add('hidden');
