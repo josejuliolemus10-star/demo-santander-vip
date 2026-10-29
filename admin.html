@@ -15,6 +15,8 @@
 
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js para Gráficos Analíticos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -378,6 +380,63 @@
                     <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Vendidas
                   </span>
                   <span id="legend-sold" class="font-serif font-bold text-white text-sm mt-0.5">--</span>
+                </div>
+              </div>
+
+              <!-- Gráfico de Pie / Donut de Composición Comercial -->
+              <div class="pt-6 mt-6 border-t border-neutral-800 flex flex-col sm:flex-row items-center justify-around gap-6">
+                <!-- Canvas del Gráfico de Pie con Métrica Central -->
+                <div class="relative w-44 h-44 sm:w-48 sm:h-48 shrink-0 flex items-center justify-center">
+                  <canvas id="chart-pie-composicion"></canvas>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                    <span id="pie-center-total" class="font-serif font-black text-2xl sm:text-3xl text-white leading-none">--</span>
+                    <span class="text-[9px] uppercase tracking-widest text-neutral-400 font-bold mt-1">Portafolio</span>
+                  </div>
+                </div>
+
+                <!-- Desglose Ejecutivo por Categoría -->
+                <div class="flex-1 w-full space-y-2.5 max-w-sm">
+                  <div class="p-2.5 bg-neutral-900/80 rounded-xl border border-neutral-800 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                      <span class="w-3 h-3 rounded-full bg-blue-600 shadow-xs shrink-0"></span>
+                      <div>
+                        <span class="text-xs font-bold text-white block">En Venta</span>
+                        <span class="text-[10px] text-neutral-400">Propiedades exclusivas</span>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <span id="pie-stat-venta" class="font-serif font-bold text-white text-xs block">-- props</span>
+                      <span id="pie-pct-venta" class="text-[10px] text-blue-400 font-mono font-bold">--%</span>
+                    </div>
+                  </div>
+
+                  <div class="p-2.5 bg-neutral-900/80 rounded-xl border border-neutral-800 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                      <span class="w-3 h-3 rounded-full bg-amber-500 shadow-xs shrink-0"></span>
+                      <div>
+                        <span class="text-xs font-bold text-white block">En Renta</span>
+                        <span class="text-[10px] text-neutral-400">Contratos corporativos</span>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <span id="pie-stat-renta" class="font-serif font-bold text-white text-xs block">-- props</span>
+                      <span id="pie-pct-renta" class="text-[10px] text-amber-400 font-mono font-bold">--%</span>
+                    </div>
+                  </div>
+
+                  <div class="p-2.5 bg-neutral-900/80 rounded-xl border border-neutral-800 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                      <span class="w-3 h-3 rounded-full bg-red-500 shadow-xs shrink-0"></span>
+                      <div>
+                        <span class="text-xs font-bold text-white block">Vendidas (SOLD)</span>
+                        <span class="text-[10px] text-neutral-400">Operaciones cerradas</span>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <span id="pie-stat-sold" class="font-serif font-bold text-white text-xs block">-- props</span>
+                      <span id="pie-pct-sold" class="text-[10px] text-red-400 font-mono font-bold">--%</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1636,6 +1695,129 @@
     }
 
     // 3.1 RENDERIZAR DASHBOARD
+    // Instancia global del Gráfico de Pie
+    let chartComposicionPie = null;
+
+    function renderizarGraficoPie(enVenta, enRenta, vendidas, total) {
+      const canvas = document.getElementById('chart-pie-composicion');
+      if (!canvas) return;
+
+      const pctVenta = total > 0 ? Math.round((enVenta / total) * 100) : 0;
+      const pctRenta = total > 0 ? Math.round((enRenta / total) * 100) : 0;
+      const pctSold = total > 0 ? Math.round((vendidas / total) * 100) : 0;
+
+      // Métricas centrales y desglose
+      const elemTotal = document.getElementById('pie-center-total');
+      if (elemTotal) elemTotal.textContent = total;
+
+      const statVenta = document.getElementById('pie-stat-venta');
+      const pctVentaElem = document.getElementById('pie-pct-venta');
+      if (statVenta) statVenta.textContent = `${enVenta} ${enVenta === 1 ? 'prop' : 'props'}`;
+      if (pctVentaElem) pctVentaElem.textContent = `${pctVenta}%`;
+
+      const statRenta = document.getElementById('pie-stat-renta');
+      const pctRentaElem = document.getElementById('pie-pct-renta');
+      if (statRenta) statRenta.textContent = `${enRenta} ${enRenta === 1 ? 'prop' : 'props'}`;
+      if (pctRentaElem) pctRentaElem.textContent = `${pctRenta}%`;
+
+      const statSold = document.getElementById('pie-stat-sold');
+      const pctSoldElem = document.getElementById('pie-pct-sold');
+      if (statSold) statSold.textContent = `${vendidas} ${vendidas === 1 ? 'prop' : 'props'}`;
+      if (pctSoldElem) pctSoldElem.textContent = `${pctSold}%`;
+
+      const chartData = [enVenta, enRenta, vendidas];
+      const chartColors = ['#2563EB', '#F59E0B', '#EF4444'];
+
+      if (typeof Chart === 'undefined') {
+        // Fallback nativo Canvas 2D en caso de retraso en CDN
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          const w = canvas.width = 192;
+          const h = canvas.height = 192;
+          const cx = w / 2;
+          const cy = h / 2;
+          const radius = 80;
+          const innerRadius = 52;
+          ctx.clearRect(0, 0, w, h);
+
+          if (total === 0) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.arc(cx, cy, innerRadius, Math.PI * 2, 0, true);
+            ctx.fillStyle = '#262626';
+            ctx.fill();
+            return;
+          }
+
+          let startAngle = -Math.PI / 2;
+          chartData.forEach((val, i) => {
+            if (val === 0) return;
+            const slice = (val / total) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, startAngle, startAngle + slice);
+            ctx.arc(cx, cy, innerRadius, startAngle + slice, startAngle, true);
+            ctx.closePath();
+            ctx.fillStyle = chartColors[i];
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#141414';
+            ctx.stroke();
+            startAngle += slice;
+          });
+        }
+        return;
+      }
+
+      // Si Chart.js está cargado, crear o actualizar con animaciones nativas
+      const ctx = canvas.getContext('2d');
+      if (chartComposicionPie) {
+        chartComposicionPie.data.datasets[0].data = chartData;
+        chartComposicionPie.update();
+      } else {
+        chartComposicionPie = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['En Venta', 'En Renta', 'Vendidas (SOLD)'],
+            datasets: [{
+              data: chartData,
+              backgroundColor: chartColors,
+              borderColor: '#141414',
+              borderWidth: 3,
+              hoverOffset: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '68%',
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: '#1E1E1E',
+                titleColor: '#FFFFFF',
+                bodyColor: '#D4D4D4',
+                borderColor: '#333333',
+                borderWidth: 1,
+                padding: 10,
+                cornerRadius: 10,
+                callbacks: {
+                  label: function(context) {
+                    const val = context.raw || 0;
+                    const pct = total > 0 ? Math.round((val / total) * 100) : 0;
+                    return ` ${context.label}: ${val} props (${pct}%)`;
+                  }
+                }
+              }
+            },
+            animation: {
+              animateScale: true,
+              animateRotate: true
+            }
+          }
+        });
+      }
+    }
+
     function renderizarDashboard() {
       const total = propiedades.length;
       let enVenta = 0;
@@ -1685,6 +1867,9 @@
       document.getElementById('legend-venta').textContent = `${enVenta} (${pctVenta}%)`;
       document.getElementById('legend-renta').textContent = `${enRenta} (${pctRenta}%)`;
       document.getElementById('legend-sold').textContent = `${vendidas} (${pctSold}%)`;
+
+      // Actualizar Gráfico de Pie Dinámico
+      renderizarGraficoPie(enVenta, enRenta, vendidas, total);
 
       // Lista de Zonas
       const zonasList = document.getElementById('dashboard-zonas-list');
