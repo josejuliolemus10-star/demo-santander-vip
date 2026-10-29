@@ -991,19 +991,10 @@
         </p>
       </div>
 
-      <!-- Contenedor Limpio y Elegante -->
-      <div class="max-w-4xl mx-auto bg-white rounded-3xl p-16 sm:p-20 border border-gray-200 shadow-md text-center flex flex-col items-center justify-center">
-        <div class="w-16 h-16 rounded-full bg-[#2A9D8F]/10 text-[#2A9D8F] flex items-center justify-center mb-6">
-          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-          </svg>
-        </div>
-        <h3 class="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 tracking-wide">
-          Aquí irán los perfiles de los asesores
-        </h3>
-        <p class="text-sm text-gray-500 mt-3 max-w-md leading-relaxed">
-          Próximamente podrá consultar el perfil, credenciales y contacto directo de cada uno de nuestros directores inmobiliarios.
-        </p>
+      <!-- Grid Dinámico de Nuestros Asesores VIP Santander -->
+      <div id="nuestros-asesores-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Inyectado dinámicamente con foto, puesto, propiedades y contacto directo -->
+      </div>
       </div>
 
     </div>
@@ -1250,17 +1241,77 @@
     // ========================================================
     // 1. BASE DE DATOS DE ASESORES (Datos Reales)
     // ========================================================
-    const asesores = {
-      "carmen": { nombre: "Carmen Coloma", tel: "50252945088", puesto: "Directora Comercial & VIP Estates" },
-      "santiago": { nombre: "Santiago Leoni", tel: "50231507820", puesto: "Especialista en Residencias de Lujo" },
-      "joseluis": { nombre: "Jose Luis Coloma", tel: "50258365894", puesto: "Director Inmobiliario Senior" },
-      "madeleine": { nombre: "Madeleine Mazat", tel: "50250174606", puesto: "Asesora Senior de Inversiones" },
-      "mariaelena": { nombre: "Maria Elena de Ruiz", tel: "50255237951", puesto: "Consultora Inmobiliaria Exclusiva" },
-      "bitia": { nombre: "Bitia Carballo", tel: "50256324236", puesto: "Especialista en Rentas Corporativas" },
-      "sonia": { nombre: "Sonia Mejía", tel: "50241191773", puesto: "Asesora Patrimonial Senior" },
-      "sofia": { nombre: "Sofia Deón", tel: "50230001208", puesto: "Especialista en Desarrollos VIP" },
-      "william": { nombre: "William Cabrera", tel: "50255105971", puesto: "Consultor de Propiedades de Lujo" }
+    let asesores = {
+      "carmen": { 
+        nombre: "Carmen Coloma", 
+        tel: "50252945088", 
+        puesto: "Directora Comercial & VIP Estates", 
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80", 
+        email: "carmen.coloma@santandervip.gt" 
+      },
+      "santiago": { 
+        nombre: "Santiago Leoni", 
+        tel: "50231507820", 
+        puesto: "Especialista en Residencias de Lujo", 
+        avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80", 
+        email: "santiago.leoni@santandervip.gt" 
+      },
+      "joseluis": { 
+        nombre: "Jose Luis Coloma", 
+        tel: "50258365894", 
+        puesto: "Director Inmobiliario Senior", 
+        avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80", 
+        email: "joseluis.coloma@santandervip.gt" 
+      },
+      "madeleine": { 
+        nombre: "Madeleine Mazat", 
+        tel: "50250174606", 
+        puesto: "Asesora Senior de Inversiones", 
+        avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80", 
+        email: "madeleine.mazat@santandervip.gt" 
+      },
+      "mariaelena": { 
+        nombre: "Maria Elena de Ruiz", 
+        tel: "50255237951", 
+        puesto: "Consultora Inmobiliaria Exclusiva", 
+        avatar: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=400&q=80", 
+        email: "mariaelena.ruiz@santandervip.gt" 
+      },
+      "bitia": { 
+        nombre: "Bitia Carballo", 
+        tel: "50256324236", 
+        puesto: "Especialista en Rentas Corporativas", 
+        avatar: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=400&q=80", 
+        email: "bitia.carballo@santandervip.gt" 
+      },
+      "sonia": { 
+        nombre: "Sonia Mejía", 
+        tel: "50241191773", 
+        puesto: "Asesora Patrimonial Senior", 
+        avatar: "https://images.unsplash.com/photo-1598550874175-4d0ef436c909?auto=format&fit=crop&w=400&q=80", 
+        email: "sonia.mejia@santandervip.gt" 
+      },
+      "sofia": { 
+        nombre: "Sofia Deón", 
+        tel: "50230001208", 
+        puesto: "Especialista en Desarrollos VIP", 
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80", 
+        email: "sofia.deon@santandervip.gt" 
+      },
+      "william": { 
+        nombre: "William Cabrera", 
+        tel: "50255105971", 
+        puesto: "Consultor de Propiedades de Lujo", 
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80", 
+        email: "william.cabrera@santandervip.gt" 
+      }
     };
+
+    // Cargar asesores locales adicionales registrados en el panel
+    try {
+      const localesAsesores = JSON.parse(localStorage.getItem('santander_asesores_locales') || '{}');
+      Object.assign(asesores, localesAsesores);
+    } catch (e) { console.warn(e); }
 
     // ========================================================
     // 2. CONFIGURACIÓN DEL SISTEMA DINÁMICO DE PROPIEDADES (CSV)
@@ -1392,6 +1443,7 @@
       if (!CSV_URL || CSV_URL === "AQUI_VA_EL_LINK_DEL_CSV") {
         propiedades = [...propiedadesRespaldo];
         renderizarTarjetas();
+        renderizarNuestrosAsesores();
         return;
       }
 
@@ -1523,6 +1575,7 @@
         } catch (e) { console.warn("Error leyendo eliminadas:", e); }
 
         renderizarTarjetas();
+        renderizarNuestrosAsesores();
       } catch (error) {
         clearTimeout(timeoutId);
         console.warn("Aviso: Falló la petición a Google Sheets CSV (timeout o error de red/CORS). Activando portafolio de respaldo local:", error);
@@ -1551,6 +1604,7 @@
         } catch (e) { console.warn("Error leyendo eliminadas:", e); }
 
         renderizarTarjetas();
+        renderizarNuestrosAsesores();
       }
     }
     window.cargarPropiedadesDesdeExcel = cargarPropiedadesDesdeExcel;
@@ -1558,6 +1612,83 @@
     // ========================================================
     // 4. RENDERIZADO DINÁMICO DE TARJETAS EN EL CATÁLOGO VIP
     // ========================================================
+    // ========================================================
+    // RENDERIZADO DINÁMICO DE NUESTROS ASESORES VIP
+    // ========================================================
+    function renderizarNuestrosAsesores() {
+      const grid = document.getElementById('nuestros-asesores-grid');
+      if (!grid) return;
+
+      try {
+        const localesAsesores = JSON.parse(localStorage.getItem('santander_asesores_locales') || '{}');
+        Object.assign(asesores, localesAsesores);
+      } catch (e) { console.warn(e); }
+
+      const entries = Object.entries(asesores);
+      grid.innerHTML = entries.map(([key, a]) => {
+        const propsAsignadas = propiedades.filter(p => p.id_asesor === key);
+        const countProps = propsAsignadas.length;
+        const waMsg = encodeURIComponent(`Hola ${a.nombre}, deseo consultar sobre las residencias exclusivas que gestiona en Santander VIP Estates.`);
+        const waUrl = `https://wa.me/${a.tel}?text=${waMsg}`;
+        const avatarSrc = a.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(a.nombre)}&background=181818&color=fff&rounded=true`;
+
+        return `
+          <div class="bg-white rounded-3xl p-7 sm:p-8 border border-gray-200/80 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+            <div>
+              <!-- Header del Asesor -->
+              <div class="flex items-center gap-4 mb-5">
+                <div class="relative shrink-0">
+                  <img src="${avatarSrc}" alt="${a.nombre}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover ring-2 ring-[#2A9D8F]/30 group-hover:ring-[#2A9D8F] transition-all">
+                  <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#2A9D8F] ring-2 ring-white" title="Asesor Activo"></span>
+                </div>
+                <div class="min-w-0">
+                  <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#2A9D8F] block mb-1">Director Inmobiliario</span>
+                  <h3 class="font-serif font-bold text-gray-900 text-lg sm:text-xl leading-tight truncate">${a.nombre}</h3>
+                  <p class="text-xs text-gray-500 font-medium mt-1 leading-snug">${a.puesto}</p>
+                </div>
+              </div>
+
+              <!-- Contador de Propiedades en Cartera -->
+              <div class="p-3 bg-gray-50 rounded-2xl border border-gray-100 flex items-center justify-between text-xs mb-5">
+                <span class="text-gray-500 font-medium">Cartera Activa:</span>
+                <span class="font-bold text-[#1A1A1A] bg-white px-3 py-1 rounded-xl shadow-xs border border-gray-200/60 font-serif">
+                  ${countProps} ${countProps === 1 ? 'Propiedad VIP' : 'Propiedades VIP'}
+                </span>
+              </div>
+
+              <!-- Datos de Contacto Directo -->
+              <div class="space-y-2 text-xs text-gray-600 mb-6">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                    <i class="fa-solid fa-envelope text-[11px]"></i>
+                  </div>
+                  <a href="mailto:${a.email || 'contacto@santandervip.gt'}" class="hover:text-[#2A9D8F] truncate font-medium">
+                    ${a.email || `${key}@santandervip.gt`}
+                  </a>
+                </div>
+                <div class="flex items-center gap-2.5">
+                  <div class="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                    <i class="fa-solid fa-phone text-[11px]"></i>
+                  </div>
+                  <a href="tel:+${a.tel}" class="hover:text-[#2A9D8F] font-medium font-mono">
+                    +${a.tel}
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botón WhatsApp -->
+            <div class="pt-4 border-t border-gray-100">
+              <a href="${waUrl}" target="_blank" class="w-full py-3 px-4 bg-[#2A9D8F] hover:bg-[#238276] text-white font-bold text-xs rounded-xl shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2">
+                <i class="fa-brands fa-whatsapp text-sm"></i>
+                <span>Contactar por WhatsApp</span>
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     function renderizarTarjetas() {
       const catalogoCompleto = document.getElementById('catalogo-completo');
       if (!catalogoCompleto) return;

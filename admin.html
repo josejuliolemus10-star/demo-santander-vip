@@ -510,6 +510,21 @@
             </div>
 
             <!-- Contenedor Modo Tabla -->
+            <!-- Banner de Filtro Activo por Asesor -->
+            <div id="filtro-asesor-banner" class="hidden bg-neutral-900 border border-neutral-700 rounded-2xl p-3 sm:px-5 sm:py-3.5 flex items-center justify-between text-xs text-white shadow-md">
+              <div class="flex items-center gap-3 min-w-0">
+                <img id="filtro-asesor-avatar" src="" class="w-9 h-9 rounded-full object-cover ring-2 ring-white/30 shrink-0">
+                <div class="min-w-0">
+                  <span class="text-neutral-400 text-[10px] uppercase tracking-wider font-bold block">Filtrando propiedades asignadas a:</span>
+                  <span id="filtro-asesor-nombre" class="font-bold text-white text-sm truncate block">--</span>
+                </div>
+              </div>
+              <button type="button" onclick="limpiarFiltroAsesor()" class="px-3.5 py-1.5 bg-white hover:bg-neutral-200 text-black font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-xmark"></i>
+                <span>Ver Todas</span>
+              </button>
+            </div>
+
             <div id="inventario-view-tabla" class="bg-[#141414] rounded-2xl border border-[#2A2A2A] shadow-xs overflow-hidden">
               <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm text-neutral-300">
@@ -1160,6 +1175,24 @@
           <input type="email" id="nuevo-asesor-email" placeholder="asesor@santandervip.gt" class="w-full p-2.5 text-sm rounded-xl border border-neutral-700 bg-neutral-900 text-white focus:border-white outline-none">
         </div>
 
+        <div>
+          <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Fotografía de Perfil (Opcional)</label>
+          <div class="flex items-center gap-3">
+            <input type="url" id="nuevo-asesor-foto-url" placeholder="https://... o sube desde el equipo" class="flex-1 p-2.5 text-xs font-mono rounded-xl border border-neutral-700 bg-neutral-900 text-neutral-200 focus:border-white outline-none" oninput="document.getElementById('nuevo-asesor-foto-preview').src = this.value || 'https://ui-avatars.com/api/?name=VIP&background=181818&color=fff'">
+            <div class="w-10 h-10 rounded-full overflow-hidden bg-neutral-800 border border-neutral-700 shrink-0">
+              <img id="nuevo-asesor-foto-preview" src="https://ui-avatars.com/api/?name=VIP&background=181818&color=fff" alt="Vista previa" class="w-full h-full object-cover">
+            </div>
+          </div>
+          <div class="mt-2 flex items-center gap-3">
+            <label class="px-3 py-1.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-300 text-xs font-bold rounded-lg cursor-pointer transition-all flex items-center gap-1.5">
+              <i class="fa-solid fa-cloud-arrow-up text-white"></i>
+              <span>Subir desde tu equipo</span>
+              <input type="file" id="nuevo-asesor-foto-file" accept="image/*" class="hidden" onchange="manejarFotoNuevoAsesor(this.files)">
+            </label>
+            <span id="nuevo-asesor-foto-filename" class="text-[11px] text-neutral-500 truncate max-w-xs"></span>
+          </div>
+        </div>
+
         <div class="pt-4 flex items-center justify-end gap-3 border-t border-neutral-800">
           <button type="button" onclick="cerrarModalNuevoAsesor()" class="px-4 py-2 text-xs font-bold text-neutral-400 hover:text-white rounded-xl">Cancelar</button>
           <button type="submit" class="px-5 py-2.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl shadow-md">Guardar Asesor</button>
@@ -1387,6 +1420,12 @@
         email: "william.cabrera@santandervip.gt" 
       }
     };
+
+    // Cargar asesores locales adicionales registrados en el panel
+    try {
+      const localesAsesores = JSON.parse(localStorage.getItem('santander_asesores_locales') || '{}');
+      Object.assign(asesores, localesAsesores);
+    } catch (e) { console.warn(e); }
 
     // Propiedades de respaldo local por si Google Sheets no responde
     const propiedadesRespaldo = [
@@ -1751,6 +1790,18 @@
       const totalRenta = propiedades.filter(p => (parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0) < 10000).length;
       const totalVendidas = propiedades.filter(p => p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid')).length;
 
+      // Actualizar banner de filtro por asesor
+      const bannerAsesor = document.getElementById('filtro-asesor-banner');
+      const avatarAsesor = document.getElementById('filtro-asesor-avatar');
+      const nombreAsesor = document.getElementById('filtro-asesor-nombre');
+      if (filtroAsesorActivo && asesores[filtroAsesorActivo]) {
+        if (bannerAsesor) bannerAsesor.classList.remove('hidden');
+        if (avatarAsesor) avatarAsesor.src = asesores[filtroAsesorActivo].avatar;
+        if (nombreAsesor) nombreAsesor.textContent = `${asesores[filtroAsesorActivo].nombre} (${filtradas.length} de ${propiedades.length} propiedades)`;
+      } else {
+        if (bannerAsesor) bannerAsesor.classList.add('hidden');
+      }
+
       document.getElementById('filter-count-todos').textContent = propiedades.length;
       document.getElementById('filter-count-venta').textContent = totalVenta;
       document.getElementById('filter-count-renta').textContent = totalRenta;
@@ -2028,9 +2079,17 @@
 
     function filtrarInventarioPorAsesor(key) {
       filtroAsesorActivo = key;
+      filtroEstadoActivo = 'todos';
       navegarA('propiedades');
       setPropiedadesSubTab('inventario');
-      lanzarToast("Filtro Aplicado", `Mostrando propiedades asignadas a ${asesores[key]?.nombre || key}.`);
+      renderizarInventario();
+      lanzarToast("Filtro de Asesor Aplicado", `Mostrando únicamente propiedades asignadas a ${asesores[key]?.nombre || key}.`);
+    }
+
+    function limpiarFiltroAsesor() {
+      filtroAsesorActivo = null;
+      renderizarInventario();
+      lanzarToast("Filtro Quitado", "Mostrando todas las propiedades del portafolio.");
     }
 
     // ========================================================
@@ -2256,22 +2315,48 @@
       document.getElementById('modal-nuevo-asesor')?.classList.add('hidden');
     }
 
+    function manejarFotoNuevoAsesor(files) {
+      if (!files || files.length === 0) return;
+      const file = files[0];
+      if (!file.type.startsWith('image/')) {
+        alert("Por favor selecciona un archivo de imagen válido.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('nuevo-asesor-foto-url').value = e.target.result;
+        document.getElementById('nuevo-asesor-foto-preview').src = e.target.result;
+        document.getElementById('nuevo-asesor-foto-filename').textContent = `${file.name} (${(file.size / (1024*1024)).toFixed(2)} MB)`;
+      };
+      reader.readAsDataURL(file);
+    }
+
     function guardarNuevoAsesor() {
       const nombre = document.getElementById('nuevo-asesor-nombre').value.trim();
       const puesto = document.getElementById('nuevo-asesor-puesto').value.trim();
-      const tel = document.getElementById('nuevo-asesor-tel').value.trim().replace(/[^0-9]/g, '');
+      const tel = document.getElementById('nuevo-asesor-tel').value.trim().replace(/[^0-9]/g, "");
       const email = document.getElementById('nuevo-asesor-email').value.trim();
+      const fotoUrl = document.getElementById('nuevo-asesor-foto-url')?.value.trim();
 
       if (!nombre || !puesto || !tel) return;
 
       const key = nombre.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const avatar = fotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=181818&color=fff&rounded=true`;
+
       asesores[key] = {
         nombre,
         puesto,
         tel,
         email: email || `${key}@santandervip.gt`,
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=181818&color=fff&rounded=true`
+        avatar: avatar
       };
+
+      // Guardar en santander_asesores_locales en localStorage
+      try {
+        let localesAsesores = JSON.parse(localStorage.getItem('santander_asesores_locales') || '{}');
+        localesAsesores[key] = asesores[key];
+        localStorage.setItem('santander_asesores_locales', JSON.stringify(localesAsesores));
+      } catch (e) { console.error(e); }
 
       const selectAsesor = document.getElementById('asesor');
       if (selectAsesor) {
@@ -2282,9 +2367,16 @@
         selectAsesor.appendChild(opt);
       }
 
+      const selectEdit = document.getElementById('edit-asesor');
+      if (selectEdit) {
+        const opt2 = document.createElement('option');
+        opt2.value = key;
+        opt2.textContent = `${nombre} — ${puesto}`;
+        opt2.className = "bg-neutral-900 text-white";
+        selectEdit.appendChild(opt2);
+      }
+
       cerrarModalNuevoAsesor();
-          cerrarModalEditar();
-          cerrarModalEliminar();
       renderizarAsesores();
       lanzarToast("Asesor Registrado", `${nombre} ha sido agregado al directorio oficial.`);
     }
@@ -2614,6 +2706,8 @@
           cerrarModalCsv();
           cerrarModalDetalle();
           cerrarModalNuevoAsesor();
+          cerrarModalEditar();
+          cerrarModalEliminar();
         }
       });
     });
