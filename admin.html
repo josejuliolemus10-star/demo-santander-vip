@@ -1413,6 +1413,42 @@
     </div>
   </div>
 
+  <!-- Modal 6: Confirmar Eliminación de Asesor VIP -->
+  <div id="modal-confirmar-eliminar-asesor" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#141414] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-red-900/40 text-white transform transition-all">
+      <div class="w-14 h-14 rounded-2xl bg-red-950/60 border border-red-500/40 text-red-400 flex items-center justify-center text-2xl mb-4 mx-auto">
+        <i class="fa-solid fa-user-xmark"></i>
+      </div>
+      
+      <div class="text-center mb-6">
+        <h3 class="font-serif text-xl font-bold text-white">¿Eliminar Asesor VIP?</h3>
+        <div class="mt-3 p-3 bg-neutral-900 rounded-2xl border border-neutral-800 flex items-center gap-3 text-left">
+          <img id="eliminar-asesor-avatar" src="" class="w-12 h-12 rounded-xl object-cover ring-1 ring-white/20 shrink-0">
+          <div class="min-w-0">
+            <p id="eliminar-asesor-nombre" class="font-bold text-white text-sm truncate"></p>
+            <p id="eliminar-asesor-puesto" class="text-xs text-neutral-400 truncate"></p>
+          </div>
+        </div>
+        <p id="eliminar-asesor-aviso-props" class="text-xs text-amber-400/90 mt-3 leading-relaxed hidden">
+          <i class="fa-solid fa-triangle-exclamation mr-1"></i> Este asesor tiene propiedades asignadas.
+        </p>
+        <p class="text-xs text-neutral-400 mt-2 leading-relaxed">
+          El asesor se quitará del directorio oficial, de los contadores y del catálogo web.
+        </p>
+      </div>
+
+      <div class="flex items-center justify-center gap-3 border-t border-neutral-800 pt-5">
+        <button type="button" onclick="cerrarModalEliminarAsesor()" class="w-1/2 py-2.5 px-4 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold rounded-xl border border-neutral-700 transition-all">
+          Cancelar
+        </button>
+        <button type="button" onclick="ejecutarEliminacionAsesor()" class="w-1/2 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
+          <i class="fa-solid fa-trash-can"></i>
+          Sí, Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast de Notificaciones -->
   <div id="toast-notificacion" class="fixed bottom-6 right-6 z-50 transform translate-y-32 opacity-0 transition-all duration-500 pointer-events-none">
     <div class="bg-neutral-900 text-white px-5 py-4 rounded-2xl shadow-2xl border border-neutral-700 flex items-center gap-4 max-w-md">
@@ -1505,11 +1541,27 @@
       }
     };
 
+    // Función para sincronizar asesores desde localStorage (locales y eliminados)
+    function cargarAsesoresDesdeStorage() {
+      try {
+        const localesAsesores = JSON.parse(localStorage.getItem('santander_asesores_locales') || '{}');
+        Object.assign(asesores, localesAsesores);
+      } catch (e) { console.warn(e); }
+
+      try {
+        const eliminadosAsesores = JSON.parse(localStorage.getItem('santander_asesores_eliminados') || '[]');
+        if (Array.isArray(eliminadosAsesores)) {
+          eliminadosAsesores.forEach(k => {
+            delete asesores[k];
+          });
+        }
+      } catch(e) { console.warn(e); }
+
+      poblarSelectsAsesores();
+    }
+
     // Cargar asesores locales adicionales registrados en el panel
-    try {
-      const localesAsesores = JSON.parse(localStorage.getItem('santander_asesores_locales') || '{}');
-      Object.assign(asesores, localesAsesores);
-    } catch (e) { console.warn(e); }
+    cargarAsesoresDesdeStorage();
 
     // Propiedades de respaldo local por si Google Sheets no responde
     const propiedadesRespaldo = [
@@ -2487,17 +2539,23 @@
         return `
           <div class="bg-[#141414] rounded-3xl p-6 border border-[#2A2A2A] shadow-xs hover:border-neutral-600 transition-all flex flex-col justify-between">
             <div>
-              <!-- Header Asesor -->
-              <div class="flex items-center gap-4 mb-4">
-                <div class="relative">
-                  <img src="${a.avatar}" alt="${a.nombre}" class="w-16 h-16 rounded-2xl object-cover ring-2 ring-white/20">
-                  <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-[#141414]" title="Asesor Activo"></span>
+              <!-- Header Asesor con Botón de Eliminar -->
+              <div class="flex items-start justify-between gap-3 mb-4">
+                <div class="flex items-center gap-4 min-w-0">
+                  <div class="relative shrink-0">
+                    <img src="${a.avatar}" alt="${a.nombre}" class="w-16 h-16 rounded-2xl object-cover ring-2 ring-white/20">
+                    <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-[#141414]" title="Asesor Activo"></span>
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="font-serif font-bold text-white text-lg leading-tight truncate">${a.nombre}</h3>
+                    <p class="text-xs text-neutral-400 font-semibold mt-0.5 leading-snug truncate">${a.puesto}</p>
+                    <p class="text-[11px] text-neutral-500 font-mono mt-1 truncate">${a.email || 'contacto@santandervip.gt'}</p>
+                  </div>
                 </div>
-                <div class="min-w-0">
-                  <h3 class="font-serif font-bold text-white text-lg leading-tight truncate">${a.nombre}</h3>
-                  <p class="text-xs text-neutral-400 font-semibold mt-0.5 leading-snug">${a.puesto}</p>
-                  <p class="text-[11px] text-neutral-500 font-mono mt-1">${a.email || 'contacto@santandervip.gt'}</p>
-                </div>
+                <!-- Botón Eliminar Asesor -->
+                <button type="button" onclick="confirmarEliminarAsesor('${key}')" class="p-2 text-neutral-500 hover:text-red-400 hover:bg-red-950/40 border border-transparent hover:border-red-900/40 rounded-xl transition-all shrink-0 cursor-pointer" title="Eliminar asesor VIP">
+                  <i class="fa-regular fa-trash-can text-sm"></i>
+                </button>
               </div>
 
               <!-- Métricas del Asesor -->
@@ -2913,6 +2971,86 @@
       lanzarToast("Asesor Registrado", `${nombre} ha sido agregado al directorio oficial (${Object.keys(asesores).length} asesores activos).`);
     }
 
+    // ========================================================
+    // GESTIÓN DE ELIMINACIÓN DE ASESORES VIP
+    // ========================================================
+    let asesorKeyAEliminar = null;
+
+    function confirmarEliminarAsesor(key) {
+      const a = asesores[key];
+      if (!a) return;
+      asesorKeyAEliminar = key;
+
+      const imgAvatar = document.getElementById('eliminar-asesor-avatar');
+      if (imgAvatar) imgAvatar.src = a.avatar || '';
+
+      const elemNombre = document.getElementById('eliminar-asesor-nombre');
+      if (elemNombre) elemNombre.textContent = a.nombre;
+
+      const elemPuesto = document.getElementById('eliminar-asesor-puesto');
+      if (elemPuesto) elemPuesto.textContent = a.puesto;
+
+      const countProps = propiedades.filter(p => p.id_asesor === key).length;
+      const avisoProps = document.getElementById('eliminar-asesor-aviso-props');
+      if (avisoProps) {
+        if (countProps > 0) {
+          avisoProps.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> Este asesor tiene <strong>${countProps}</strong> ${countProps === 1 ? 'propiedad asignada' : 'propiedades asignadas'}. Seguirán activas en el catálogo.`;
+          avisoProps.classList.remove('hidden');
+        } else {
+          avisoProps.classList.add('hidden');
+        }
+      }
+
+      document.getElementById('modal-confirmar-eliminar-asesor')?.classList.remove('hidden');
+    }
+
+    function cerrarModalEliminarAsesor() {
+      asesorKeyAEliminar = null;
+      document.getElementById('modal-confirmar-eliminar-asesor')?.classList.add('hidden');
+    }
+
+    function ejecutarEliminacionAsesor() {
+      if (!asesorKeyAEliminar) return;
+      const key = asesorKeyAEliminar;
+      const a = asesores[key];
+      const nombre = a ? a.nombre : key;
+
+      // 1. Quitar del objeto asesores en memoria
+      delete asesores[key];
+
+      // 2. Si estaba guardado en santander_asesores_locales, removerlo
+      try {
+        let localesAsesores = JSON.parse(localStorage.getItem('santander_asesores_locales') || '{}');
+        if (localesAsesores[key]) {
+          delete localesAsesores[key];
+          localStorage.setItem('santander_asesores_locales', JSON.stringify(localesAsesores));
+        }
+      } catch(e) { console.error(e); }
+
+      // 3. Registrar en santander_asesores_eliminados para persistencia
+      try {
+        let eliminados = JSON.parse(localStorage.getItem('santander_asesores_eliminados') || '[]');
+        if (!eliminados.includes(key)) {
+          eliminados.push(key);
+          localStorage.setItem('santander_asesores_eliminados', JSON.stringify(eliminados));
+        }
+      } catch(e) { console.error(e); }
+
+      // 4. Si el filtro activo era este asesor, resetear a 'todas'
+      if (filtroAsesorActivo === key) {
+        volverATodas(true);
+      }
+
+      // 5. Actualizar selects de asesores
+      poblarSelectsAsesores();
+
+      // 6. Cerrar modal y re-renderizar dashboard, inventario, cabeceras y badges
+      cerrarModalEliminarAsesor();
+      renderizarTodo();
+
+      lanzarToast("Asesor Eliminado", `"${nombre}" fue removido del directorio (${Object.keys(asesores).length} asesores activos).`);
+    }
+
     function exportarCSVCompleto() {
       const headers = "id,titulo,precio,cuartos,banos,metros,ubicacion,amenidades,cercanias,imagen_portada,galeria_fotos,id_asesor,estado";
       const rows = propiedades.map(p => {
@@ -3274,6 +3412,10 @@
         if (e.key === 'santander_propiedades_locales' || e.key === 'santander_propiedades_eliminadas') {
           cargarPropiedadesDesdeGoogleSheets();
         }
+        if (e.key === 'santander_asesores_locales' || e.key === 'santander_asesores_eliminados') {
+          cargarAsesoresDesdeStorage();
+          renderizarTodo();
+        }
       });
 
       document.addEventListener('keydown', (e) => {
@@ -3283,6 +3425,7 @@
           cerrarModalNuevoAsesor();
           cerrarModalEditar();
           cerrarModalEliminar();
+          cerrarModalEliminarAsesor();
         }
       });
     });

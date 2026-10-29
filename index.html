@@ -1307,10 +1307,17 @@
       }
     };
 
-    // Cargar asesores locales adicionales registrados en el panel
+    // Cargar asesores locales adicionales registrados en el panel y filtrar eliminados
     try {
       const localesAsesores = JSON.parse(localStorage.getItem('santander_asesores_locales') || '{}');
       Object.assign(asesores, localesAsesores);
+    } catch (e) { console.warn(e); }
+
+    try {
+      const eliminadosAsesores = JSON.parse(localStorage.getItem('santander_asesores_eliminados') || '[]');
+      if (Array.isArray(eliminadosAsesores)) {
+        eliminadosAsesores.forEach(k => delete asesores[k]);
+      }
     } catch (e) { console.warn(e); }
 
     // ========================================================
@@ -1640,6 +1647,13 @@
       try {
         const localesAsesores = JSON.parse(localStorage.getItem('santander_asesores_locales') || '{}');
         Object.assign(asesores, localesAsesores);
+      } catch (e) { console.warn(e); }
+
+      try {
+        const eliminadosAsesores = JSON.parse(localStorage.getItem('santander_asesores_eliminados') || '[]');
+        if (Array.isArray(eliminadosAsesores)) {
+          eliminadosAsesores.forEach(k => delete asesores[k]);
+        }
       } catch (e) { console.warn(e); }
 
       const entries = Object.entries(asesores);
@@ -2157,8 +2171,9 @@
       // Cargar propiedades desde Google Sheets CSV
       cargarPropiedadesDesdeExcel();
     window.addEventListener('storage', (e) => {
-      if (e.key === 'santander_propiedades_locales' || e.key === 'santander_propiedades_eliminadas' || e.key === 'santander_asesores_locales') {
+      if (e.key === 'santander_propiedades_locales' || e.key === 'santander_propiedades_eliminadas' || e.key === 'santander_asesores_locales' || e.key === 'santander_asesores_eliminados') {
         cargarPropiedadesDesdeExcel();
+        renderizarNuestrosAsesores();
       }
     });
 
