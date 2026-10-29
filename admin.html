@@ -99,7 +99,7 @@
         <button type="button" onclick="navegarA('asesores')" data-tab="asesores" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white hover:bg-neutral-900/80 transition-all text-left">
           <i class="fa-solid fa-user-tie w-5 text-center text-neutral-400"></i>
           <span>Asesores VIP</span>
-          <span class="ml-auto text-[11px] bg-neutral-900 text-neutral-300 px-2 py-0.5 rounded-full font-bold border border-neutral-800">9 Asesores</span>
+          <span id="badge-sidebar-asesores" class="ml-auto text-[11px] bg-neutral-900 text-neutral-300 px-2 py-0.5 rounded-full font-bold border border-neutral-800">9 Asesores</span>
         </button>
 
         <!-- 4. Google Sheet CSV -->
@@ -910,7 +910,7 @@
               </p>
             </div>
             <div class="flex items-center gap-2.5">
-              <span class="text-xs font-bold text-white bg-neutral-900 border border-neutral-700 px-3.5 py-2 rounded-xl">
+              <span id="badge-header-asesores" class="text-xs font-bold text-white bg-neutral-900 border border-neutral-700 px-3.5 py-2 rounded-xl">
                 <i class="fa-solid fa-shield-halved text-white mr-1.5"></i>9 Asesores Oficiales
               </span>
               <button type="button" onclick="abrirModalNuevoAsesor()" class="px-3.5 py-2 text-xs font-bold text-black bg-white hover:bg-neutral-200 rounded-xl shadow-md transition-all flex items-center gap-1.5">
@@ -1523,6 +1523,17 @@
     let filtroAsesorActivo = '';
     let vistaModoActivo = 'tabla';
 
+    // Helper para verificar si una propiedad fue publicada hace menos de 7 días (1 semana)
+    function esPropiedadReciente(p) {
+      if (!p) return false;
+      if (!p.fecha_creacion) return false;
+      const fecha = new Date(p.fecha_creacion).getTime();
+      if (isNaN(fecha)) return false;
+      const diffMs = Date.now() - fecha;
+      const sieteDiasMs = 7 * 24 * 60 * 60 * 1000;
+      return diffMs >= 0 && diffMs <= sieteDiasMs;
+    }
+
     // Utilidad para poblar los selects de asesores dinámicamente
     function poblarSelectsAsesores() {
       const selectAsesor = document.getElementById('asesor');
@@ -1782,6 +1793,9 @@
           if (Array.isArray(locales) && locales.length > 0) {
             localesIds = locales.map(l => String(l.id));
             locales.forEach(loc => {
+              if (!loc.fecha_creacion) {
+                loc.fecha_creacion = new Date().toISOString();
+              }
               const idxExistente = propiedades.findIndex(p => String(p.id) === String(loc.id));
               if (idxExistente !== -1) {
                 propiedades[idxExistente] = { ...propiedades[idxExistente], ...loc };
@@ -1866,6 +1880,20 @@
 
       const sheetsRows = document.getElementById('sheets-total-rows-text');
       if (sheetsRows) sheetsRows.textContent = `${propiedades.length} Propiedades VIP`;
+
+      // Conteo dinámico de Asesores VIP en todas las secciones
+      const totalAsesores = Object.keys(asesores).length;
+      
+      const kpiTotalAsesores = document.getElementById('kpi-total-asesores');
+      if (kpiTotalAsesores) kpiTotalAsesores.textContent = totalAsesores;
+
+      const badgeSidebarAsesores = document.getElementById('badge-sidebar-asesores');
+      if (badgeSidebarAsesores) badgeSidebarAsesores.textContent = `${totalAsesores} Asesores`;
+
+      const badgeHeaderAsesores = document.getElementById('badge-header-asesores');
+      if (badgeHeaderAsesores) {
+        badgeHeaderAsesores.innerHTML = `<i class="fa-solid fa-shield-halved text-white mr-1.5"></i>${totalAsesores} Asesores Oficiales`;
+      }
     }
 
     // 3.1 RENDERIZAR DASHBOARD
@@ -2029,6 +2057,19 @@
       document.getElementById('kpi-vendidas').textContent = vendidas;
       document.getElementById('kpi-valor-cartera').textContent = formatearUSD(valorTotalVenta);
 
+      // KPI Asesores dinámico
+      const totalAsesores = Object.keys(asesores).length;
+      const kpiTotalAsesores = document.getElementById('kpi-total-asesores');
+      if (kpiTotalAsesores) kpiTotalAsesores.textContent = totalAsesores;
+
+      const badgeSidebarAsesores = document.getElementById('badge-sidebar-asesores');
+      if (badgeSidebarAsesores) badgeSidebarAsesores.textContent = `${totalAsesores} Asesores`;
+
+      const badgeHeaderAsesores = document.getElementById('badge-header-asesores');
+      if (badgeHeaderAsesores) {
+        badgeHeaderAsesores.innerHTML = `<i class="fa-solid fa-shield-halved text-white mr-1.5"></i>${totalAsesores} Asesores Oficiales`;
+      }
+
       // Barra de distribución (Gráficas se conservan)
       const pctVenta = total > 0 ? Math.round((enVenta / total) * 100) : 0;
       const pctRenta = total > 0 ? Math.round((enRenta / total) * 100) : 0;
@@ -2068,6 +2109,11 @@
           const precioNum = parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0;
           const tipoBadge = precioNum < 10000 ? '<span class="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-bold">Renta</span>' : '<span class="text-xs bg-neutral-800 text-white border border-neutral-700 px-2 py-0.5 rounded font-bold">Venta</span>';
 
+          const esReciente = esPropiedadReciente(p);
+          const badgeNuevo = (esReciente && !esVendida)
+            ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0"><i class="fa-solid fa-sparkles text-[9px]"></i> Nuevo</span>'
+            : '';
+
           return `
             <tr class="hover:bg-neutral-900/60 transition-colors">
               <td class="py-3 px-6">
@@ -2077,7 +2123,10 @@
                     ${esVendida ? '<div class="absolute inset-0 bg-red-600/40 flex items-center justify-center text-[10px] font-black text-white">SOLD</div>' : ''}
                   </div>
                   <div class="min-w-0">
-                    <p class="font-bold text-white truncate max-w-xs hover:text-neutral-300 cursor-pointer" onclick="verDetallePropiedad('${p.id}')">${p.titulo}</p>
+                    <div class="flex items-center gap-2">
+                      <p class="font-bold text-white truncate max-w-xs hover:text-neutral-300 cursor-pointer" onclick="verDetallePropiedad('${p.id}')">${p.titulo}</p>
+                      ${badgeNuevo}
+                    </div>
                     <p class="text-xs text-neutral-400 truncate max-w-xs">${p.ubicacion}</p>
                   </div>
                 </div>
@@ -2203,7 +2252,10 @@
                   </div>
                 </td>
                 <td class="py-3 px-4">
-                  <p class="font-bold text-white hover:text-neutral-300 cursor-pointer" onclick="verDetallePropiedad('${p.id}')">${p.titulo}</p>
+                  <p class="font-bold text-white hover:text-neutral-300 cursor-pointer flex items-center" onclick="verDetallePropiedad('${p.id}')">
+                    <span>${p.titulo}</span>
+                    ${esPropiedadReciente(p) && !esVendida ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0 ml-1.5"><i class="fa-solid fa-sparkles text-[9px]"></i> Nuevo</span>' : ''}
+                  </p>
                   <p class="text-xs text-neutral-400">${p.ubicacion}</p>
                 </td>
                 <td class="py-3 px-4 font-serif font-bold text-white">${p.precio}</td>
@@ -2272,9 +2324,15 @@
                     <i class="fa-solid fa-lock text-[10px]"></i> VENDIDA
                   </div>
                 ` : `
-                  <div class="absolute top-3 left-3 bg-emerald-600 text-white text-xs font-bold px-2.5 py-1 rounded-md shadow">
-                    DISPONIBLE
-                  </div>
+                  ${esPropiedadReciente(p) ? `
+                    <div class="absolute top-3 left-3 bg-emerald-500 text-black text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md z-10 flex items-center gap-1">
+                      <i class="fa-solid fa-sparkles text-[9px]"></i> NUEVO
+                    </div>
+                  ` : `
+                    <div class="absolute top-3 left-3 bg-emerald-600 text-white text-xs font-bold px-2.5 py-1 rounded-md shadow">
+                      DISPONIBLE
+                    </div>
+                  `}
                   <div class="absolute top-3 right-3 ${esRenta ? 'bg-amber-600' : 'bg-neutral-800'} text-white text-xs font-bold px-2.5 py-1 rounded-md shadow uppercase border border-white/20">
                     ${esRenta ? 'En Renta' : 'En Venta'}
                   </div>
@@ -2664,7 +2722,8 @@
         galeria_fotos: galeriaImgs,
         id_asesor: asesor,
         estado: estado,
-        es_vendida: esVendida
+        es_vendida: esVendida,
+        fecha_creacion: new Date().toISOString()
       };
 
       // 3. Añadir a memoria al inicio
@@ -2785,20 +2844,22 @@
       document.getElementById('modal-nuevo-asesor')?.classList.add('hidden');
     }
 
-    function manejarFotoNuevoAsesor(files) {
+    async function manejarFotoNuevoAsesor(files) {
       if (!files || files.length === 0) return;
       const file = files[0];
       if (!file.type.startsWith('image/')) {
-        alert("Por favor selecciona un archivo de imagen válido.");
+        alert("Por favor selecciona un archivo de imagen válido (JPG, PNG, WebP).");
         return;
       }
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        document.getElementById('nuevo-asesor-foto-url').value = e.target.result;
-        document.getElementById('nuevo-asesor-foto-preview').src = e.target.result;
-        document.getElementById('nuevo-asesor-foto-filename').textContent = `${file.name} (${(file.size / (1024*1024)).toFixed(2)} MB)`;
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressedAvatar = await comprimirImagen(file, 400, 400, 0.85);
+        document.getElementById('nuevo-asesor-foto-url').value = compressedAvatar;
+        const preview = document.getElementById('nuevo-asesor-foto-preview');
+        if (preview) preview.src = compressedAvatar;
+        document.getElementById('nuevo-asesor-foto-filename').textContent = `${file.name} (Optimizado ${(compressedAvatar.length / 1024).toFixed(0)} KB)`;
+      } catch (err) {
+        console.warn("Fallo compresión avatar:", err);
+      }
     }
 
     function guardarNuevoAsesor() {
@@ -2848,8 +2909,8 @@
 
       poblarSelectsAsesores();
       cerrarModalNuevoAsesor();
-      renderizarAsesores();
-      lanzarToast("Asesor Registrado", `${nombre} ha sido agregado al directorio oficial.`);
+      renderizarTodo(); // Actualiza KPI dashboard, badge en sidebar nav, badge de cabecera y grid
+      lanzarToast("Asesor Registrado", `${nombre} ha sido agregado al directorio oficial (${Object.keys(asesores).length} asesores activos).`);
     }
 
     function exportarCSVCompleto() {

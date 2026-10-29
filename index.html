@@ -1319,6 +1319,17 @@
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTy-h3jWds9tF7OQzGIKUnFaw65cFd-UHJuhNZlkvfC6g2hWYxurIpl3qyifcqdWNq2H-Tn04VucX0b/pub?output=csv";
 
     // Función universal para normalizar enlaces de imágenes (Soporta Google Drive directo)
+    // Helper para verificar si una propiedad fue subida hace menos de 7 días (1 semana)
+    function esPropiedadReciente(p) {
+      if (!p) return false;
+      if (!p.fecha_creacion) return false;
+      const fecha = new Date(p.fecha_creacion).getTime();
+      if (isNaN(fecha)) return false;
+      const diffMs = Date.now() - fecha;
+      const sieteDiasMs = 7 * 24 * 60 * 60 * 1000;
+      return diffMs >= 0 && diffMs <= sieteDiasMs;
+    }
+
     function normalizarUrlImagen(url) {
       if (!url) return '';
       url = url.trim();
@@ -1558,6 +1569,9 @@
           if (Array.isArray(locales) && locales.length > 0) {
             localesIds = locales.map(l => String(l.id));
             locales.forEach(loc => {
+              if (!loc.fecha_creacion) {
+                loc.fecha_creacion = new Date().toISOString();
+              }
               const idxExistente = propiedades.findIndex(p => String(p.id) === String(loc.id));
               if (idxExistente !== -1) {
                 propiedades[idxExistente] = { ...propiedades[idxExistente], ...loc };
@@ -1721,9 +1735,12 @@
                   <i class="fa-solid fa-lock text-[10px]"></i> VENDIDA
                 </div>
               ` : `
-                <div class="absolute top-4 left-4 bg-[#388E3C] text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-md shadow-md">
-                  NUEVO
-                </div>
+                ${esPropiedadReciente(prop) ? `
+                  <div class="absolute top-4 left-4 bg-emerald-600 text-white text-xs font-black uppercase tracking-wider px-3 py-1.5 rounded-md shadow-md flex items-center gap-1.5 z-10">
+                    <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                    <span>NUEVO</span>
+                  </div>
+                ` : ''}
                 <div class="absolute top-4 right-4 ${badgeColor} text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-md shadow-md">
                   ${badgeTipo}
                 </div>
@@ -1854,11 +1871,13 @@
       const elemPrecio = document.getElementById('modal-precio');
       if (elemPrecio) elemPrecio.textContent = prop.precio;
 
-      // Inyectar badge del modal: si es vendida muestra badge rojo VENDIDA (SOLD), si no "Interiores de Lujo"
+      // Inyectar badge del modal: si es vendida muestra VENDIDA, si es recién subida NUEVA EN PORTAFOLIO, o si no Interiores de Lujo
       const elemBadge = document.getElementById('modal-badge');
       if (elemBadge) {
         if (esVendida) {
           elemBadge.outerHTML = '<span id="modal-badge" class="bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wide"><i class="fa-solid fa-lock mr-2"></i>Propiedad Vendida (SOLD)</span>';
+        } else if (esPropiedadReciente(prop)) {
+          elemBadge.outerHTML = '<span id="modal-badge" class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wide flex items-center gap-1.5"><i class="fa-solid fa-sparkles text-emerald-600"></i>Nueva en Portafolio</span>';
         } else {
           elemBadge.outerHTML = '<span id="modal-badge" class="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full text-sm font-medium"><i class="fa-solid fa-couch mr-2"></i>Interiores de Lujo</span>';
         }
