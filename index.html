@@ -1552,9 +1552,11 @@
         }
 
         // Combinar con propiedades agregadas o actualizadas desde el Panel Admin
+        let localesIds = [];
         try {
           const locales = JSON.parse(localStorage.getItem('santander_propiedades_locales') || '[]');
           if (Array.isArray(locales) && locales.length > 0) {
+            localesIds = locales.map(l => String(l.id));
             locales.forEach(loc => {
               const idxExistente = propiedades.findIndex(p => String(p.id) === String(loc.id));
               if (idxExistente !== -1) {
@@ -1566,11 +1568,11 @@
           }
         } catch (e) { console.warn("Error leyendo propiedades locales:", e); }
 
-        // Filtrar propiedades eliminadas desde el Panel Admin
+        // Filtrar propiedades eliminadas desde el Panel Admin (protegiendo locales de ser filtradas)
         try {
           const eliminadas = JSON.parse(localStorage.getItem('santander_propiedades_eliminadas') || '[]');
           if (Array.isArray(eliminadas) && eliminadas.length > 0) {
-            propiedades = propiedades.filter(p => !eliminadas.includes(String(p.id)));
+            propiedades = propiedades.filter(p => !eliminadas.includes(String(p.id)) || localesIds.includes(String(p.id)));
           }
         } catch (e) { console.warn("Error leyendo eliminadas:", e); }
 
@@ -1581,9 +1583,11 @@
         console.warn("Aviso: Falló la petición a Google Sheets CSV (timeout o error de red/CORS). Activando portafolio de respaldo local:", error);
         propiedades = [...propiedadesRespaldo];
 
+        let localesIdsCatch = [];
         try {
           const locales = JSON.parse(localStorage.getItem('santander_propiedades_locales') || '[]');
           if (Array.isArray(locales) && locales.length > 0) {
+            localesIdsCatch = locales.map(l => String(l.id));
             locales.forEach(loc => {
               const idxExistente = propiedades.findIndex(p => String(p.id) === String(loc.id));
               if (idxExistente !== -1) {
@@ -1595,11 +1599,11 @@
           }
         } catch (e) { console.warn("Error leyendo propiedades locales:", e); }
 
-        // Filtrar propiedades eliminadas desde el Panel Admin
+        // Filtrar propiedades eliminadas desde el Panel Admin (protegiendo locales)
         try {
           const eliminadas = JSON.parse(localStorage.getItem('santander_propiedades_eliminadas') || '[]');
           if (Array.isArray(eliminadas) && eliminadas.length > 0) {
-            propiedades = propiedades.filter(p => !eliminadas.includes(String(p.id)));
+            propiedades = propiedades.filter(p => !eliminadas.includes(String(p.id)) || localesIdsCatch.includes(String(p.id)));
           }
         } catch (e) { console.warn("Error leyendo eliminadas:", e); }
 
@@ -2133,6 +2137,11 @@
     document.addEventListener('DOMContentLoaded', () => {
       // Cargar propiedades desde Google Sheets CSV
       cargarPropiedadesDesdeExcel();
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'santander_propiedades_locales' || e.key === 'santander_propiedades_eliminadas' || e.key === 'santander_asesores_locales') {
+        cargarPropiedadesDesdeExcel();
+      }
+    });
 
       // Cerrar al hacer clic en el backdrop oscuro fuera del modal
       const modal = document.getElementById('modal-propiedad');

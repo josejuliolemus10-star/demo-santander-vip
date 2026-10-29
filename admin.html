@@ -815,6 +815,25 @@
                       </div>
                     </div>
                   </div>
+
+                  <!-- Alternativa: Cargar mediante Enlace Directo (URL) -->
+                  <div class="mt-3 flex items-center gap-2">
+                    <div class="relative flex-1">
+                      <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500 text-xs">
+                        <i class="fa-solid fa-link"></i>
+                      </span>
+                      <input 
+                        type="url" 
+                        id="foto-url-input" 
+                        oninput="manejarFotoUrlInput(this.value)" 
+                        placeholder="O si prefieres, pega aquí un enlace de imagen (Google Drive, Unsplash, web)..." 
+                        class="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-neutral-700 bg-neutral-900 text-white placeholder:text-neutral-500 focus:border-white focus:ring-1 focus:ring-white/20 outline-none"
+                      >
+                    </div>
+                    <button type="button" onclick="aplicarFotoUrlManual()" class="px-3 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-white text-xs font-bold rounded-xl border border-neutral-600 transition-all shrink-0">
+                      Cargar URL
+                    </button>
+                  </div>
                 </div>
 
                 <!-- 3. Galería Adicional de Interiores -->
@@ -1504,6 +1523,132 @@
     let filtroAsesorActivo = '';
     let vistaModoActivo = 'tabla';
 
+    // Utilidad para poblar los selects de asesores dinámicamente
+    function poblarSelectsAsesores() {
+      const selectAsesor = document.getElementById('asesor');
+      const selectEdit = document.getElementById('edit-asesor');
+
+      [selectAsesor, selectEdit].forEach(sel => {
+        if (!sel) return;
+        const currentVal = sel.value;
+        sel.innerHTML = '<option value="" disabled selected class="bg-neutral-900 text-neutral-400">Selecciona un Asesor VIP...</option>';
+        Object.keys(asesores).forEach(key => {
+          const a = asesores[key];
+          const opt = document.createElement('option');
+          opt.value = key;
+          opt.textContent = `${a.nombre} — ${a.puesto}`;
+          opt.className = "bg-neutral-900 text-white";
+          sel.appendChild(opt);
+        });
+        if (currentVal && asesores[currentVal]) {
+          sel.value = currentVal;
+        }
+      });
+    }
+
+    // Generador de ID único garantizado (nunca colisiona con propiedades existentes ni eliminadas)
+    function generarNuevoIdPropiedad() {
+      const ids = [];
+      if (Array.isArray(propiedades)) {
+        propiedades.forEach(p => {
+          const n = parseInt(p.id, 10);
+          if (!isNaN(n)) ids.push(n);
+        });
+      }
+      try {
+        const locales = JSON.parse(localStorage.getItem('santander_propiedades_locales') || '[]');
+        if (Array.isArray(locales)) {
+          locales.forEach(p => {
+            const n = parseInt(p.id, 10);
+            if (!isNaN(n)) ids.push(n);
+          });
+        }
+      } catch(e) {}
+      try {
+        const eliminadas = JSON.parse(localStorage.getItem('santander_propiedades_eliminadas') || '[]');
+        if (Array.isArray(eliminadas)) {
+          eliminadas.forEach(x => {
+            const n = parseInt(x, 10);
+            if (!isNaN(n)) ids.push(n);
+          });
+        }
+      } catch(e) {}
+      if (typeof propiedadesRespaldo !== 'undefined' && Array.isArray(propiedadesRespaldo)) {
+        propiedadesRespaldo.forEach(p => {
+          const n = parseInt(p.id, 10);
+          if (!isNaN(n)) ids.push(n);
+        });
+      }
+      const maxId = ids.length > 0 ? Math.max(...ids) : 0;
+      return String(maxId + 1);
+    }
+
+    // Compresión y redimensionamiento inteligente de imágenes usando HTML5 Canvas
+    function comprimirImagen(file, maxWidth = 1200, maxHeight = 900, quality = 0.8) {
+      return new Promise((resolve, reject) => {
+        if (!file) return reject(new Error('No hay archivo'));
+        if (!file.type.startsWith('image/')) {
+          return reject(new Error('Formato no válido'));
+        }
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onerror = () => resolve(e.target.result);
+          img.onload = function() {
+            try {
+              let width = img.width;
+              let height = img.height;
+              if (width > maxWidth || height > maxHeight) {
+                if (width / height > maxWidth / maxHeight) {
+                  height = Math.round((height * maxWidth) / width);
+                  width = maxWidth;
+                } else {
+                  width = Math.round((width * maxHeight) / height);
+                  height = maxHeight;
+                }
+              }
+              const canvas = document.createElement('canvas');
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              const dataUrl = canvas.toDataURL('image/jpeg', quality);
+              resolve(dataUrl);
+            } catch (err) {
+              console.warn('Canvas fallback al dataURL original:', err);
+              resolve(e.target.result);
+            }
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Guardado blindado en localStorage protegiendo de QuotaExceeded
+    function guardarEnLocalStorageSeguro(key, data) {
+      try {
+        localStorage.setItem(key, JSON.stringify(data));
+        return true;
+      } catch (err) {
+        console.warn(`QuotaExceeded al guardar en ${key}, optimizando tamaño...`, err);
+        try {
+          if (Array.isArray(data)) {
+            const dataOptimizada = data.map(item => ({
+              ...item,
+              galeria_fotos: []
+            }));
+            localStorage.setItem(key, JSON.stringify(dataOptimizada));
+            return true;
+          }
+        } catch (err2) {
+          console.error('Error crítico al escribir en localStorage:', err2);
+          return false;
+        }
+      }
+    }
+
     function normalizarUrlImagen(url) {
       if (!url) return '';
       url = url.trim();
@@ -1631,8 +1776,48 @@
         }
 
         // Combinar con propiedades agregadas localmente en el navegador
+        let localesIds = [];
         try {
           const locales = JSON.parse(localStorage.getItem('santander_propiedades_locales') || '[]');
+          if (Array.isArray(locales) && locales.length > 0) {
+            localesIds = locales.map(l => String(l.id));
+            locales.forEach(loc => {
+              const idxExistente = propiedades.findIndex(p => String(p.id) === String(loc.id));
+              if (idxExistente !== -1) {
+                propiedades[idxExistente] = { ...propiedades[idxExistente], ...loc };
+              } else {
+                propiedades.unshift(loc);
+              }
+            });
+          }
+        } catch (e) { console.warn("Error leyendo propiedades locales:", e); }
+
+        // Filtrar propiedades eliminadas por el usuario (protegiendo las locales de ser borradas)
+        try {
+          let eliminadas = JSON.parse(localStorage.getItem('santander_propiedades_eliminadas') || '[]');
+          if (Array.isArray(eliminadas) && eliminadas.length > 0) {
+            // Reconciliar: si una propiedad está en locales, jamás debe figurar en eliminadas
+            const eliminadasLimpias = eliminadas.filter(id => !localesIds.includes(String(id)));
+            if (eliminadasLimpias.length !== eliminadas.length) {
+              localStorage.setItem('santander_propiedades_eliminadas', JSON.stringify(eliminadasLimpias));
+              eliminadas = eliminadasLimpias;
+            }
+            propiedades = propiedades.filter(p => !eliminadas.includes(String(p.id)));
+          }
+        } catch (e) { console.warn("Error leyendo eliminadas:", e); }
+
+        renderizarTodo();
+
+        const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        if (syncStatus) syncStatus.textContent = `Sincronizado ${hora}`;
+      } catch (err) {
+        console.warn("Aviso Google Sheets (Activando modo offline):", err);
+        if (syncStatus) syncStatus.textContent = "Google Sheets (Offline)";
+        
+        // Cargar locales y filtrar eliminadas incluso en modo offline
+        try {
+          const locales = JSON.parse(localStorage.getItem('santander_propiedades_locales') || '[]');
+          const localesIds = locales.map(l => String(l.id));
           if (Array.isArray(locales) && locales.length > 0) {
             locales.forEach(loc => {
               const idxExistente = propiedades.findIndex(p => String(p.id) === String(loc.id));
@@ -1643,23 +1828,12 @@
               }
             });
           }
-        } catch (e) { console.warn(e); }
-
-        // Filtrar propiedades eliminadas por el usuario
-        try {
-          const eliminadas = JSON.parse(localStorage.getItem('santander_propiedades_eliminadas') || '[]');
+          let eliminadas = JSON.parse(localStorage.getItem('santander_propiedades_eliminadas') || '[]');
           if (Array.isArray(eliminadas) && eliminadas.length > 0) {
-            propiedades = propiedades.filter(p => !eliminadas.includes(String(p.id)));
+            propiedades = propiedades.filter(p => !eliminadas.includes(String(p.id)) || localesIds.includes(String(p.id)));
           }
-        } catch (e) { console.warn(e); }
+        } catch(eOffline) { console.warn(eOffline); }
 
-        renderizarTodo();
-
-        const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        if (syncStatus) syncStatus.textContent = `Sincronizado ${hora}`;
-      } catch (err) {
-        console.warn("Aviso Google Sheets:", err);
-        if (syncStatus) syncStatus.textContent = "Google Sheets (Offline)";
         renderizarTodo();
       } finally {
         if (syncSpinner) syncSpinner.classList.remove('fa-spin');
@@ -2336,7 +2510,7 @@
       renderizarInventario();
     }
 
-    function volverATodas() {
+    function volverATodas(silencioso = false) {
       filtroAsesorActivo = null;
       filtroEstadoActivo = 'todos';
 
@@ -2346,9 +2520,14 @@
       const bannerAsesor = document.getElementById('filtro-asesor-banner');
       if (bannerAsesor) bannerAsesor.classList.add('hidden');
 
+      const searchInput = document.getElementById('inventario-search');
+      if (searchInput) searchInput.value = '';
+
       actualizarEstilosFiltros();
       renderizarInventario();
-      lanzarToast("Inventario Completo", "Regresaste a la vista de todas las propiedades.");
+      if (!silencioso) {
+        lanzarToast("Inventario Completo", "Regresaste a la vista de todas las propiedades.");
+      }
     }
 
     function limpiarFiltroAsesor() {
@@ -2441,16 +2620,37 @@
       const ubicacion = document.getElementById('ubicacion').value.trim();
       const estado = document.getElementById('estado').value;
       const previewImg = document.getElementById('preview-img');
+      const fotoUrlInput = document.getElementById('foto-url-input')?.value.trim();
 
       if (!titulo || !precio || !asesor || !cuartos || !banos) {
-        alert("Por favor completa los campos requeridos.");
+        alert("Por favor completa los campos requeridos (Título, Precio, Asesor, Habitaciones y Baños).");
         return;
       }
 
-      const fotoPortada = previewImg.src || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80';
+      // Obtener imagen de portada válida (evitando que resuelva a la URL de admin.html)
+      let fotoPortada = '';
+      if (fotoUrlInput) {
+        fotoPortada = normalizarUrlImagen(fotoUrlInput);
+      } else if (previewImg && previewImg.dataset.loaded === 'true' && previewImg.src && !previewImg.src.endsWith('/admin.html')) {
+        fotoPortada = previewImg.src;
+      } else {
+        fotoPortada = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80';
+      }
+
       const esVendida = (estado === 'Vendida');
       const galeriaImgs = Array.from(document.querySelectorAll('#galeria-grid img')).map(img => img.src);
-      const nuevoId = String(propiedades.length + 1);
+
+      // 1. Generar ID único garantizado (nunca colisiona con eliminadas ni existentes)
+      const nuevoId = generarNuevoIdPropiedad();
+
+      // 2. Remover nuevoId de eliminadas para que jamás quede bloqueado
+      try {
+        let eliminadas = JSON.parse(localStorage.getItem('santander_propiedades_eliminadas') || '[]');
+        if (Array.isArray(eliminadas) && eliminadas.includes(String(nuevoId))) {
+          eliminadas = eliminadas.filter(id => String(id) !== String(nuevoId));
+          localStorage.setItem('santander_propiedades_eliminadas', JSON.stringify(eliminadas));
+        }
+      } catch (e) { console.warn(e); }
 
       const nuevaProp = {
         id: nuevoId,
@@ -2467,16 +2667,24 @@
         es_vendida: esVendida
       };
 
+      // 3. Añadir a memoria al inicio
       propiedades.unshift(nuevaProp);
 
+      // 4. Guardar en localStorage de forma protegida contra límites de cuota
       try {
         let locales = JSON.parse(localStorage.getItem('santander_propiedades_locales') || '[]');
+        locales = locales.filter(l => String(l.id) !== String(nuevoId));
         locales.unshift(nuevaProp);
-        localStorage.setItem('santander_propiedades_locales', JSON.stringify(locales));
+        guardarEnLocalStorageSeguro('santander_propiedades_locales', locales);
       } catch (e) { console.error(e); }
 
+      // 5. Resetear filtros para que la propiedad sea visible de inmediato
+      volverATodas(true);
+
+      // 6. Actualizar vistas, dashboard, charts y contadores
       renderizarTodo();
 
+      // 7. Preparar modal con fila CSV para Google Sheets
       const amenidadesStr = '"Acabados de lujo | Seguridad 24/7 | Balcón panorámico"';
       const cercaniasStr = '"Zona de alta plusvalía | Acceso inmediato"';
       const galeriaStr = galeriaImgs.length > 0 ? `"${galeriaImgs.join(' | ')}"` : '""';
@@ -2488,7 +2696,7 @@
       if (modal) modal.classList.remove('hidden');
 
       limpiarFormulario();
-      lanzarToast("¡Propiedad Publicada!", "La nueva propiedad ha sido agregada con éxito al catálogo.");
+      lanzarToast("¡Propiedad Publicada!", `"${nuevaProp.titulo}" (#ID ${nuevaProp.id}) añadida al portafolio.`);
     }
 
     function copiarTextoDesdeModal() {
@@ -2503,7 +2711,9 @@
 
     function cerrarModalCsv() {
       document.getElementById('modal-csv-copiado')?.classList.add('hidden');
+      volverATodas(true);
       setPropiedadesSubTab('inventario');
+      renderizarInventario();
     }
 
     function copiarFilaCSV(id) {
@@ -2636,6 +2846,7 @@
         selectEdit.appendChild(opt2);
       }
 
+      poblarSelectsAsesores();
       cerrarModalNuevoAsesor();
       renderizarAsesores();
       lanzarToast("Asesor Registrado", `${nombre} ha sido agregado al directorio oficial.`);
@@ -2866,29 +3077,63 @@
       });
     }
 
-    function manejarArchivoSeleccionado(files) {
+    async function manejarArchivoSeleccionado(files) {
       if (!files || files.length === 0) return;
       const file = files[0];
       if (!file.type.startsWith('image/')) {
-        alert('Selecciona una imagen válida.');
+        alert('Selecciona una imagen válida (JPG, PNG, WebP).');
         return;
       }
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        previewImg.src = e.target.result;
-        previewNombre.textContent = `${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+      try {
+        const compressedDataUrl = await comprimirImagen(file, 1200, 900, 0.8);
+        if (previewImg) {
+          previewImg.src = compressedDataUrl;
+          previewImg.dataset.loaded = 'true';
+        }
+        if (previewNombre) {
+          previewNombre.textContent = `${file.name} (Optimizado ${(compressedDataUrl.length / 1024).toFixed(0)} KB)`;
+        }
         dropzonePrompt?.classList.add('hidden');
         dropzonePreview?.classList.remove('hidden');
-      };
-      reader.readAsDataURL(file);
+        const urlInput = document.getElementById('foto-url-input');
+        if (urlInput) urlInput.value = '';
+      } catch (err) {
+        console.error('Error al procesar la imagen:', err);
+        alert('No se pudo procesar la imagen seleccionada.');
+      }
     }
 
     function removerFoto() {
       if (fotoInput) fotoInput.value = '';
-      if (previewImg) previewImg.src = '';
+      if (previewImg) {
+        previewImg.src = '';
+        previewImg.dataset.loaded = 'false';
+      }
       if (previewNombre) previewNombre.textContent = '';
+      const urlInput = document.getElementById('foto-url-input');
+      if (urlInput) urlInput.value = '';
       dropzonePreview?.classList.add('hidden');
       dropzonePrompt?.classList.remove('hidden');
+    }
+
+    function manejarFotoUrlInput(url) {
+      url = normalizarUrlImagen((url || '').trim());
+      if (!url) return;
+      if (previewImg) {
+        previewImg.src = url;
+        previewImg.dataset.loaded = 'true';
+      }
+      if (previewNombre) previewNombre.textContent = 'Imagen desde URL web';
+      dropzonePrompt?.classList.add('hidden');
+      dropzonePreview?.classList.remove('hidden');
+    }
+
+    function aplicarFotoUrlManual() {
+      const input = document.getElementById('foto-url-input');
+      if (input && input.value.trim()) {
+        manejarFotoUrlInput(input.value.trim());
+        lanzarToast("URL de Portada Asignada", "La imagen se cargó correctamente desde el enlace.");
+      }
     }
 
     function limpiarFormulario() {
@@ -2926,16 +3171,16 @@
       });
     }
 
-    function manejarGaleriaSeleccionada(files) {
+    async function manejarGaleriaSeleccionada(files) {
       if (!files || files.length === 0) return;
-      Array.from(files).forEach(file => {
-        if (!file.type.startsWith('image/')) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
+      for (const file of Array.from(files)) {
+        if (!file.type.startsWith('image/')) continue;
+        try {
+          const compressedDataUrl = await comprimirImagen(file, 1000, 750, 0.75);
           const card = document.createElement('div');
           card.className = 'thumbnail-card relative aspect-video rounded-xl overflow-hidden shadow-sm border border-neutral-700 group bg-neutral-900';
           card.innerHTML = `
-            <img src="${e.target.result}" alt="${file.name}" class="w-full h-full object-cover">
+            <img src="${compressedDataUrl}" alt="${file.name}" class="w-full h-full object-cover">
             <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-1.5">
               <span class="text-[9px] text-white truncate">${file.name}</span>
             </div>
@@ -2945,9 +3190,10 @@
           `;
           galeriaGrid?.appendChild(card);
           actualizarContadorGaleria();
-        };
-        reader.readAsDataURL(file);
-      });
+        } catch (e) {
+          console.warn('Error comprimiendo foto adicional:', e);
+        }
+      }
     }
 
     function actualizarContadorGaleria() {
@@ -2959,7 +3205,15 @@
     // 7. INICIALIZACIÓN AL CARGAR LA PÁGINA
     // ========================================================
     document.addEventListener('DOMContentLoaded', () => {
+      poblarSelectsAsesores();
       cargarPropiedadesDesdeGoogleSheets();
+
+      // Sincronización en tiempo real entre pestañas (Admin <-> Catálogo)
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'santander_propiedades_locales' || e.key === 'santander_propiedades_eliminadas') {
+          cargarPropiedadesDesdeGoogleSheets();
+        }
+      });
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
