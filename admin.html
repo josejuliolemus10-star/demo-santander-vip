@@ -981,12 +981,12 @@
             </div>
 
             <div class="bg-[#141414] rounded-2xl p-6 border border-[#2A2A2A] shadow-xs space-y-4">
-              <h3 class="font-serif font-bold text-white text-base">Caché Local de Propiedades</h3>
-              <p class="text-xs text-neutral-400">Si agregaste propiedades locales en demo y deseas limpiar el caché del navegador:</p>
+              <h3 class="font-serif font-bold text-white text-base">Copia de Seguridad y Respaldo</h3>
+              <p class="text-xs text-neutral-400">Descarga un respaldo completo en formato CSV con todas las propiedades actuales y cambios:</p>
               <div class="pt-2">
-                <button type="button" onclick="limpiarCacheLocal()" class="px-4 py-2.5 bg-neutral-900 hover:bg-red-950/60 text-red-400 border border-red-900/40 font-bold text-xs rounded-xl transition-all flex items-center gap-2">
-                  <i class="fa-solid fa-trash-can"></i>
-                  <span>Restablecer Solo a Datos de Google Sheets</span>
+                <button type="button" onclick="exportarCSVCompleto()" class="px-4 py-2.5 bg-white hover:bg-neutral-200 text-black font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-2">
+                  <i class="fa-solid fa-file-arrow-down"></i>
+                  <span>Exportar Catálogo Completo (CSV)</span>
                 </button>
               </div>
             </div>
@@ -1099,10 +1099,20 @@
           </a>
         </div>
 
-        <div class="flex items-center justify-between pt-4 border-t border-neutral-800">
-          <button id="modal-prop-toggle-btn" type="button" class="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold rounded-xl border border-neutral-700 transition-all">
-            Cambiar Disponibilidad
-          </button>
+        <div class="flex items-center justify-between pt-4 border-t border-neutral-800 flex-wrap gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <button id="modal-prop-toggle-btn" type="button" class="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold rounded-xl border border-neutral-700 transition-all">
+              Cambiar Disponibilidad
+            </button>
+            <button type="button" onclick="abrirModalEditar(propiedadActualDetalleId)" class="px-3.5 py-2 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold rounded-xl border border-neutral-700 transition-all flex items-center gap-1.5" title="Editar datos de esta propiedad">
+              <i class="fa-regular fa-pen-to-square"></i>
+              <span>Editar</span>
+            </button>
+            <button type="button" onclick="confirmarEliminarPropiedad(propiedadActualDetalleId)" class="px-3.5 py-2 bg-neutral-900 hover:bg-red-950/40 text-red-400 hover:text-red-300 text-xs font-bold rounded-xl border border-neutral-700 hover:border-red-900/40 transition-all flex items-center gap-1.5" title="Eliminar propiedad">
+              <i class="fa-regular fa-trash-can"></i>
+              <span>Eliminar</span>
+            </button>
+          </div>
           <button type="button" onclick="cerrarModalDetalle()" class="px-5 py-2 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl transition-all">
             Cerrar
           </button>
@@ -1158,6 +1168,134 @@
     </div>
   </div>
 
+  <!-- Modal 4: Editar Propiedad VIP -->
+  <div id="modal-editar-propiedad" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-[#141414] rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-neutral-700 text-white my-8 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-4 border-b border-neutral-800 mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-neutral-900 text-white border border-neutral-700 flex items-center justify-center text-lg font-bold">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-serif text-lg font-bold text-white">Editar Propiedad VIP</h3>
+              <span id="edit-prop-id-badge" class="px-2 py-0.5 bg-neutral-900 text-neutral-300 text-xs font-mono font-bold rounded-md border border-neutral-700">#ID</span>
+            </div>
+            <p class="text-xs text-neutral-400">Modifica los datos, precio, asesor asignado o imágenes.</p>
+          </div>
+        </div>
+        <button type="button" onclick="cerrarModalEditar()" class="text-neutral-400 hover:text-white p-2">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="event.preventDefault(); guardarEdicionPropiedad();" class="space-y-4">
+        <input type="hidden" id="edit-prop-id">
+
+        <div>
+          <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Título de la Propiedad *</label>
+          <input type="text" id="edit-titulo" required class="w-full p-3 text-sm rounded-xl border border-neutral-700 bg-neutral-900 text-white focus:border-white outline-none">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Precio *</label>
+            <input type="text" id="edit-precio" required placeholder="Ej. $1,250,000 USD o $3,500 USD/mes" class="w-full p-3 text-sm rounded-xl border border-neutral-700 bg-neutral-900 text-white focus:border-white outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Ubicación / Zona *</label>
+            <input type="text" id="edit-ubicacion" required placeholder="Ej. Zona 14 • Las Américas" class="w-full p-3 text-sm rounded-xl border border-neutral-700 bg-neutral-900 text-white focus:border-white outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Habitaciones</label>
+            <input type="text" id="edit-cuartos" placeholder="Ej. 4 Habs" class="w-full p-3 text-sm rounded-xl border border-neutral-700 bg-neutral-900 text-white focus:border-white outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Baños</label>
+            <input type="text" id="edit-banos" placeholder="Ej. 4.5 Baños" class="w-full p-3 text-sm rounded-xl border border-neutral-700 bg-neutral-900 text-white focus:border-white outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Metros (m²)</label>
+            <input type="text" id="edit-metros" placeholder="Ej. 520 m²" class="w-full p-3 text-sm rounded-xl border border-neutral-700 bg-neutral-900 text-white focus:border-white outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Asesor Asignado *</label>
+            <select id="edit-asesor" class="w-full p-3 text-sm rounded-xl border border-neutral-700 bg-neutral-900 text-white focus:border-white outline-none">
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Estado de Disponibilidad *</label>
+            <select id="edit-estado" class="w-full p-3 text-sm rounded-xl border border-neutral-700 bg-neutral-900 text-white focus:border-white outline-none">
+              <option value="Disponible" class="bg-neutral-900 text-white">Disponible</option>
+              <option value="Vendida" class="bg-neutral-900 text-white">Vendida (SOLD)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Fotografía Principal (URL)</label>
+          <div class="flex items-center gap-3">
+            <input type="url" id="edit-foto-url" placeholder="https://..." class="flex-1 p-3 text-xs font-mono rounded-xl border border-neutral-700 bg-neutral-900 text-neutral-200 focus:border-white outline-none" oninput="document.getElementById('edit-preview-img').src = this.value">
+            <div class="w-14 h-14 rounded-xl overflow-hidden bg-neutral-800 border border-neutral-700 shrink-0">
+              <img id="edit-preview-img" src="" alt="Vista previa" class="w-full h-full object-cover">
+            </div>
+          </div>
+          <div class="mt-2 flex items-center gap-3">
+            <label class="px-3 py-1.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-300 text-xs font-bold rounded-lg cursor-pointer transition-all flex items-center gap-1.5">
+              <i class="fa-solid fa-cloud-arrow-up text-white"></i>
+              <span>O subir desde tu equipo</span>
+              <input type="file" id="edit-foto-file" accept="image/*" class="hidden" onchange="manejarFotoEdicion(this.files)">
+            </label>
+            <span id="edit-foto-filename" class="text-[11px] text-neutral-500 truncate max-w-xs"></span>
+          </div>
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-neutral-800">
+          <button type="button" onclick="cerrarModalEditar()" class="px-4 py-2.5 text-xs font-bold text-neutral-400 hover:text-white rounded-xl transition-all">
+            Cancelar
+          </button>
+          <button type="submit" class="px-6 py-2.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-2">
+            <i class="fa-solid fa-floppy-disk"></i>
+            Guardar Cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 5: Confirmar Eliminación de Propiedad -->
+  <div id="modal-confirmar-eliminar" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#141414] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-red-900/40 text-white transform transition-all">
+      <div class="w-14 h-14 rounded-2xl bg-red-950/60 border border-red-500/40 text-red-400 flex items-center justify-center text-2xl mb-4 mx-auto">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      
+      <div class="text-center mb-6">
+        <h3 class="font-serif text-xl font-bold text-white">¿Eliminar Propiedad VIP?</h3>
+        <p id="eliminar-prop-titulo" class="text-sm font-semibold text-neutral-300 mt-2 px-3 py-1.5 bg-neutral-900 rounded-xl border border-neutral-800 break-words"></p>
+        <p class="text-xs text-neutral-400 mt-3 leading-relaxed">
+          Esta propiedad se quitará del inventario, del dashboard y del catálogo web. Esta acción no se puede deshacer.
+        </p>
+      </div>
+
+      <div class="flex items-center justify-center gap-3 border-t border-neutral-800 pt-5">
+        <button type="button" onclick="cerrarModalEliminar()" class="w-1/2 py-2.5 px-4 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold rounded-xl border border-neutral-700 transition-all">
+          Cancelar
+        </button>
+        <button type="button" onclick="ejecutarEliminacionPropiedad()" class="w-1/2 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+          <i class="fa-solid fa-trash-can"></i>
+          Sí, Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast de Notificaciones -->
   <div id="toast-notificacion" class="fixed bottom-6 right-6 z-50 transform translate-y-32 opacity-0 transition-all duration-500 pointer-events-none">
     <div class="bg-neutral-900 text-white px-5 py-4 rounded-2xl shadow-2xl border border-neutral-700 flex items-center gap-4 max-w-md">
@@ -1178,6 +1316,9 @@
     // ========================================================
     // 1. CONFIGURACIÓN Y ESTADO GLOBAL
     // ========================================================
+    let propiedadActualDetalleId = null;
+    let propiedadIdAEliminar = null;
+    let propiedadEnEdicion = null;
     let CSV_URL = localStorage.getItem('santander_csv_url') || "https://docs.google.com/spreadsheets/d/e/2PACX-1vTy-h3jWds9tF7OQzGIKUnFaw65cFd-UHJuhNZlkvfC6g2hWYxurIpl3qyifcqdWNq2H-Tn04VucX0b/pub?output=csv";
     
     // Directorio de los 9 Asesores VIP Santander Oficiales
@@ -1390,10 +1531,21 @@
           const locales = JSON.parse(localStorage.getItem('santander_propiedades_locales') || '[]');
           if (Array.isArray(locales) && locales.length > 0) {
             locales.forEach(loc => {
-              if (!propiedades.some(p => String(p.id) === String(loc.id))) {
+              const idxExistente = propiedades.findIndex(p => String(p.id) === String(loc.id));
+              if (idxExistente !== -1) {
+                propiedades[idxExistente] = { ...propiedades[idxExistente], ...loc };
+              } else {
                 propiedades.unshift(loc);
               }
             });
+          }
+        } catch (e) { console.warn(e); }
+
+        // Filtrar propiedades eliminadas por el usuario
+        try {
+          const eliminadas = JSON.parse(localStorage.getItem('santander_propiedades_eliminadas') || '[]');
+          if (Array.isArray(eliminadas) && eliminadas.length > 0) {
+            propiedades = propiedades.filter(p => !eliminadas.includes(String(p.id)));
           }
         } catch (e) { console.warn(e); }
 
@@ -1549,8 +1701,14 @@
                   <button type="button" onclick="verDetallePropiedad('${p.id}')" class="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800" title="Ver detalles">
                     <i class="fa-regular fa-eye"></i>
                   </button>
+                  <button type="button" onclick="abrirModalEditar('${p.id}')" class="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800" title="Editar propiedad">
+                    <i class="fa-regular fa-pen-to-square"></i>
+                  </button>
                   <button type="button" onclick="copiarFilaCSV('${p.id}')" class="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800" title="Copiar fila Google Sheets">
                     <i class="fa-regular fa-copy"></i>
+                  </button>
+                  <button type="button" onclick="confirmarEliminarPropiedad('${p.id}')" class="p-2 text-neutral-400 hover:text-red-400 rounded-lg hover:bg-red-950/40" title="Eliminar propiedad">
+                    <i class="fa-regular fa-trash-can"></i>
                   </button>
                 </div>
               </td>
@@ -1658,8 +1816,14 @@
                     <button type="button" onclick="verDetallePropiedad('${p.id}')" class="px-2.5 py-1 text-xs font-bold text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg transition-all" title="Ver ficha">
                       Ver
                     </button>
+                    <button type="button" onclick="abrirModalEditar('${p.id}')" class="px-2.5 py-1 text-xs font-bold text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg transition-all flex items-center gap-1" title="Editar propiedad">
+                      <i class="fa-regular fa-pen-to-square"></i> Editar
+                    </button>
                     <button type="button" onclick="copiarFilaCSV('${p.id}')" class="px-2.5 py-1 text-xs font-bold text-black bg-white hover:bg-neutral-200 rounded-lg transition-all flex items-center gap-1 shadow-xs" title="Copiar fila para Google Sheets">
                       <i class="fa-regular fa-copy"></i> Fila
+                    </button>
+                    <button type="button" onclick="confirmarEliminarPropiedad('${p.id}')" class="p-1.5 text-neutral-400 hover:text-red-400 rounded-lg hover:bg-red-950/40 border border-transparent hover:border-red-900/40 transition-all" title="Eliminar propiedad">
+                      <i class="fa-regular fa-trash-can"></i>
                     </button>
                   </div>
                 </td>
@@ -1708,9 +1872,15 @@
                 </div>
                 <div class="pt-4 mt-4 border-t border-neutral-800 flex items-center justify-between text-xs text-neutral-400">
                   <span>${p.cuartos} • ${p.banos} • ${p.metros}</span>
-                  <button type="button" onclick="toggleEstadoPropiedad('${p.id}')" class="text-xs font-bold text-white hover:underline">
-                    Cambiar Estado
-                  </button>
+                  <div class="flex items-center gap-2">
+                    <button type="button" onclick="abrirModalEditar('${p.id}')" class="text-xs font-bold text-neutral-300 hover:text-white flex items-center gap-1" title="Editar propiedad">
+                      <i class="fa-regular fa-pen-to-square"></i> Editar
+                    </button>
+                    <span class="text-neutral-700">•</span>
+                    <button type="button" onclick="confirmarEliminarPropiedad('${p.id}')" class="text-xs font-bold text-red-400/80 hover:text-red-400 flex items-center gap-1" title="Eliminar propiedad">
+                      <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2032,6 +2202,7 @@
     function verDetallePropiedad(id) {
       const p = propiedades.find(x => String(x.id) === String(id));
       if (!p) return;
+      propiedadActualDetalleId = String(id);
 
       const asesor = asesores[p.id_asesor] || asesores['carmen'];
       const esVendida = p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid');
@@ -2112,6 +2283,8 @@
       }
 
       cerrarModalNuevoAsesor();
+          cerrarModalEditar();
+          cerrarModalEliminar();
       renderizarAsesores();
       lanzarToast("Asesor Registrado", `${nombre} ha sido agregado al directorio oficial.`);
     }
@@ -2143,12 +2316,155 @@
       }
     }
 
-    function limpiarCacheLocal() {
-      if (confirm("¿Deseas restablecer los datos y conservar únicamente lo que está en Google Sheets?")) {
-        localStorage.removeItem('santander_propiedades_locales');
-        sincronizarAhora(true);
-        lanzarToast("Caché Restablecido", "Cargando propiedades oficiales de Google Sheets...");
+    // ========================================================
+    // GESTIÓN DE EDICIÓN DE PROPIEDADES VIP
+    // ========================================================
+    function abrirModalEditar(id) {
+      const p = propiedades.find(x => String(x.id) === String(id));
+      if (!p) return;
+      propiedadEnEdicion = String(id);
+
+      document.getElementById('edit-prop-id').value = p.id;
+      document.getElementById('edit-prop-id-badge').textContent = `#ID ${p.id}`;
+      document.getElementById('edit-titulo').value = p.titulo || '';
+      document.getElementById('edit-precio').value = p.precio || '';
+      document.getElementById('edit-ubicacion').value = p.ubicacion || '';
+      document.getElementById('edit-cuartos').value = p.cuartos || '';
+      document.getElementById('edit-banos').value = p.banos || '';
+      document.getElementById('edit-metros').value = p.metros || '';
+
+      const selectAsesor = document.getElementById('edit-asesor');
+      if (selectAsesor) {
+        selectAsesor.innerHTML = Object.entries(asesores).map(([k, a]) => {
+          return `<option value="${k}" class="bg-neutral-900 text-white" ${k === p.id_asesor ? 'selected' : ''}>${a.nombre} — ${a.puesto}</option>`;
+        }).join('');
       }
+
+      const esVendida = p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid');
+      document.getElementById('edit-estado').value = esVendida ? 'Vendida' : 'Disponible';
+
+      document.getElementById('edit-foto-url').value = p.imagen_portada || '';
+      document.getElementById('edit-preview-img').src = p.imagen_portada || '';
+      document.getElementById('edit-foto-filename').textContent = '';
+
+      cerrarModalDetalle();
+      document.getElementById('modal-editar-propiedad')?.classList.remove('hidden');
+    }
+
+    function cerrarModalEditar() {
+      propiedadEnEdicion = null;
+      document.getElementById('modal-editar-propiedad')?.classList.add('hidden');
+    }
+
+    function manejarFotoEdicion(files) {
+      if (!files || files.length === 0) return;
+      const file = files[0];
+      if (!file.type.startsWith('image/')) {
+        alert("Por favor selecciona un archivo de imagen válido.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('edit-foto-url').value = e.target.result;
+        document.getElementById('edit-preview-img').src = e.target.result;
+        document.getElementById('edit-foto-filename').textContent = `${file.name} (${(file.size / (1024*1024)).toFixed(2)} MB)`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function guardarEdicionPropiedad() {
+      if (!propiedadEnEdicion) return;
+      const id = propiedadEnEdicion;
+      const p = propiedades.find(x => String(x.id) === String(id));
+      if (!p) return;
+
+      const titulo = document.getElementById('edit-titulo').value.trim();
+      const precio = document.getElementById('edit-precio').value.trim();
+      const ubicacion = document.getElementById('edit-ubicacion').value.trim();
+      const cuartos = document.getElementById('edit-cuartos').value.trim();
+      const banos = document.getElementById('edit-banos').value.trim();
+      const metros = document.getElementById('edit-metros').value.trim();
+      const asesor = document.getElementById('edit-asesor').value;
+      const estado = document.getElementById('edit-estado').value;
+      const fotoUrl = document.getElementById('edit-foto-url').value.trim();
+
+      if (!titulo || !precio || !asesor) {
+        alert("Por favor completa los campos principales requeridos.");
+        return;
+      }
+
+      const esVendida = (estado === 'Vendida');
+
+      p.titulo = titulo;
+      p.precio = precio.startsWith('$') ? precio : ('$' + precio);
+      p.ubicacion = ubicacion || p.ubicacion;
+      p.cuartos = cuartos ? (cuartos.includes('Hab') ? cuartos : (cuartos + ' Habs')) : p.cuartos;
+      p.banos = banos ? (banos.includes('Baño') ? banos : (banos + ' Baños')) : p.banos;
+      p.metros = metros ? (metros.includes('m') ? metros : (metros + ' m²')) : p.metros;
+      p.id_asesor = asesor;
+      p.estado = estado;
+      p.es_vendida = esVendida;
+      if (fotoUrl) p.imagen_portada = fotoUrl;
+
+      // Guardar en santander_propiedades_locales
+      try {
+        let locales = JSON.parse(localStorage.getItem('santander_propiedades_locales') || '[]');
+        const idxLoc = locales.findIndex(x => String(x.id) === String(id));
+        if (idxLoc !== -1) {
+          locales[idxLoc] = { ...p };
+        } else {
+          locales.unshift({ ...p });
+        }
+        localStorage.setItem('santander_propiedades_locales', JSON.stringify(locales));
+      } catch (e) { console.error(e); }
+
+      cerrarModalEditar();
+      renderizarTodo();
+      lanzarToast("Propiedad Actualizada", `Los cambios de "${p.titulo}" se guardaron exitosamente.`);
+    }
+
+    // ========================================================
+    // GESTIÓN DE ELIMINACIÓN DE PROPIEDADES VIP
+    // ========================================================
+    function confirmarEliminarPropiedad(id) {
+      const p = propiedades.find(x => String(x.id) === String(id));
+      if (!p) return;
+      propiedadIdAEliminar = String(id);
+      document.getElementById('eliminar-prop-titulo').textContent = `"${p.titulo}" (ID: #${p.id})`;
+      document.getElementById('modal-confirmar-eliminar')?.classList.remove('hidden');
+    }
+
+    function cerrarModalEliminar() {
+      propiedadIdAEliminar = null;
+      document.getElementById('modal-confirmar-eliminar')?.classList.add('hidden');
+    }
+
+    function ejecutarEliminacionPropiedad() {
+      if (!propiedadIdAEliminar) return;
+      const id = propiedadIdAEliminar;
+      const p = propiedades.find(x => String(x.id) === String(id));
+      const titulo = p ? p.titulo : (`#` + id);
+
+      // 1. Quitar del array en memoria
+      propiedades = propiedades.filter(x => String(x.id) !== String(id));
+
+      // 2. Guardar en lista de eliminadas en localStorage
+      try {
+        let eliminadas = JSON.parse(localStorage.getItem('santander_propiedades_eliminadas') || '[]');
+        if (!eliminadas.includes(String(id))) {
+          eliminadas.push(String(id));
+          localStorage.setItem('santander_propiedades_eliminadas', JSON.stringify(eliminadas));
+        }
+        // Quitar de locales si existía allí
+        let locales = JSON.parse(localStorage.getItem('santander_propiedades_locales') || '[]');
+        locales = locales.filter(x => String(x.id) !== String(id));
+        localStorage.setItem('santander_propiedades_locales', JSON.stringify(locales));
+      } catch (e) { console.error(e); }
+
+      cerrarModalEliminar();
+      cerrarModalDetalle();
+      renderizarTodo();
+      lanzarToast("Propiedad Eliminada", `"${titulo}" fue removida del catálogo.`);
     }
 
     function lanzarToast(titulo, desc) {

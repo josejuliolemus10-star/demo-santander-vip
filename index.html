@@ -1514,6 +1514,14 @@
           }
         } catch (e) { console.warn("Error leyendo propiedades locales:", e); }
 
+        // Filtrar propiedades eliminadas desde el Panel Admin
+        try {
+          const eliminadas = JSON.parse(localStorage.getItem('santander_propiedades_eliminadas') || '[]');
+          if (Array.isArray(eliminadas) && eliminadas.length > 0) {
+            propiedades = propiedades.filter(p => !eliminadas.includes(String(p.id)));
+          }
+        } catch (e) { console.warn("Error leyendo eliminadas:", e); }
+
         renderizarTarjetas();
       } catch (error) {
         clearTimeout(timeoutId);
@@ -1533,6 +1541,14 @@
             });
           }
         } catch (e) { console.warn("Error leyendo propiedades locales:", e); }
+
+        // Filtrar propiedades eliminadas desde el Panel Admin
+        try {
+          const eliminadas = JSON.parse(localStorage.getItem('santander_propiedades_eliminadas') || '[]');
+          if (Array.isArray(eliminadas) && eliminadas.length > 0) {
+            propiedades = propiedades.filter(p => !eliminadas.includes(String(p.id)));
+          }
+        } catch (e) { console.warn("Error leyendo eliminadas:", e); }
 
         renderizarTarjetas();
       }
