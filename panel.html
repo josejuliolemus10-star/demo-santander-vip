@@ -213,31 +213,34 @@
        ======================================================== -->
   <div class="flex-1 flex flex-col h-full overflow-hidden bg-[#0A0A0A] min-w-0">
 
-    <!-- Topbar Superior -->
-    <header class="h-20 bg-[#0D0D0D] border-b border-[#222222] px-4 sm:px-8 flex items-center justify-between shrink-0 z-10 shadow-xs">
-      <!-- Botón menú móvil + Migas de Pan -->
-      <div class="flex items-center gap-3 text-sm">
-        <button type="button" onclick="toggleMobileSidebar()" class="md:hidden text-neutral-400 hover:text-white p-2 rounded-lg hover:bg-neutral-900">
-          <i class="fa-solid fa-bars text-lg"></i>
+    <!-- Topbar Superior (Adaptable y Compacto en Móvil) -->
+    <header class="h-16 sm:h-20 bg-[#0D0D0D] border-b border-[#222222] px-3 sm:px-8 flex items-center justify-between shrink-0 z-10 shadow-xs">
+      <!-- Botón menú móvil + Migas de Pan Compactas -->
+      <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+        <button type="button" onclick="toggleMobileSidebar()" class="md:hidden text-neutral-400 hover:text-white p-1.5 rounded-lg hover:bg-neutral-900 shrink-0 cursor-pointer">
+          <i class="fa-solid fa-bars text-base"></i>
         </button>
 
-        <div class="flex items-center gap-2 font-medium">
-          <span class="text-neutral-500">Panel Santander</span>
-          <i class="fa-solid fa-chevron-right text-[10px] text-neutral-600"></i>
-          <span id="breadcrumb-view" class="text-white font-bold bg-neutral-900 px-2.5 py-1 rounded-md border border-neutral-800">
+        <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <span class="text-neutral-500 hidden sm:inline text-xs sm:text-sm font-medium">Panel Santander</span>
+          <i class="fa-solid fa-chevron-right text-[9px] text-neutral-600 hidden sm:inline"></i>
+          <span id="breadcrumb-view" class="text-white text-xs sm:text-sm font-medium sm:font-semibold bg-neutral-900/90 px-2 sm:px-2.5 py-1 rounded-lg border border-neutral-800 truncate max-w-[130px] sm:max-w-none shadow-xs">
             Dashboard Ejecutivo
           </span>
         </div>
       </div>
 
       <!-- Acciones Rápidas del Topbar -->
-      <div class="flex items-center gap-3 sm:gap-4">
+      <div class="flex items-center gap-2 sm:gap-4 shrink-0">
         
-        <!-- Estado de Sincronización con Google Sheets (Solo Admin) -->
-        <button id="btn-top-sync" type="button" onclick="sincronizarAhora(true)" title="Clic para recargar datos desde Google Sheets" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-700 text-xs font-semibold transition-all">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span id="sync-status-text" class="hidden sm:inline">Google Sheets Conectado</span>
-          <i id="sync-spinner" class="fa-solid fa-arrows-rotate text-neutral-400 text-xs ml-1"></i>
+        <!-- Estado de Guardado en la Nube (Google Sheets & Base de Datos) -->
+        <button id="btn-top-sync" type="button" onclick="sincronizarAhora(true)" title="Todos los cambios están guardados en la nube. Clic para forzar sincronización." class="group flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-neutral-900/90 hover:bg-neutral-800 text-neutral-200 border border-neutral-800 hover:border-neutral-700 text-xs transition-all cursor-pointer shadow-xs">
+          <div class="relative flex items-center justify-center">
+            <i id="sync-cloud-icon" class="fa-solid fa-cloud text-emerald-400 text-xs transition-all"></i>
+            <span id="sync-cloud-dot" class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          </div>
+          <span id="sync-status-text" class="text-[11px] font-medium text-neutral-300 hidden sm:inline">Guardado</span>
+          <i id="sync-spinner" class="fa-solid fa-arrows-rotate text-[10px] text-neutral-500 hidden"></i>
         </button>
 
         <!-- Botón Rápido + Agregar Propiedad -->
@@ -746,8 +749,9 @@
                         <p class="text-xs text-neutral-400">Apuntes, claves de lockboxes y requerimientos.</p>
                       </div>
                     </div>
-                    <span id="prod-notes-status" class="text-[10px] font-mono text-neutral-500">
-                      Sincronizado
+                    <span id="prod-notes-status" class="text-[10px] font-mono text-neutral-400 flex items-center gap-1">
+                      <i class="fa-solid fa-cloud text-[9px] text-emerald-400"></i>
+                      <span>Guardado</span>
                     </span>
                   </div>
 
@@ -2939,10 +2943,40 @@
       return values;
     }
 
+    // HELPER INDICADOR DE NUBE DARK LUXURY (GUARDANDO / GUARDADO)
+    function actualizarEstadoNube(estado, detalle) {
+      const btn = document.getElementById('btn-top-sync');
+      const icon = document.getElementById('sync-cloud-icon');
+      const dot = document.getElementById('sync-cloud-dot');
+      const text = document.getElementById('sync-status-text');
+      const spinner = document.getElementById('sync-spinner');
+
+      if (!btn) return;
+
+      if (estado === 'guardando') {
+        if (icon) icon.className = "fa-solid fa-cloud-arrow-up text-amber-400 animate-bounce text-xs transition-all";
+        if (dot) dot.className = "absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping";
+        if (text) text.textContent = "Guardando...";
+        if (spinner) spinner.classList.remove('hidden');
+        btn.setAttribute('title', 'Sincronizando cambios con la nube...');
+      } else if (estado === 'offline') {
+        if (icon) icon.className = "fa-solid fa-cloud text-neutral-400 text-xs transition-all";
+        if (dot) dot.className = "absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-neutral-500";
+        if (text) text.textContent = "Guardado local";
+        if (spinner) spinner.classList.add('hidden');
+        btn.setAttribute('title', 'Trabajando en modo local seguro. Se sincronizará al reconectar.');
+      } else {
+        const hora = detalle || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        if (icon) icon.className = "fa-solid fa-cloud text-emerald-400 text-xs transition-all";
+        if (dot) dot.className = "absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400";
+        if (text) text.textContent = "Guardado";
+        if (spinner) spinner.classList.add('hidden');
+        btn.setAttribute('title', 'Todos los cambios están guardados en la nube (' + hora + '). Clic para sincronizar.');
+      }
+    }
+
     async function cargarPropiedadesDesdeGoogleSheets() {
-      const syncStatus = document.getElementById('sync-status-text');
-      const syncSpinner = document.getElementById('sync-spinner');
-      if (syncSpinner) syncSpinner.classList.add('fa-spin');
+      actualizarEstadoNube('guardando');
 
       try {
         const urlConCacheBuster = CSV_URL + (CSV_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
@@ -3049,10 +3083,10 @@
         renderizarTodo();
 
         const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        if (syncStatus) syncStatus.textContent = `Sincronizado ${hora}`;
+        actualizarEstadoNube('guardado', hora);
       } catch (err) {
         console.warn("Aviso Google Sheets (Activando modo offline):", err);
-        if (syncStatus) syncStatus.textContent = "Google Sheets (Offline)";
+        actualizarEstadoNube('offline');
         
         // Cargar locales y filtrar eliminadas incluso en modo offline
         try {
