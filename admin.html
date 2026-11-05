@@ -1864,7 +1864,10 @@
         
         <!-- Foto de Perfil & Avatar Preview (Subida directa desde el equipo) -->
         <div class="p-4 rounded-2xl bg-[#0D0D0D] border border-[#242424] flex flex-col sm:flex-row items-center gap-4">
-          <img id="perfil-avatar-preview" src="" alt="Avatar" class="w-16 h-16 rounded-full object-cover ring-2 ring-white/30 shrink-0">
+          <div class="relative shrink-0">
+            <img id="perfil-avatar-preview" src="" alt="Avatar" class="w-16 h-16 rounded-full object-cover ring-2 ring-white/30 hidden">
+            <div id="perfil-avatar-initials" class="w-16 h-16 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center font-bold text-lg text-white ring-2 ring-white/30">VIP</div>
+          </div>
           <div class="flex-1 min-w-0 text-center sm:text-left w-full">
             <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">
               Fotografía de Perfil
@@ -2036,7 +2039,7 @@
       <form onsubmit="guardarNuevoUsuario(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Nombre Completo</label>
-          <input type="text" id="nuevo-user-nombre" required placeholder="Ej: Marcela Arango" class="w-full px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none">
+          <input type="text" id="nuevo-user-nombre" required oninput="actualizarInicialesNuevoUsuario(this.value)" placeholder="Ej: Marcela Arango" class="w-full px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none">
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2418,7 +2421,8 @@
 
       // 2. Sincronizar usuarios de la plataforma RBAC: Si están activos se muestran, si están suspendidos se eliminan
       try {
-        const rbacUsers = JSON.parse(localStorage.getItem('santander_rbac_users') || '[]');
+        const rawUsers = localStorage.getItem('santander_auth_users') || localStorage.getItem('santander_rbac_users') || '[]';
+        const rbacUsers = JSON.parse(rawUsers);
         rbacUsers.forEach(u => {
           if (u.estado === 'activo') {
             asesores[u.id] = {
@@ -3104,7 +3108,7 @@
                 </td>
                 <td class="py-3 px-4">
                   <div class="flex items-center gap-2">
-                    <img src="${asesor.avatar}" class="w-6 h-6 rounded-full object-cover">
+                    ${esAvatarValido(asesor.avatar) ? `<img src="${asesor.avatar}" class="w-6 h-6 rounded-full object-cover ring-1 ring-white/10 shrink-0">` : `<div class="w-6 h-6 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center font-bold text-[9px] text-white shrink-0">${obtenerIniciales(asesor.nombre)}</div>`}
                     <span class="text-xs font-medium text-neutral-300 truncate max-w-[120px]">${asesor.nombre}</span>
                   </div>
                 </td>
@@ -3242,7 +3246,7 @@
                 </td>
                 <td class="py-3 px-4">
                   <div class="flex items-center gap-2">
-                    <img src="${asesor.avatar}" class="w-7 h-7 rounded-full object-cover">
+                    ${esAvatarValido(asesor.avatar) ? `<img src="${asesor.avatar}" class="w-7 h-7 rounded-full object-cover ring-1 ring-white/10 shrink-0">` : `<div class="w-7 h-7 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center font-bold text-[10px] text-white shrink-0">${obtenerIniciales(asesor.nombre)}</div>`}
                     <div class="min-w-0">
                       <p class="text-xs font-bold text-white truncate max-w-[130px]">${asesor.nombre}</p>
                       <a href="https://wa.me/${asesor.tel}?text=Hola ${encodeURIComponent(asesor.nombre)}, sobre la propiedad: ${encodeURIComponent(p.titulo)}" target="_blank" class="text-[11px] text-emerald-400 hover:underline flex items-center gap-1">
@@ -3545,7 +3549,14 @@
       const asesor = asesores[key];
       if (tabAsesor && asesor) {
         tabAsesor.classList.remove('hidden');
-        if (tabImg) tabImg.src = asesor.avatar;
+        if (tabImg) {
+          if (esAvatarValido(asesor.avatar)) {
+            tabImg.src = asesor.avatar;
+            tabImg.classList.remove('hidden');
+          } else {
+            tabImg.classList.add('hidden');
+          }
+        }
         if (tabName) tabName.textContent = asesor.nombre;
         const count = propiedades.filter(p => p.id_asesor === key).length;
         if (tabCount) tabCount.textContent = count;
@@ -3819,7 +3830,15 @@
       document.getElementById('modal-prop-banos').textContent = p.banos;
       document.getElementById('modal-prop-metros').textContent = p.metros;
 
-      document.getElementById('modal-prop-asesor-avatar').src = asesor.avatar;
+      const modalAvatar = document.getElementById('modal-prop-asesor-avatar');
+      if (modalAvatar) {
+        if (esAvatarValido(asesor.avatar)) {
+          modalAvatar.src = asesor.avatar;
+          modalAvatar.classList.remove('hidden');
+        } else {
+          modalAvatar.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(asesor.nombre || 'A') + '&background=181818&color=fff';
+        }
+      }
       document.getElementById('modal-prop-asesor-nombre').textContent = asesor.nombre;
       document.getElementById('modal-prop-asesor-puesto').textContent = asesor.puesto;
       document.getElementById('modal-prop-asesor-wa').href = `https://wa.me/${asesor.tel}?text=Hola ${encodeURIComponent(asesor.nombre)}, sobre la propiedad #${p.id} ${encodeURIComponent(p.titulo)}`;
@@ -3999,6 +4018,13 @@
       try {
         localStorage.setItem('santander_asesor_deleted', JSON.stringify({ key, timestamp: Date.now() }));
       } catch(e) {}
+
+      // 2.5 Eliminar también de SantanderAuth si existe como cuenta
+      try {
+        if (window.SantanderAuth && window.SantanderAuth.deleteUser) {
+          window.SantanderAuth.deleteUser(key);
+        }
+      } catch (e) {}
 
       // 3. Registrar en santander_asesores_eliminados para persistencia
       try {
@@ -4578,7 +4604,22 @@
     function abrirModalMiPerfil() {
       if (!currentUser) return;
       document.getElementById('perfil-avatar').value = currentUser.avatar || '';
-      document.getElementById('perfil-avatar-preview').src = currentUser.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80';
+      document.getElementById('perfil-avatar').value = currentUser.avatar || '';
+      const previewImg = document.getElementById('perfil-avatar-preview');
+      const previewInits = document.getElementById('perfil-avatar-initials');
+      const tieneFoto = esAvatarValido(currentUser.avatar);
+      const inits = obtenerIniciales(currentUser.nombre);
+      if (tieneFoto && previewImg) {
+        previewImg.src = currentUser.avatar;
+        previewImg.classList.remove('hidden');
+        if (previewInits) previewInits.classList.add('hidden');
+      } else {
+        if (previewImg) previewImg.classList.add('hidden');
+        if (previewInits) {
+          previewInits.textContent = inits;
+          previewInits.classList.remove('hidden');
+        }
+      }
       document.getElementById('perfil-nombre').value = currentUser.nombre || '';
       document.getElementById('perfil-email').value = currentUser.email || '';
       document.getElementById('perfil-puesto').value = currentUser.puesto || '';
@@ -4681,6 +4722,23 @@
     }
 
     // MODAL & GESTIÓN DE USUARIOS (RBAC - SOLO ADMIN)
+        function obtenerIniciales(nombre) {
+      if (!nombre) return 'U';
+      const parts = String(nombre).trim().split(/\s+/).filter(Boolean);
+      if (parts.length === 0) return 'U';
+      if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    function esAvatarValido(avatar) {
+      if (!avatar || typeof avatar !== 'string') return false;
+      const a = avatar.trim();
+      if (!a) return false;
+      if (a.includes('photo-1535713875002-d1d0cf377fde')) return false;
+      if (a.includes('ui-avatars.com')) return false;
+      return true;
+    }
+
     function renderizarUsuarios() {
       if (!currentUser || currentUser.rol !== 'admin') return;
       const users = window.SantanderAuth.getUsers();
@@ -4704,14 +4762,16 @@
         const esSuspendido = u.estado === 'suspendido';
         const propsCount = propiedades.filter(p => p.id_asesor === u.id).length;
         const ultimoIngresoStr = u.ultimoAcceso ? new Date(u.ultimoAcceso).toLocaleDateString('es-GT', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Sin registros';
+        const tieneFoto = esAvatarValido(u.avatar);
+        const iniciales = obtenerIniciales(u.nombre);
 
         return `
           <tr class="hover:bg-neutral-900/60 transition-colors">
             <td class="py-3 px-6">
               <div class="flex items-center gap-3">
-                ${u.avatar && u.avatar.trim() && !u.avatar.includes('photo-1535713875002-d1d0cf377fde')
-                ? `<img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover ring-1 ring-white/20">`
-                : `<div class="w-10 h-10 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center font-bold text-xs text-white shrink-0">${(u.nombre || 'U').split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase()}</div>`}
+                ${tieneFoto
+                ? `<img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover ring-1 ring-white/20 shrink-0">`
+                : `<div class="w-10 h-10 rounded-full bg-gradient-to-br from-neutral-800 to-neutral-900 border border-neutral-700/80 flex items-center justify-center font-bold text-xs text-white tracking-wider shrink-0">${iniciales}</div>`}
                 <div>
                   <p class="font-bold text-white leading-tight">${u.nombre}</p>
                   <p class="text-xs text-neutral-400 font-mono">${u.email}</p>
@@ -4744,14 +4804,17 @@
               ${ultimoIngresoStr}
             </td>
             <td class="py-3 px-6 text-right">
-              <div class="inline-flex items-center gap-2">
-                <button type="button" onclick="abrirModalResetClave('${u.id}', '${u.nombre}')" class="px-2.5 py-1 text-xs font-semibold text-neutral-300 hover:text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg transition-all cursor-pointer" title="Resetear contraseña">
+              <div class="inline-flex items-center gap-1.5">
+                <button type="button" onclick="abrirModalResetClave('${u.id}', '${(u.nombre || '').replace(/'/g, "\\'")}')" class="px-2 py-1 text-xs font-semibold text-neutral-300 hover:text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg transition-all cursor-pointer" title="Resetear contraseña">
                   <i class="fa-solid fa-key text-[10px] mr-1 text-amber-400"></i> Reset
                 </button>
                 ${u.id !== 'carmen' ? `
-                <button type="button" onclick="toggleEstadoCuenta('${u.id}')" class="px-2.5 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${esSuspendido ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-800/50 hover:bg-emerald-900/60' : 'bg-red-950/40 text-red-400 border border-red-800/50 hover:bg-red-900/60'}" title="${esSuspendido ? 'Reactivar cuenta' : 'Suspender cuenta'}">
+                <button type="button" onclick="toggleEstadoCuenta('${u.id}')" class="px-2 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${esSuspendido ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-800/50 hover:bg-emerald-900/60' : 'bg-amber-950/30 text-amber-400 border border-amber-800/40 hover:bg-amber-900/50'}" title="${esSuspendido ? 'Reactivar cuenta' : 'Suspender cuenta'}">
                   <i class="fa-solid ${esSuspendido ? 'fa-user-check' : 'fa-user-slash'} text-[10px] mr-1"></i>
-                  ${esSuspendido ? 'Reactivar' : 'Suspender'}
+                  ${esSuspendido ? 'Activar' : 'Suspender'}
+                </button>
+                <button type="button" onclick="confirmarEliminarUsuarioRBAC('${u.id}', '${(u.nombre || '').replace(/'/g, "\\'")}')" class="px-2 py-1 text-xs font-semibold text-red-400 hover:text-white bg-red-950/30 hover:bg-red-900/60 border border-red-800/40 hover:border-red-600/50 rounded-lg transition-all cursor-pointer" title="Eliminar usuario definitivamente">
+                  <i class="fa-solid fa-trash-can text-[10px] mr-1"></i> Eliminar
                 </button>
                 ` : '<span class="text-[10px] text-neutral-600 italic px-2">Principal</span>'}
               </div>
@@ -4759,6 +4822,54 @@
           </tr>
         `;
       }).join('');
+    }
+
+    
+    let usuarioRBACAEliminar = null;
+
+    function confirmarEliminarUsuarioRBAC(id, nombre) {
+      if (!currentUser || currentUser.rol !== 'admin') {
+        lanzarToast('Acceso denegado: Solo el Administrador Global puede eliminar usuarios.', 'error');
+        return;
+      }
+      if (id === 'carmen') {
+        lanzarToast('No es posible eliminar la cuenta de la Administradora Principal.', 'error');
+        return;
+      }
+      usuarioRBACAEliminar = id;
+      const elemNombre = document.getElementById('eliminar-rbac-nombre');
+      if (elemNombre) elemNombre.textContent = nombre || id;
+      document.getElementById('modal-confirmar-eliminar-usuario-rbac')?.classList.remove('hidden');
+    }
+
+    function cerrarModalEliminarUsuarioRBAC() {
+      usuarioRBACAEliminar = null;
+      document.getElementById('modal-confirmar-eliminar-usuario-rbac')?.classList.add('hidden');
+    }
+
+    async function ejecutarEliminacionUsuarioRBAC() {
+      if (!usuarioRBACAEliminar) return;
+      const id = usuarioRBACAEliminar;
+      try {
+        if (window.SantanderAuth && window.SantanderAuth.deleteUser) {
+          window.SantanderAuth.deleteUser(id);
+        }
+        delete asesores[id];
+        let eliminados = JSON.parse(localStorage.getItem('santander_asesores_eliminados') || '[]');
+        if (!eliminados.includes(id)) {
+          eliminados.push(id);
+          localStorage.setItem('santander_asesores_eliminados', JSON.stringify(eliminados));
+        }
+        cerrarModalEliminarUsuarioRBAC();
+        cargarAsesoresDesdeStorage();
+        poblarSelectsAsesores();
+        renderizarUsuarios();
+        renderizarAsesores();
+        renderizarTodo();
+        lanzarToast('Usuario eliminado', 'La cuenta y accesos fueron revocados con éxito.');
+      } catch (err) {
+        lanzarToast(err.message || 'Error al eliminar usuario.', 'error');
+      }
     }
 
     function toggleEstadoCuenta(userId) {
@@ -4772,6 +4883,16 @@
     }
 
     // Modal Crear Usuario
+    
+    function actualizarInicialesNuevoUsuario(val) {
+      const avatarVal = document.getElementById('nuevo-user-avatar').value;
+      if (!avatarVal) {
+        const inits = obtenerIniciales(val);
+        const initsEl = document.getElementById('nuevo-user-avatar-initials');
+        if (initsEl) initsEl.textContent = inits || 'VIP';
+      }
+    }
+
     function abrirModalNuevoUsuario() {
       document.getElementById('nuevo-user-nombre').value = '';
       document.getElementById('nuevo-user-email').value = '';
@@ -5220,5 +5341,34 @@
     }
   
   </script>
+
+  <!-- Modal Confirmar Eliminación Usuario RBAC -->
+  <div id="modal-confirmar-eliminar-usuario-rbac" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#141414] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-red-900/40 text-white transform transition-all text-center">
+      <div class="w-14 h-14 rounded-2xl bg-red-950/60 border border-red-500/40 text-red-400 flex items-center justify-center text-2xl mb-4 mx-auto">
+        <i class="fa-solid fa-user-xmark"></i>
+      </div>
+      
+      <div class="mb-6">
+        <h3 class="font-serif text-xl font-bold text-white">¿Eliminar Usuario del CRM?</h3>
+        <p class="text-xs text-neutral-300 mt-2 leading-relaxed">
+          Estás a punto de revocar y eliminar permanentemente la cuenta de <span id="eliminar-rbac-nombre" class="font-bold text-white"></span>.
+        </p>
+        <p class="text-xs text-red-400/90 mt-2">
+          Se borrarán sus accesos y se removerá de los asesores activos. Esta acción no se puede deshacer.
+        </p>
+      </div>
+
+      <div class="flex items-center justify-center gap-3">
+        <button type="button" onclick="cerrarModalEliminarUsuarioRBAC()" class="flex-1 py-3 px-4 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 font-bold text-xs rounded-xl border border-neutral-700 transition-all cursor-pointer">
+          Cancelar
+        </button>
+        <button type="button" onclick="ejecutarEliminacionUsuarioRBAC()" class="flex-1 py-3 px-4 bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-xl transition-all shadow-lg shadow-red-900/40 cursor-pointer">
+          Sí, Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

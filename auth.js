@@ -277,6 +277,7 @@
   function saveUsersStore(users) {
     try {
       storage.local.setItem(CONFIG.USERS_KEY, JSON.stringify(users));
+      storage.local.setItem('santander_rbac_users', JSON.stringify(users));
     } catch (e) {
       console.error('Error guardando almacén de usuarios:', e);
     }
@@ -709,6 +710,54 @@
       return newUser;
     },
 
+    deleteUser(userId) {
+      const current = this.getCurrentUser();
+      if (!current || current.rol !== 'admin') {
+        throw new Error('Permiso denegado: solo Administradores pueden eliminar usuarios.');
+      }
+      if (userId === 'carmen') {
+        throw new Error('No es posible eliminar la cuenta de la Administradora Principal.');
+      }
+
+      const users = getUsersStore();
+      const index = users.findIndex(u => u.id === userId);
+      if (index === -1) throw new Error('Usuario no encontrado.');
+
+      const deletedUser = users.splice(index, 1)[0];
+      saveUsersStore(users);
+
+      // 1. Remover del almacén de asesores locales
+      try {
+        let locales = JSON.parse(storage.local.getItem(CONFIG.ASYNC_ASESORES_KEY) || '{}');
+        if (locales[userId]) {
+          delete locales[userId];
+          storage.local.setItem(CONFIG.ASYNC_ASESORES_KEY, JSON.stringify(locales));
+        }
+      } catch (e) {}
+
+      // 2. Registrar en lista de eliminados permanentes
+      try {
+        let eliminados = JSON.parse(storage.local.getItem('santander_asesores_eliminados') || '[]');
+        if (!eliminados.includes(userId)) {
+          eliminados.push(userId);
+          storage.local.setItem('santander_asesores_eliminados', JSON.stringify(eliminados));
+        }
+      } catch (e) {}
+
+      // 3. Si el usuario eliminado tenía sesión activa, destruirla
+      if (current.id === userId) {
+        destroySession();
+      }
+
+      // 4. Notificar a todas las pestañas abiertas
+      try {
+        storage.local.setItem('santander_user_deleted', JSON.stringify({ userId, timestamp: Date.now() }));
+        storage.local.setItem('santander_asesor_deleted', JSON.stringify({ key: userId, timestamp: Date.now() }));
+      } catch (e) {}
+
+      return deletedUser;
+    },
+
     toggleUserStatus(userId) {
       const current = this.getCurrentUser();
       if (!current || current.rol !== 'admin') {
@@ -803,6 +852,10 @@
       // Verificación estricta de seguridad: si se modifica el correo corporativo
       if (email && email.trim().toLowerCase() !== user.email.toLowerCase()) {
         const cleanEmail = email.trim().toLowerCase();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(cleanEmail)) {
+          throw new Error('El formato del correo corporativo no es válido.');
+        }
         if (!currentPassword) {
           throw new Error('Por seguridad, debes ingresar tu contraseña actual para autorizar el cambio de correo.');
         }
@@ -814,6 +867,7 @@
           throw new Error('El correo ' + cleanEmail + ' ya está registrado por otro usuario.');
         }
         user.email = cleanEmail;
+        user.ultimoCambioSeguridad = new Date().toISOString();
       }
 
       // Verificación si se solicitó cambio de clave

@@ -1652,7 +1652,8 @@
 
       // 2. Sincronizar usuarios RBAC (si están activos se muestran, si están suspendidos se ocultan)
       try {
-        const rbacUsers = JSON.parse(localStorage.getItem('santander_rbac_users') || '[]');
+        const rawUsers = localStorage.getItem('santander_auth_users') || localStorage.getItem('santander_rbac_users') || '[]';
+        const rbacUsers = JSON.parse(rawUsers);
         rbacUsers.forEach(u => {
           if (u.estado === 'activo') {
             asesores[u.id] = {
