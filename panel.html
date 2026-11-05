@@ -584,10 +584,16 @@
                         <p class="text-xs text-neutral-400">Progreso acumulado de ventas cerradas (SOLD).</p>
                       </div>
                     </div>
-                    <button type="button" onclick="abrirModalAjustarMeta()" class="px-3 py-1.5 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-800 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer">
-                      <i class="fa-solid fa-sliders text-[11px]"></i>
-                      <span>Ajustar Meta</span>
-                    </button>
+                    <div class="flex items-center gap-2">
+                      <button type="button" onclick="abrirModalRegistrarVentaAsesor()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>Registrar Venta</span>
+                      </button>
+                      <button type="button" onclick="abrirModalAjustarMeta()" class="px-3 py-1.5 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-800 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-sliders text-[11px]"></i>
+                        <span>Ajustar Meta</span>
+                      </button>
+                    </div>
                   </div>
 
                   <!-- Métricas de la Meta -->
@@ -614,6 +620,26 @@
                     </div>
                     <div class="h-3 w-full bg-neutral-900 rounded-full overflow-hidden border border-neutral-800 p-0.5 shadow-inner">
                       <div id="prod-meta-bar" class="h-full bg-white rounded-full transition-all duration-700" style="width: 0%;"></div>
+                    </div>
+                  </div>
+
+                  <!-- Detalle de Cierres de Ventas del Asesor -->
+                  <div class="mt-4 pt-3 border-t border-neutral-900/80">
+                    <div class="flex items-center justify-between mb-2">
+                      <div class="flex items-center gap-2">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5">
+                          <i class="fa-solid fa-receipt text-emerald-400"></i>
+                          <span>Operaciones Vendidas</span>
+                        </span>
+                        <span id="prod-meta-badge-count" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-neutral-900 text-neutral-300 border border-neutral-800 font-bold">0</span>
+                      </div>
+                      <button type="button" onclick="abrirModalRegistrarVentaAsesor()" class="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 hover:underline flex items-center gap-1 cursor-pointer">
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>Vender propiedad</span>
+                      </button>
+                    </div>
+                    <div id="prod-meta-operaciones-lista" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                      <!-- Inyectado dinámicamente por renderizarMeta() -->
                     </div>
                   </div>
                 </div>
@@ -2312,45 +2338,160 @@
   <!-- ========================================================
        MODAL: CONFIRMAR CIERRE DE SESIÓN VIP (DARK LUXURY)
        ======================================================== -->
-  <!-- Modal Ajustar Meta Comercial -->
+  <!-- Modal Ajustar Meta Comercial (USD y Quetzales GTQ) -->
   <div id="modal-ajustar-meta" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-[#141414] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-neutral-800 text-white relative">
       <div class="flex items-center justify-between pb-4 border-b border-neutral-800 mb-5">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-neutral-900 text-white border border-neutral-800 flex items-center justify-center text-sm font-bold">
-            <i class="fa-solid fa-bullseye"></i>
+            <i class="fa-solid fa-bullseye text-emerald-400"></i>
           </div>
           <div>
             <h3 class="font-serif text-lg font-bold text-white">Ajustar Meta Comercial</h3>
-            <p class="text-xs text-neutral-400">Define tu objetivo de ventas mensual en dólares USD.</p>
+            <p class="text-xs text-neutral-400">Define tu objetivo de ventas mensual en Dólares ($) o Quetzales (Q).</p>
           </div>
         </div>
-        <button type="button" onclick="cerrarModalAjustarMeta()" class="text-neutral-400 hover:text-white p-2">
+        <button type="button" onclick="cerrarModalAjustarMeta()" class="text-neutral-400 hover:text-white p-2 cursor-pointer">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
       <form onsubmit="guardarAjusteMeta(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Meta Mensual (USD)</label>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Moneda de la Meta</label>
+          <select 
+            id="input-ajuste-meta-moneda" 
+            onchange="cambiarMonedaAjusteMeta(this.value)"
+            class="w-full px-3.5 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-xs text-white outline-none cursor-pointer"
+          >
+            <option value="USD">Dólares Estadounidenses ($ USD)</option>
+            <option value="GTQ">Quetzales de Guatemala (Q GTQ)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Monto Objetivo del Mes</label>
           <div class="relative">
-            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-500 font-mono text-xs">$</span>
+            <span id="ajuste-meta-simbolo" class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400 font-mono text-sm font-bold">$</span>
             <input 
               type="number" 
-              id="input-ajuste-meta" 
+              id="input-ajuste-meta-monto" 
               required 
               min="10000" 
-              step="50000" 
+              step="10000" 
               placeholder="1000000" 
               class="w-full pl-8 pr-4 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none font-mono"
             >
           </div>
-          <p class="text-[10px] text-neutral-500 mt-1">Ingresa el monto objetivo en USD (ejemplo: 1000000 para $1.0M).</p>
+          <p id="ajuste-meta-ayuda" class="text-[10px] text-neutral-500 mt-1">Ingresa el monto objetivo (ejemplo: 1000000 para $1.0M USD).</p>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">Atajos de Metas Habituales</label>
+          <div id="ajuste-meta-presets" class="grid grid-cols-4 gap-2">
+            <!-- Inyectado por cambiarMonedaAjusteMeta -->
+          </div>
         </div>
 
         <div class="pt-4 flex items-center justify-end gap-3 border-t border-neutral-800">
-          <button type="button" onclick="cerrarModalAjustarMeta()" class="px-4 py-2 text-xs font-bold text-neutral-400 hover:text-white rounded-xl">Cancelar</button>
-          <button type="submit" class="px-5 py-2.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl shadow-md">Guardar Objetivo</button>
+          <button type="button" onclick="cerrarModalAjustarMeta()" class="px-4 py-2 text-xs font-bold text-neutral-400 hover:text-white rounded-xl cursor-pointer">Cancelar</button>
+          <button type="submit" class="px-5 py-2.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl shadow-md cursor-pointer">Guardar Objetivo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Registrar Venta / Cierre de Asesor VIP -->
+  <div id="modal-registrar-venta-asesor" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#141414] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-neutral-800 text-white relative">
+      <div class="flex items-center justify-between pb-4 border-b border-neutral-800 mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-950/60 text-emerald-400 border border-emerald-800/50 flex items-center justify-center text-sm font-bold">
+            <i class="fa-solid fa-handshake"></i>
+          </div>
+          <div>
+            <h3 class="font-serif text-lg font-bold text-white">Registrar Cierre de Venta</h3>
+            <p class="text-xs text-neutral-400">Marca una propiedad como vendida y registra el monto final de cierre.</p>
+          </div>
+        </div>
+        <button type="button" onclick="cerrarModalRegistrarVentaAsesor()" class="text-neutral-400 hover:text-white p-2 cursor-pointer">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="guardarVentaAsesor(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Seleccionar Propiedad Asignada *</label>
+          <select 
+            id="reg-venta-prop-id" 
+            required
+            onchange="actualizarPrecioSugeridoVenta(this.value)"
+            class="w-full px-3.5 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-xs text-white outline-none cursor-pointer"
+          >
+            <!-- Inyectado dinámicamente con propiedades del asesor -->
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Estado del Inmueble</label>
+            <select 
+              id="reg-venta-estado" 
+              class="w-full px-3.5 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-xs text-white outline-none cursor-pointer"
+            >
+              <option value="Vendida" selected>Vendida (SOLD) - Sumar a Meta</option>
+              <option value="Disponible">Disponible (Revertir venta)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Moneda del Cierre</label>
+            <select 
+              id="reg-venta-moneda" 
+              onchange="cambiarSimboloVenta(this.value)"
+              class="w-full px-3.5 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-xs text-white outline-none cursor-pointer"
+            >
+              <option value="USD">Dólares ($ USD)</option>
+              <option value="GTQ">Quetzales (Q GTQ)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300">Precio Real de Cierre *</label>
+            <span id="reg-venta-precio-lista-label" class="text-[11px] text-neutral-400">Precio Lista: --</span>
+          </div>
+          <div class="relative">
+            <span id="reg-venta-simbolo" class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400 font-mono text-sm font-bold">$</span>
+            <input 
+              type="number" 
+              id="reg-venta-monto" 
+              required 
+              min="1000" 
+              step="1000" 
+              placeholder="750000" 
+              class="w-full pl-8 pr-4 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none font-mono"
+            >
+          </div>
+          <p class="text-[10px] text-neutral-500 mt-1">Puedes modificar el monto si se negoció por un valor distinto al listado.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Notas del Cierre / Cliente (Opcional)</label>
+          <textarea 
+            id="reg-venta-notas" 
+            rows="2" 
+            placeholder="Ej. Negociación cerrada al contado con inversionista internacional." 
+            class="w-full px-3.5 py-2 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-xs text-white placeholder-neutral-500 outline-none resize-none font-mono"
+          ></textarea>
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-neutral-800">
+          <button type="button" onclick="cerrarModalRegistrarVentaAsesor()" class="px-4 py-2 text-xs font-bold text-neutral-400 hover:text-white rounded-xl cursor-pointer">Cancelar</button>
+          <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer flex items-center gap-1.5">
+            <i class="fa-solid fa-check"></i>
+            <span>Guardar y Aplicar a Meta</span>
+          </button>
         </div>
       </form>
     </div>
@@ -3776,6 +3917,9 @@
 
       if (vistaId === 'usuarios') {
         renderizarUsuarios();
+      }
+      if (vistaId === 'calendario') {
+        renderizarCalendario();
       }
 
       const overlay = document.getElementById('mobile-overlay');
@@ -5236,6 +5380,122 @@
       if (inputEl) inputEl.value = val;
     }
 
+    // 1.1 MODAL REGISTRAR VENTA ASESOR VIP
+    function abrirModalRegistrarVentaAsesor() {
+      const uId = getProdUserId();
+      const esAdmin = currentUser && currentUser.rol === 'admin';
+      const misProps = propiedades.filter(p => esAdmin || p.id_asesor === uId);
+
+      const selProp = document.getElementById('reg-venta-prop-id');
+      const selEstado = document.getElementById('reg-venta-estado');
+      const textNotas = document.getElementById('reg-venta-notas');
+
+      if (!selProp) return;
+
+      if (misProps.length === 0) {
+        lanzarToast('No tienes propiedades asignadas en este momento.', 'info');
+        return;
+      }
+
+      selProp.innerHTML = misProps.map(p => {
+        const esV = p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid');
+        const stText = esV ? ' (Actualmente: Vendida)' : ' (Disponible)';
+        return '<option value="' + p.id + '">' + p.titulo + ' - ' + p.precio + stText + '</option>';
+      }).join('');
+
+      actualizarPrecioSugeridoVenta(misProps[0].id);
+
+      if (selEstado) selEstado.value = 'Vendida';
+      if (textNotas) textNotas.value = '';
+
+      document.getElementById('modal-registrar-venta-asesor')?.classList.remove('hidden');
+    }
+
+    function cerrarModalRegistrarVentaAsesor() {
+      document.getElementById('modal-registrar-venta-asesor')?.classList.add('hidden');
+    }
+
+    function actualizarPrecioSugeridoVenta(propId) {
+      const prop = propiedades.find(p => String(p.id) === String(propId));
+      if (!prop) return;
+
+      const labelLista = document.getElementById('reg-venta-precio-lista-label');
+      if (labelLista) labelLista.textContent = 'Precio Lista: ' + prop.precio;
+
+      const selMoneda = document.getElementById('reg-venta-moneda');
+      const inputMonto = document.getElementById('reg-venta-monto');
+      const simEl = document.getElementById('reg-venta-simbolo');
+
+      let monto = 0;
+      let moneda = 'USD';
+
+      if (prop.precio_cierre && !isNaN(Number(prop.precio_cierre))) {
+        monto = Number(prop.precio_cierre);
+        moneda = prop.precio_cierre_moneda || 'USD';
+      } else {
+        const raw = String(prop.precio || '');
+        moneda = raw.includes('Q') ? 'GTQ' : 'USD';
+        monto = parseInt(raw.replace(/[^0-9]/g, ''), 10) || 0;
+      }
+
+      if (selMoneda) selMoneda.value = moneda;
+      if (simEl) simEl.textContent = (moneda === 'GTQ' ? 'Q' : '$');
+      if (inputMonto) inputMonto.value = monto;
+    }
+
+    function cambiarSimboloVenta(moneda) {
+      const simEl = document.getElementById('reg-venta-simbolo');
+      if (simEl) simEl.textContent = (moneda === 'GTQ' ? 'Q' : '$');
+    }
+
+    function guardarVentaAsesor(e) {
+      e.preventDefault();
+      const propId = document.getElementById('reg-venta-prop-id').value;
+      const estado = document.getElementById('reg-venta-estado').value;
+      const moneda = document.getElementById('reg-venta-moneda').value;
+      const monto = parseInt(document.getElementById('reg-venta-monto').value, 10);
+      const notas = document.getElementById('reg-venta-notas').value.trim();
+
+      const prop = propiedades.find(p => String(p.id) === String(propId));
+      if (!prop) {
+        lanzarToast('Propiedad no encontrada.', 'error');
+        return;
+      }
+
+      const esVendida = (estado === 'Vendida');
+      prop.es_vendida = esVendida;
+      prop.estado = estado;
+      prop.precio_cierre = monto;
+      prop.precio_cierre_moneda = moneda;
+      prop.precio_cierre_notas = notas;
+
+      try {
+        let locales = JSON.parse(localStorage.getItem('santander_propiedades_locales') || '[]');
+        const idx = locales.findIndex(l => String(l.id) === String(propId));
+        if (idx !== -1) {
+          locales[idx].es_vendida = esVendida;
+          locales[idx].estado = estado;
+          locales[idx].precio_cierre = monto;
+          locales[idx].precio_cierre_moneda = moneda;
+          locales[idx].precio_cierre_notas = notas;
+        } else {
+          locales.unshift({ ...prop });
+        }
+        localStorage.setItem('santander_propiedades_locales', JSON.stringify(locales));
+      } catch (err) { console.error(err); }
+
+      cerrarModalRegistrarVentaAsesor();
+      renderizarProductividadWorkspace();
+      renderizarTodo();
+
+      const displayMonto = moneda === 'GTQ' ? ('Q' + monto.toLocaleString('es-GT') + ' GTQ') : ('$' + monto.toLocaleString('en-US') + ' USD');
+      if (esVendida) {
+        lanzarToast('¡Venta cerrada! "' + prop.titulo + '" registrada en ' + displayMonto + '.', 'success');
+      } else {
+        lanzarToast('"' + prop.titulo + '" ahora está Disponible nuevamente.', 'info');
+      }
+    }
+
     function abrirModalAjustarMeta() {
       const cfg = getMetaMensualConfig();
       const selMoneda = document.getElementById('input-ajuste-meta-moneda');
@@ -5413,11 +5673,21 @@
         elemRestante.textContent = restante === 0 ? 'Meta cumplida' : formato(restante) + ' restantes';
       }
 
+      const elemBadgeCount = document.getElementById('prod-meta-badge-count');
+      if (elemBadgeCount) elemBadgeCount.textContent = vendidas.length;
+
       // Detalle de operaciones vendidas del asesor
       const containerOperaciones = document.getElementById('prod-meta-operaciones-lista');
       if (containerOperaciones) {
         if (vendidas.length === 0) {
-          containerOperaciones.innerHTML = '<p class="text-xs text-neutral-500 py-3 text-center italic">Sin operaciones cerradas aún. Marca una de tus propiedades como Vendida para registrar avance.</p>';
+          containerOperaciones.innerHTML = '<div class="p-3.5 rounded-2xl bg-[#0D0D0D] border border-neutral-900 text-center">' +
+            '<p class="text-xs text-neutral-300 font-medium">No tienes operaciones cerradas este mes.</p>' +
+            '<p class="text-[11px] text-neutral-500 mt-1">Elige una de tus propiedades asignadas para registrar la venta y avanzar en tu meta.</p>' +
+            '<button type="button" onclick="abrirModalRegistrarVentaAsesor()" class="mt-2.5 px-3 py-1.5 bg-neutral-900 hover:bg-neutral-800 text-neutral-200 hover:text-white border border-neutral-800 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer shadow-xs">' +
+              '<i class="fa-solid fa-circle-check text-emerald-400 text-[11px]"></i>' +
+              '<span>Registrar Cierre de Venta</span>' +
+            '</button>' +
+          '</div>';
         } else {
           containerOperaciones.innerHTML = vendidas.map(p => {
             const displayCierre = p.precio_cierre 
