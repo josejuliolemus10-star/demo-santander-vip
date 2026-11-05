@@ -1629,20 +1629,25 @@
 
       <form onsubmit="guardarMiPerfil(event)" class="space-y-4">
         
-        <!-- Foto de Perfil & Avatar Preview -->
-        <div class="flex items-center gap-4 p-4 rounded-2xl bg-[#0D0D0D] border border-[#242424]">
+        <!-- Foto de Perfil & Avatar Preview (Subida directa desde el equipo) -->
+        <div class="p-4 rounded-2xl bg-[#0D0D0D] border border-[#242424] flex flex-col sm:flex-row items-center gap-4">
           <img id="perfil-avatar-preview" src="" alt="Avatar" class="w-16 h-16 rounded-full object-cover ring-2 ring-white/30 shrink-0">
-          <div class="flex-1 min-w-0">
-            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1">
-              URL Fotografía de Perfil
+          <div class="flex-1 min-w-0 text-center sm:text-left w-full">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">
+              Fotografía de Perfil
             </label>
-            <input 
-              type="url" 
-              id="perfil-avatar" 
-              oninput="actualizarPreviewAvatarPerfil()" 
-              placeholder="https://..." 
-              class="w-full px-3 py-2 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-xs text-white placeholder-neutral-500 outline-none"
-            >
+            <input type="file" id="perfil-foto-input" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="manejarFotoMiPerfil(this.files)">
+            <input type="hidden" id="perfil-avatar" value="">
+            
+            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <button type="button" onclick="document.getElementById('perfil-foto-input').click()" class="px-3.5 py-2 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+                <span>Subir desde este equipo</span>
+              </button>
+            </div>
+            <p id="perfil-foto-name" class="text-[11px] text-neutral-400 mt-1.5 truncate">
+              Selecciona tu fotografía desde tus archivos (se optimizará al instante).
+            </p>
           </div>
         </div>
 
@@ -1816,9 +1821,41 @@
           </div>
         </div>
 
+        <!-- Fotografía de Perfil (Subida directa desde el equipo con compresión) -->
         <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">URL Foto de Perfil (Opcional)</label>
-          <input type="url" id="nuevo-user-avatar" placeholder="https://images.unsplash.com/..." class="w-full px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-2">
+            Fotografía de Perfil Oficial
+          </label>
+          <div class="p-4 bg-[#0F0F0F] border border-[#262626] rounded-2xl flex flex-col sm:flex-row items-center gap-4">
+            
+            <!-- Vista previa del avatar -->
+            <div class="relative shrink-0">
+              <img id="nuevo-user-avatar-preview" src="https://ui-avatars.com/api/?name=VIP&background=181818&color=fff" alt="Avatar" class="w-16 h-16 rounded-full object-cover ring-2 ring-white/20 shadow-md">
+              <span id="nuevo-user-avatar-badge" class="hidden absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center text-black text-[10px] font-bold">
+                <i class="fa-solid fa-check"></i>
+              </span>
+            </div>
+
+            <!-- Controles de subida de archivo -->
+            <div class="flex-1 min-w-0 text-center sm:text-left">
+              <input type="file" id="nuevo-user-foto-input" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="manejarFotoNuevoUsuario(this.files)">
+              <input type="hidden" id="nuevo-user-avatar" value="">
+              
+              <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                <button type="button" onclick="document.getElementById('nuevo-user-foto-input').click()" class="px-3.5 py-2 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
+                  <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+                  <span>Subir Fotografía</span>
+                </button>
+                <button type="button" id="nuevo-user-btn-quitar" onclick="quitarFotoNuevoUsuario()" class="hidden px-2.5 py-2 bg-neutral-900 hover:bg-red-950/40 text-neutral-400 hover:text-red-400 border border-neutral-800 rounded-xl text-xs font-semibold transition-all cursor-pointer" title="Quitar foto">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+              <p id="nuevo-user-foto-name" class="text-[11px] text-neutral-400 mt-1.5 truncate">
+                Formatos: JPG, PNG o WebP (se optimiza automáticamente).
+              </p>
+            </div>
+
+          </div>
         </div>
 
         <div>
@@ -1869,6 +1906,34 @@
           <button type="submit" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold rounded-xl transition-all shadow-md cursor-pointer">Aplicar Reseteo</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL: CONFIRMAR CIERRE DE SESIÓN VIP (DARK LUXURY)
+       ======================================================== -->
+  <div id="modal-confirmar-logout" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#141414] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-neutral-800 text-white transform transition-all">
+      <div class="w-14 h-14 rounded-2xl bg-red-950/60 border border-red-500/40 text-red-400 flex items-center justify-center text-2xl mb-4 mx-auto">
+        <i class="fa-solid fa-power-off"></i>
+      </div>
+      
+      <div class="text-center mb-6">
+        <h3 class="font-serif text-xl font-bold text-white">¿Cerrar Sesión Segura?</h3>
+        <p class="text-xs text-neutral-400 mt-2 leading-relaxed">
+          Estás a punto de finalizar tu sesión activa en el Portal Santander VIP. Tendrás que ingresar tus credenciales nuevamente para acceder.
+        </p>
+      </div>
+
+      <div class="flex items-center justify-center gap-3 border-t border-neutral-800 pt-5">
+        <button type="button" onclick="cerrarModalLogout()" class="w-1/2 py-2.5 px-4 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold rounded-xl border border-neutral-700 transition-all cursor-pointer">
+          Cancelar
+        </button>
+        <button type="button" onclick="ejecutarCerrarSesionDefinitivo()" class="w-1/2 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
+          <i class="fa-solid fa-power-off"></i>
+          Sí, Cerrar Sesión
+        </button>
+      </div>
     </div>
   </div>
 
@@ -3195,7 +3260,7 @@
       const fotoUrlInput = document.getElementById('foto-url-input')?.value.trim();
 
       if (!titulo || !precio || !asesor || !cuartos || !banos) {
-        alert("Por favor completa los campos requeridos (Título, Precio, Asesor, Habitaciones y Baños).");
+        lanzarToast("Por favor completa los campos requeridos (Título, Precio, Asesor, Habitaciones y Baños).", "error");
         return;
       }
 
@@ -3362,7 +3427,7 @@
       if (!files || files.length === 0) return;
       const file = files[0];
       if (!file.type.startsWith('image/')) {
-        alert("Por favor selecciona un archivo de imagen válido (JPG, PNG, WebP).");
+        lanzarToast("Por favor selecciona un archivo de imagen válido (JPG, PNG, WebP).", "error");
         return;
       }
       try {
@@ -3578,7 +3643,7 @@
       if (!files || files.length === 0) return;
       const file = files[0];
       if (!file.type.startsWith('image/')) {
-        alert("Por favor selecciona un archivo de imagen válido.");
+        lanzarToast("Por favor selecciona un archivo de imagen válido.", "error");
         return;
       }
       const reader = new FileReader();
@@ -3607,7 +3672,7 @@
       const fotoUrl = document.getElementById('edit-foto-url').value.trim();
 
       if (!titulo || !precio || !asesor) {
-        alert("Por favor completa los campos principales requeridos.");
+        lanzarToast("Por favor completa los campos principales requeridos.", "error");
         return;
       }
 
@@ -3740,7 +3805,7 @@
       if (!files || files.length === 0) return;
       const file = files[0];
       if (!file.type.startsWith('image/')) {
-        alert('Selecciona una imagen válida (JPG, PNG, WebP).');
+        lanzarToast('Selecciona una imagen válida (JPG, PNG, WebP).', 'error');
         return;
       }
       try {
@@ -3758,7 +3823,7 @@
         if (urlInput) urlInput.value = '';
       } catch (err) {
         console.error('Error al procesar la imagen:', err);
-        alert('No se pudo procesar la imagen seleccionada.');
+        lanzarToast('No se pudo procesar la imagen seleccionada.', 'error');
       }
     }
 
@@ -3920,10 +3985,86 @@
       }
     }
 
-    // Cerrar sesión
+    // Cerrar sesión con modal Dark Luxury elegante
     function ejecutarCerrarSesion() {
-      if (confirm('¿Deseas cerrar tu sesión segura en el Portal Santander VIP?')) {
+      abrirModalLogout();
+    }
+
+    function abrirModalLogout() {
+      document.getElementById('modal-confirmar-logout')?.classList.remove('hidden');
+    }
+
+    function cerrarModalLogout() {
+      document.getElementById('modal-confirmar-logout')?.classList.add('hidden');
+    }
+
+    function ejecutarCerrarSesionDefinitivo() {
+      cerrarModalLogout();
+      if (window.SantanderAuth) {
         window.SantanderAuth.logout('logout');
+      } else {
+        window.location.replace('login.html');
+      }
+    }
+
+    // Funciones de subida de fotos para Nuevo Usuario y Mi Perfil
+    async function manejarFotoNuevoUsuario(files) {
+      if (!files || files.length === 0) return;
+      const file = files[0];
+      if (!file.type.startsWith('image/')) {
+        lanzarToast("Por favor selecciona un archivo de imagen válido (JPG, PNG o WebP).", "error");
+        return;
+      }
+      try {
+        const compressed = await comprimirImagen(file, 400, 400, 0.85);
+        document.getElementById('nuevo-user-avatar').value = compressed;
+        const preview = document.getElementById('nuevo-user-avatar-preview');
+        if (preview) preview.src = compressed;
+        const badge = document.getElementById('nuevo-user-avatar-badge');
+        if (badge) badge.classList.remove('hidden');
+        const btnQuitar = document.getElementById('nuevo-user-btn-quitar');
+        if (btnQuitar) btnQuitar.classList.remove('hidden');
+        const label = document.getElementById('nuevo-user-foto-name');
+        if (label) label.textContent = `${file.name} (Optimizado ${(compressed.length / 1024).toFixed(0)} KB)`;
+        lanzarToast("Fotografía procesada y optimizada.", "success");
+      } catch (err) {
+        console.warn("Fallo compresión:", err);
+        lanzarToast("No se pudo procesar la imagen seleccionada.", "error");
+      }
+    }
+
+    function quitarFotoNuevoUsuario() {
+      const input = document.getElementById('nuevo-user-foto-input');
+      if (input) input.value = '';
+      document.getElementById('nuevo-user-avatar').value = '';
+      const preview = document.getElementById('nuevo-user-avatar-preview');
+      if (preview) preview.src = 'https://ui-avatars.com/api/?name=VIP&background=181818&color=fff';
+      const badge = document.getElementById('nuevo-user-avatar-badge');
+      if (badge) badge.classList.add('hidden');
+      const btnQuitar = document.getElementById('nuevo-user-btn-quitar');
+      if (btnQuitar) btnQuitar.classList.add('hidden');
+      const label = document.getElementById('nuevo-user-foto-name');
+      if (label) label.textContent = 'Formatos: JPG, PNG o WebP (se optimiza automáticamente).';
+    }
+
+    async function manejarFotoMiPerfil(files) {
+      if (!files || files.length === 0) return;
+      const file = files[0];
+      if (!file.type.startsWith('image/')) {
+        lanzarToast("Por favor selecciona un archivo de imagen válido (JPG, PNG o WebP).", "error");
+        return;
+      }
+      try {
+        const compressed = await comprimirImagen(file, 400, 400, 0.85);
+        document.getElementById('perfil-avatar').value = compressed;
+        const preview = document.getElementById('perfil-avatar-preview');
+        if (preview) preview.src = compressed;
+        const label = document.getElementById('perfil-foto-name');
+        if (label) label.textContent = `${file.name} (Optimizado ${(compressed.length / 1024).toFixed(0)} KB)`;
+        lanzarToast("Fotografía actualizada.", "success");
+      } catch (err) {
+        console.warn("Fallo compresión:", err);
+        lanzarToast("No se pudo procesar la imagen seleccionada.", "error");
       }
     }
 
@@ -3993,7 +4134,7 @@
         lanzarToast('¡Perfil y credenciales actualizados con éxito!', 'success');
 
       } catch (err) {
-        alert(err.message || 'Error al actualizar el perfil.');
+        lanzarToast(err.message || 'Error al actualizar el perfil.', 'error');
       } finally {
         btn.disabled = false;
       }
@@ -4084,7 +4225,7 @@
         renderizarUsuarios();
         lanzarToast(`Cuenta de ${u.nombre} ahora está: ${u.estado.toUpperCase()}`, u.estado === 'activo' ? 'success' : 'info');
       } catch (err) {
-        alert(err.message);
+        lanzarToast(err.message, 'error');
       }
     }
 
@@ -4096,6 +4237,7 @@
       document.getElementById('nuevo-user-puesto').value = '';
       document.getElementById('nuevo-user-avatar').value = '';
       document.getElementById('nuevo-user-pass').value = '';
+      quitarFotoNuevoUsuario();
       document.getElementById('modal-nuevo-usuario')?.classList.remove('hidden');
     }
 
@@ -4124,7 +4266,7 @@
         cerrarModalNuevoUsuario();
         lanzarToast(`Usuario ${nuevo.nombre} (${nuevo.rol.toUpperCase()}) registrado exitosamente.`, 'success');
       } catch (err) {
-        alert(err.message);
+        lanzarToast(err.message, 'error');
       }
     }
 
@@ -4159,7 +4301,7 @@
         cerrarModalResetClave();
         lanzarToast('Contraseña restablecida exitosamente.', 'success');
       } catch (err) {
-        alert(err.message);
+        lanzarToast(err.message, 'error');
       }
     }
 
