@@ -1644,11 +1644,32 @@
       const grid = document.getElementById('nuestros-asesores-grid');
       if (!grid) return;
 
+      // 1. Cargar asesores locales
       try {
         const localesAsesores = JSON.parse(localStorage.getItem('santander_asesores_locales') || '{}');
         Object.assign(asesores, localesAsesores);
       } catch (e) { console.warn(e); }
 
+      // 2. Sincronizar usuarios RBAC (si están activos se muestran, si están suspendidos se ocultan)
+      try {
+        const rbacUsers = JSON.parse(localStorage.getItem('santander_rbac_users') || '[]');
+        rbacUsers.forEach(u => {
+          if (u.estado === 'activo') {
+            asesores[u.id] = {
+              id: u.id,
+              nombre: u.nombre,
+              puesto: u.puesto || 'Consultor Inmobiliario VIP',
+              tel: u.tel || '50252945088',
+              avatar: u.avatar || '',
+              email: u.email
+            };
+          } else if (u.estado === 'suspendido' || u.estado === 'eliminado') {
+            delete asesores[u.id]; // Si está suspendido NO aparece en el sitio público
+          }
+        });
+      } catch (e) { console.warn(e); }
+
+      // 3. Filtrar asesores eliminados
       try {
         const eliminadosAsesores = JSON.parse(localStorage.getItem('santander_asesores_eliminados') || '[]');
         if (Array.isArray(eliminadosAsesores)) {
@@ -1662,7 +1683,11 @@
         const countProps = propsAsignadas.length;
         const waMsg = encodeURIComponent(`Hola ${a.nombre}, deseo consultar sobre las residencias exclusivas que gestiona en Santander VIP Estates.`);
         const waUrl = `https://wa.me/${a.tel}?text=${waMsg}`;
-        const avatarSrc = a.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(a.nombre)}&background=181818&color=fff&rounded=true`;
+        const tieneFoto = a.avatar && a.avatar.trim() && !a.avatar.includes('photo-1535713875002-d1d0cf377fde');
+        const iniciales = (a.nombre || 'A').split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+        const avatarElement = tieneFoto
+          ? `<img src="${a.avatar}" alt="${a.nombre}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover ring-2 ring-[#2A9D8F]/30 group-hover:ring-[#2A9D8F] transition-all">`
+          : `<div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#111827] border border-gray-700 flex items-center justify-center font-serif font-bold text-white text-xl sm:text-2xl shrink-0 tracking-wider">${iniciales}</div>`;
 
         return `
           <div class="bg-white rounded-3xl p-7 sm:p-8 border border-gray-200/80 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
@@ -1670,7 +1695,7 @@
               <!-- Header del Asesor -->
               <div class="flex items-center gap-4 mb-5">
                 <div class="relative shrink-0">
-                  <img src="${avatarSrc}" alt="${a.nombre}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover ring-2 ring-[#2A9D8F]/30 group-hover:ring-[#2A9D8F] transition-all">
+                  ${avatarElement}
                   <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#2A9D8F] ring-2 ring-white" title="Asesor Activo"></span>
                 </div>
                 <div class="min-w-0">
@@ -2171,7 +2196,7 @@
       // Cargar propiedades desde Google Sheets CSV
       cargarPropiedadesDesdeExcel();
     window.addEventListener('storage', (e) => {
-      if (e.key === 'santander_propiedades_locales' || e.key === 'santander_propiedades_eliminadas' || e.key === 'santander_asesores_locales' || e.key === 'santander_asesores_eliminados') {
+      if (e.key === 'santander_propiedades_locales' || e.key === 'santander_propiedades_eliminadas' || e.key === 'santander_asesores_locales' || e.key === 'santander_asesores_eliminados' || e.key === 'santander_rbac_users' || e.key === 'santander_user_status_changed' || e.key === 'santander_asesor_deleted') {
         cargarPropiedadesDesdeExcel();
         renderizarNuestrosAsesores();
       }

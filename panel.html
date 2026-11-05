@@ -172,7 +172,10 @@
     <div class="p-4 border-t border-[#222222] bg-[#0A0A0A] space-y-3">
       <div class="flex items-center gap-3">
         <div class="relative shrink-0">
-          <img id="sidebar-user-avatar" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80" alt="Usuario Activo" class="w-10 h-10 rounded-full object-cover ring-2 ring-white/20">
+          <div id="sidebar-user-avatar-wrap" class="w-10 h-10 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-neutral-800 ring-2 ring-white/20">
+            <img id="sidebar-user-avatar" src="" alt="Usuario Activo" class="w-full h-full object-cover hidden">
+            <span id="sidebar-user-initials" class="font-serif font-bold text-xs text-white"></span>
+          </div>
           <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-[#0A0A0A]" title="Sesión activa en línea"></span>
         </div>
         <div class="flex-1 min-w-0">
@@ -532,6 +535,204 @@
                 <span>Guatemala & Sacatepéquez</span>
                 <span class="text-white font-bold">100% Exclusivo</span>
               </div>
+            </div>
+
+          </div>
+
+          <!-- ========================================================
+               SUITE DE PRODUCTIVIDAD Y GESTIÓN DIARIA (DARK LUXURY)
+               ======================================================== -->
+          <div id="dash-productivity-workspace" class="space-y-6">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-neutral-800">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-white">
+                  <i class="fa-solid fa-compass text-base"></i>
+                </div>
+                <div>
+                  <h2 class="font-serif text-xl sm:text-2xl font-bold text-white tracking-tight">Centro de Productividad & Agenda</h2>
+                  <p class="text-xs text-neutral-400">Herramientas ejecutivas para seguimiento comercial, metas de venta y tareas del día.</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-mono text-neutral-400 px-3 py-1 rounded-xl bg-neutral-900 border border-neutral-800">
+                  <i class="fa-solid fa-user-tie mr-1 text-white"></i><span id="prod-user-name">Asesor</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Fila 1: Metas de Venta + Leads Recientes -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
+              <!-- WIDGET 1: Metas y Progreso (Gamificación Comercial) - 7 cols -->
+              <div class="lg:col-span-7 bg-[#141414] rounded-3xl p-6 border border-[#262626] shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-white text-sm">
+                        <i class="fa-solid fa-bullseye"></i>
+                      </div>
+                      <div>
+                        <h3 class="font-serif text-base font-bold text-white">Meta Comercial del Mes</h3>
+                        <p class="text-xs text-neutral-400">Progreso acumulado de ventas cerradas (SOLD).</p>
+                      </div>
+                    </div>
+                    <button type="button" onclick="abrirModalAjustarMeta()" class="px-3 py-1.5 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-800 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer">
+                      <i class="fa-solid fa-sliders text-[11px]"></i>
+                      <span>Ajustar Meta</span>
+                    </button>
+                  </div>
+
+                  <!-- Métricas de la Meta -->
+                  <div class="grid grid-cols-3 gap-3 my-5 p-4 rounded-2xl bg-[#0D0D0D] border border-neutral-900">
+                    <div>
+                      <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Objetivo</span>
+                      <span id="prod-meta-target" class="font-serif font-black text-white text-base sm:text-lg block mt-0.5">$1,000,000 USD</span>
+                    </div>
+                    <div>
+                      <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Vendido</span>
+                      <span id="prod-meta-vendido" class="font-serif font-black text-white text-base sm:text-lg block mt-0.5">$0 USD</span>
+                    </div>
+                    <div>
+                      <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Avance</span>
+                      <span id="prod-meta-pct" class="font-mono font-bold text-white text-base sm:text-lg block mt-0.5">0%</span>
+                    </div>
+                  </div>
+
+                  <!-- Barra de Progreso Minimalista Dark Luxury -->
+                  <div class="space-y-2 mb-4">
+                    <div class="flex items-center justify-between text-xs">
+                      <span class="text-neutral-400 font-medium">Cumplimiento del periodo</span>
+                      <span id="prod-meta-count" class="font-mono text-neutral-300">0 operaciones cerradas</span>
+                    </div>
+                    <div class="h-3 w-full bg-neutral-900 rounded-full overflow-hidden border border-neutral-800 p-0.5 shadow-inner">
+                      <div id="prod-meta-bar" class="h-full bg-white rounded-full transition-all duration-700" style="width: 0%;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Mensaje de Estado Comercial (Sin emojis, tono formal corporativo) -->
+                <div class="pt-3 border-t border-neutral-900 flex items-center justify-between text-xs">
+                  <p id="prod-meta-msg" class="text-neutral-400 font-medium">Registra el cierre de tus propiedades asignadas para aumentar tu volumen comercial.</p>
+                  <span id="prod-meta-restante" class="text-neutral-500 font-mono text-[11px] shrink-0 ml-2">--</span>
+                </div>
+              </div>
+
+              <!-- WIDGET 2: Leads y Contactos VIP Recientes - 5 cols -->
+              <div class="lg:col-span-5 bg-[#141414] rounded-3xl p-6 border border-[#262626] shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-white text-sm">
+                        <i class="fa-solid fa-address-book"></i>
+                      </div>
+                      <div>
+                        <h3 class="font-serif text-base font-bold text-white">Leads y Contactos VIP</h3>
+                        <p class="text-xs text-neutral-400">Prospectos recientes con acceso directo a WhatsApp.</p>
+                      </div>
+                    </div>
+                    <button type="button" onclick="abrirModalNuevoLead()" class="px-2.5 py-1.5 bg-white hover:bg-neutral-200 text-black rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-xs cursor-pointer">
+                      <i class="fa-solid fa-plus text-[10px]"></i>
+                      <span>Nuevo</span>
+                    </button>
+                  </div>
+
+                  <!-- Lista de Leads -->
+                  <div id="prod-leads-lista" class="space-y-2.5 my-2">
+                    <!-- Inyectado dinámicamente -->
+                  </div>
+                </div>
+
+                <div class="pt-3 border-t border-neutral-900 flex items-center justify-between text-[11px] text-neutral-500">
+                  <span>Contactos sincronizados localmente</span>
+                  <span class="font-mono text-neutral-400"><i class="fa-brands fa-whatsapp text-white mr-1"></i>Directo</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Fila 2: Gestor de Tareas & Bloc de Notas -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
+              <!-- WIDGET 3: Gestor de Tareas y Agenda - 7 cols -->
+              <div class="lg:col-span-7 bg-[#141414] rounded-3xl p-6 border border-[#262626] shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-white text-sm">
+                        <i class="fa-solid fa-list-check"></i>
+                      </div>
+                      <div>
+                        <h3 class="font-serif text-base font-bold text-white">Agenda & Tareas Clave</h3>
+                        <p class="text-xs text-neutral-400">Checklist interactivo de visitas, llamadas y cierres.</p>
+                      </div>
+                    </div>
+                    <span id="prod-tasks-counter" class="text-[11px] font-mono text-neutral-400 px-2.5 py-1 rounded-lg bg-neutral-900 border border-neutral-800">
+                      0 pendientes
+                    </span>
+                  </div>
+
+                  <!-- Formulario Rápido de Tarea -->
+                  <form onsubmit="agregarTareaProd(event)" class="flex items-center gap-2 mb-4">
+                    <input 
+                      type="text" 
+                      id="prod-task-input" 
+                      placeholder="Nueva tarea (ej. Confirmar visita a Penthouse Zona 15 a las 4:00 PM)..." 
+                      class="flex-1 px-3.5 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-xs text-white placeholder-neutral-500 outline-none"
+                    >
+                    <button type="submit" class="px-4 py-2.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl transition-all shadow-xs shrink-0 cursor-pointer">
+                      Agregar
+                    </button>
+                  </form>
+
+                  <!-- Lista interactiva de tareas -->
+                  <div id="prod-tasks-lista" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                    <!-- Inyectado dinámicamente -->
+                  </div>
+                </div>
+
+                <div class="pt-3 border-t border-neutral-900 flex items-center justify-between text-[11px] text-neutral-500 mt-4">
+                  <span>Marca tareas para mantener al día tus compromisos comerciales.</span>
+                  <button type="button" onclick="limpiarTareasCompletadas()" class="hover:text-white transition-colors underline cursor-pointer">Limpiar terminadas</button>
+                </div>
+              </div>
+
+              <!-- WIDGET 4: Bloc de Notas Privado con Auto-Guardado - 5 cols -->
+              <div class="lg:col-span-5 bg-[#141414] rounded-3xl p-6 border border-[#262626] shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-white text-sm">
+                        <i class="fa-solid fa-note-sticky"></i>
+                      </div>
+                      <div>
+                        <h3 class="font-serif text-base font-bold text-white">Bloc de Notas Privado</h3>
+                        <p class="text-xs text-neutral-400">Apuntes, claves de lockboxes y requerimientos.</p>
+                      </div>
+                    </div>
+                    <span id="prod-notes-status" class="text-[10px] font-mono text-neutral-500">
+                      Sincronizado
+                    </span>
+                  </div>
+
+                  <!-- Textarea estilizada -->
+                  <div class="relative">
+                    <textarea 
+                      id="prod-notes-textarea" 
+                      rows="6" 
+                      oninput="onNotesInput(this.value)" 
+                      placeholder="Escribe tus apuntes confidenciales aquí (requerimientos específicos de inversionistas, códigos de llaves, observaciones)... Se guardan automáticamente mientras escribes." 
+                      class="w-full p-3.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-2xl text-xs text-neutral-200 placeholder-neutral-600 outline-none resize-none font-sans leading-relaxed"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div class="pt-3 border-t border-neutral-900 flex items-center justify-between text-[11px] text-neutral-500 mt-2">
+                  <span><i class="fa-solid fa-lock text-[10px] mr-1 text-neutral-400"></i>Pizarra privada por asesor</span>
+                  <span class="font-mono text-[10px]">Autoguardado</span>
+                </div>
+              </div>
+
             </div>
 
           </div>
@@ -1426,8 +1627,21 @@
         </div>
 
         <div>
-          <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Teléfono WhatsApp (Con código de país 502) *</label>
-          <input type="text" id="nuevo-asesor-tel" required placeholder="Ej. 50255554444" class="w-full p-2.5 text-sm rounded-xl border border-neutral-700 bg-neutral-900 text-white focus:border-white outline-none">
+          <label class="block text-xs font-bold uppercase text-neutral-300 mb-1">Teléfono WhatsApp *</label>
+          <div class="grid grid-cols-12 gap-2">
+            <select id="nuevo-asesor-pais" class="col-span-5 p-2.5 text-xs rounded-xl border border-neutral-700 bg-neutral-900 text-white focus:border-white outline-none cursor-pointer">
+              <option value="502" selected>Guatemala (+502)</option>
+              <option value="1">EE.UU. (+1)</option>
+              <option value="52">México (+52)</option>
+              <option value="503">El Salvador (+503)</option>
+              <option value="504">Honduras (+504)</option>
+              <option value="506">Costa Rica (+506)</option>
+              <option value="507">Panamá (+507)</option>
+              <option value="57">Colombia (+57)</option>
+              <option value="34">España (+34)</option>
+            </select>
+            <input type="tel" id="nuevo-asesor-tel" required placeholder="8 dígitos (ej. 55554444)" maxlength="15" class="col-span-7 p-2.5 text-sm rounded-xl border border-neutral-700 bg-neutral-900 text-white focus:border-white outline-none font-mono">
+          </div>
         </div>
 
         <div>
@@ -1686,14 +1900,15 @@
         <!-- Email y Puesto -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
-              Correo Corporativo (Fijo)
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5 flex items-center justify-between">
+              <span>Correo Corporativo</span>
+              <span class="text-[10px] text-neutral-400 font-mono"><i class="fa-solid fa-lock text-xs"></i> Requiere Clave Actual</span>
             </label>
             <input 
               type="email" 
               id="perfil-email" 
-              disabled 
-              class="w-full px-3.5 py-2.5 bg-[#0E0E0E] border border-[#222222] rounded-xl text-sm text-neutral-400 outline-none cursor-not-allowed font-mono"
+              required 
+              class="w-full px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none font-mono"
             >
           </div>
 
@@ -1714,21 +1929,30 @@
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5 flex items-center justify-between">
             <span>Número de WhatsApp para Clientes</span>
-            <span class="text-[10px] text-emerald-400 font-mono"><i class="fa-brands fa-whatsapp"></i> Botón Web Directo</span>
+            <span class="text-[10px] text-neutral-400 font-mono"><i class="fa-brands fa-whatsapp text-white"></i> Leads Directos</span>
           </label>
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-500 font-mono text-xs">
-              +
-            </span>
+          <div class="grid grid-cols-12 gap-2">
+            <select id="perfil-pais" class="col-span-5 px-3 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-xs text-white outline-none cursor-pointer">
+              <option value="502" selected>Guatemala (+502)</option>
+              <option value="1">Estados Unidos (+1)</option>
+              <option value="52">México (+52)</option>
+              <option value="503">El Salvador (+503)</option>
+              <option value="504">Honduras (+504)</option>
+              <option value="506">Costa Rica (+506)</option>
+              <option value="507">Panamá (+507)</option>
+              <option value="57">Colombia (+57)</option>
+              <option value="34">España (+34)</option>
+            </select>
             <input 
               type="tel" 
               id="perfil-tel" 
               required 
-              placeholder="50252945088" 
-              class="w-full pl-8 pr-4 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none font-mono"
+              placeholder="8 dígitos (ej: 52945088)" 
+              maxlength="15" 
+              class="col-span-7 px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none font-mono"
             >
           </div>
-          <p class="text-[10px] text-neutral-500 mt-1">Formato internacional sin espacios ni símbolos (ej: 50252945088). Este número recibe los leads de WhatsApp de tus propiedades en el sitio web.</p>
+          <p class="text-[10px] text-neutral-500 mt-1">Prefijo de país y 8 dígitos. Este número recibe los leads de WhatsApp de tus propiedades en el sitio web.</p>
         </div>
 
         <!-- Sección Cambio de Contraseña -->
@@ -1822,7 +2046,20 @@
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">WhatsApp / Teléfono</label>
-            <input type="tel" id="nuevo-user-tel" required placeholder="50255556666" class="w-full px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none font-mono">
+            <div class="grid grid-cols-12 gap-2">
+              <select id="nuevo-user-pais" class="col-span-5 px-2.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-xs text-white outline-none cursor-pointer">
+                <option value="502" selected>Guatemala (+502)</option>
+                <option value="1">EE.UU. (+1)</option>
+                <option value="52">México (+52)</option>
+                <option value="503">El Salvador (+503)</option>
+                <option value="504">Honduras (+504)</option>
+                <option value="506">Costa Rica (+506)</option>
+                <option value="507">Panamá (+507)</option>
+                <option value="57">Colombia (+57)</option>
+                <option value="34">España (+34)</option>
+              </select>
+              <input type="tel" id="nuevo-user-tel" required placeholder="8 dígitos (ej: 55556666)" maxlength="15" class="col-span-7 px-3 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none font-mono">
+            </div>
           </div>
         </div>
 
@@ -1931,6 +2168,123 @@
   <!-- ========================================================
        MODAL: CONFIRMAR CIERRE DE SESIÓN VIP (DARK LUXURY)
        ======================================================== -->
+  <!-- Modal Ajustar Meta Comercial -->
+  <div id="modal-ajustar-meta" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#141414] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-neutral-800 text-white relative">
+      <div class="flex items-center justify-between pb-4 border-b border-neutral-800 mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-neutral-900 text-white border border-neutral-800 flex items-center justify-center text-sm font-bold">
+            <i class="fa-solid fa-bullseye"></i>
+          </div>
+          <div>
+            <h3 class="font-serif text-lg font-bold text-white">Ajustar Meta Comercial</h3>
+            <p class="text-xs text-neutral-400">Define tu objetivo de ventas mensual en dólares USD.</p>
+          </div>
+        </div>
+        <button type="button" onclick="cerrarModalAjustarMeta()" class="text-neutral-400 hover:text-white p-2">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="guardarAjusteMeta(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Meta Mensual (USD)</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-500 font-mono text-xs">$</span>
+            <input 
+              type="number" 
+              id="input-ajuste-meta" 
+              required 
+              min="10000" 
+              step="50000" 
+              placeholder="1000000" 
+              class="w-full pl-8 pr-4 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none font-mono"
+            >
+          </div>
+          <p class="text-[10px] text-neutral-500 mt-1">Ingresa el monto objetivo en USD (ejemplo: 1000000 para $1.0M).</p>
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-neutral-800">
+          <button type="button" onclick="cerrarModalAjustarMeta()" class="px-4 py-2 text-xs font-bold text-neutral-400 hover:text-white rounded-xl">Cancelar</button>
+          <button type="submit" class="px-5 py-2.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl shadow-md">Guardar Objetivo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Nuevo Lead / Contacto VIP -->
+  <div id="modal-nuevo-lead" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#141414] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-neutral-800 text-white relative">
+      <div class="flex items-center justify-between pb-4 border-b border-neutral-800 mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-neutral-900 text-white border border-neutral-800 flex items-center justify-center text-sm font-bold">
+            <i class="fa-solid fa-address-book"></i>
+          </div>
+          <div>
+            <h3 class="font-serif text-lg font-bold text-white">Nuevo Prospecto VIP</h3>
+            <p class="text-xs text-neutral-400">Registra un lead interesado en propiedades.</p>
+          </div>
+        </div>
+        <button type="button" onclick="cerrarModalNuevoLead()" class="text-neutral-400 hover:text-white p-2">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="guardarNuevoLead(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Nombre del Prospecto *</label>
+          <input 
+            type="text" 
+            id="input-lead-nombre" 
+            required 
+            placeholder="Ej: Lic. Fernando Castillo" 
+            class="w-full px-3.5 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none"
+          >
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Propiedad de Interés</label>
+          <input 
+            type="text" 
+            id="input-lead-propiedad" 
+            placeholder="Ej: Penthouse Zona 15 o Mansión Cayalá" 
+            class="w-full px-3.5 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none"
+          >
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">WhatsApp / Teléfono *</label>
+          <div class="grid grid-cols-12 gap-2">
+            <select id="input-lead-pais" class="col-span-5 px-3 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-xs text-white outline-none cursor-pointer">
+              <option value="502" selected>Guatemala (+502)</option>
+              <option value="1">EE.UU. (+1)</option>
+              <option value="52">México (+52)</option>
+              <option value="503">El Salvador (+503)</option>
+              <option value="504">Honduras (+504)</option>
+              <option value="506">Costa Rica (+506)</option>
+              <option value="507">Panamá (+507)</option>
+              <option value="57">Colombia (+57)</option>
+              <option value="34">España (+34)</option>
+            </select>
+            <input 
+              type="tel" 
+              id="input-lead-tel" 
+              required 
+              placeholder="8 dígitos (ej: 52945088)" 
+              maxlength="15" 
+              class="col-span-7 px-3.5 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none font-mono"
+            >
+          </div>
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-neutral-800">
+          <button type="button" onclick="cerrarModalNuevoLead()" class="px-4 py-2 text-xs font-bold text-neutral-400 hover:text-white rounded-xl">Cancelar</button>
+          <button type="submit" class="px-5 py-2.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl shadow-md">Guardar Lead</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div id="modal-confirmar-logout" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-[#141414] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-neutral-800 text-white transform transition-all">
       <div class="w-14 h-14 rounded-2xl bg-red-950/60 border border-red-500/40 text-red-400 flex items-center justify-center text-2xl mb-4 mx-auto">
@@ -2056,11 +2410,32 @@
 
     // Función para sincronizar asesores desde localStorage (locales y eliminados)
     function cargarAsesoresDesdeStorage() {
+      // 1. Cargar asesores locales
       try {
         const localesAsesores = JSON.parse(localStorage.getItem('santander_asesores_locales') || '{}');
         Object.assign(asesores, localesAsesores);
       } catch (e) { console.warn(e); }
 
+      // 2. Sincronizar usuarios de la plataforma RBAC: Si están activos se muestran, si están suspendidos se eliminan
+      try {
+        const rbacUsers = JSON.parse(localStorage.getItem('santander_rbac_users') || '[]');
+        rbacUsers.forEach(u => {
+          if (u.estado === 'activo') {
+            asesores[u.id] = {
+              id: u.id,
+              nombre: u.nombre,
+              puesto: u.puesto || 'Consultor Inmobiliario VIP',
+              tel: u.tel || '50252945088',
+              avatar: u.avatar || '',
+              email: u.email
+            };
+          } else if (u.estado === 'suspendido' || u.estado === 'eliminado') {
+            delete asesores[u.id]; // Si está suspendido NO aparece en el directorio de asesores
+          }
+        });
+      } catch (e) { console.warn(e); }
+
+      // 3. Filtrar asesores eliminados
       try {
         const eliminadosAsesores = JSON.parse(localStorage.getItem('santander_asesores_eliminados') || '[]');
         if (Array.isArray(eliminadosAsesores)) {
@@ -2435,6 +2810,9 @@
       renderizarInventario();
       renderizarAsesores();
       actualizarBadges();
+      if (typeof renderizarProductividadWorkspace === 'function') {
+        renderizarProductividadWorkspace();
+      }
     }
 
     function actualizarBadges() {
@@ -3098,7 +3476,9 @@
               <div class="flex items-start justify-between gap-3 mb-4">
                 <div class="flex items-center gap-4 min-w-0">
                   <div class="relative shrink-0">
-                    <img src="${a.avatar}" alt="${a.nombre}" class="w-16 h-16 rounded-2xl object-cover ring-2 ring-white/20">
+                    ${a.avatar && a.avatar.trim() && !a.avatar.includes('photo-1535713875002-d1d0cf377fde') 
+                    ? `<img src="${a.avatar}" alt="${a.nombre}" class="w-16 h-16 rounded-2xl object-cover ring-2 ring-white/20">`
+                    : `<div class="w-16 h-16 rounded-2xl bg-neutral-900 border border-neutral-700 flex items-center justify-center font-serif font-bold text-white text-lg shrink-0 tracking-wider">${(a.nombre || 'A').split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase()}</div>`}
                     <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-[#141414]" title="Asesor Activo"></span>
                   </div>
                   <div class="min-w-0">
@@ -3498,14 +3878,16 @@
     function guardarNuevoAsesor() {
       const nombre = document.getElementById('nuevo-asesor-nombre').value.trim();
       const puesto = document.getElementById('nuevo-asesor-puesto').value.trim();
-      const tel = document.getElementById('nuevo-asesor-tel').value.trim().replace(/[^0-9]/g, "");
+      const pais = document.getElementById('nuevo-asesor-pais') ? document.getElementById('nuevo-asesor-pais').value : '502';
+      const rawDigits = document.getElementById('nuevo-asesor-tel').value.trim().replace(/[^0-9]/g, "");
+      const tel = pais + rawDigits;
       const email = document.getElementById('nuevo-asesor-email').value.trim();
       const fotoUrl = document.getElementById('nuevo-asesor-foto-url')?.value.trim();
 
       if (!nombre || !puesto || !tel) return;
 
       const key = nombre.toLowerCase().replace(/[^a-z0-9]/g, '');
-      const avatar = fotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=181818&color=fff&rounded=true`;
+      const avatar = fotoUrl || '';
 
       asesores[key] = {
         nombre,
@@ -3605,6 +3987,18 @@
           localStorage.setItem('santander_asesores_locales', JSON.stringify(localesAsesores));
         }
       } catch(e) { console.error(e); }
+
+      // Remover o marcar eliminado en santander_rbac_users
+      try {
+        let rbacUsers = JSON.parse(localStorage.getItem('santander_rbac_users') || '[]');
+        rbacUsers = rbacUsers.filter(u => u.id !== key);
+        localStorage.setItem('santander_rbac_users', JSON.stringify(rbacUsers));
+      } catch(e) {}
+      
+      // Notificar a otras pestañas
+      try {
+        localStorage.setItem('santander_asesor_deleted', JSON.stringify({ key, timestamp: Date.now() }));
+      } catch(e) {}
 
       // 3. Registrar en santander_asesores_eliminados para persistencia
       try {
@@ -4012,7 +4406,20 @@
       const puestoEl = document.getElementById('sidebar-user-puesto');
       const badgeEl = document.getElementById('sidebar-user-badge');
 
-      if (avatarEl) avatarEl.src = currentUser.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80';
+      const tieneFoto = currentUser.avatar && currentUser.avatar.trim() && !currentUser.avatar.includes('photo-1535713875002-d1d0cf377fde');
+      const inits = (currentUser.nombre || 'U').split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      const initsEl = document.getElementById('sidebar-user-initials');
+      if (tieneFoto && avatarEl) {
+        avatarEl.src = currentUser.avatar;
+        avatarEl.classList.remove('hidden');
+        if (initsEl) initsEl.classList.add('hidden');
+      } else {
+        if (avatarEl) avatarEl.classList.add('hidden');
+        if (initsEl) {
+          initsEl.textContent = inits;
+          initsEl.classList.remove('hidden');
+        }
+      }
       if (nameEl) nameEl.textContent = currentUser.nombre;
       if (puestoEl) puestoEl.textContent = currentUser.puesto;
       if (badgeEl) {
@@ -4175,7 +4582,23 @@
       document.getElementById('perfil-nombre').value = currentUser.nombre || '';
       document.getElementById('perfil-email').value = currentUser.email || '';
       document.getElementById('perfil-puesto').value = currentUser.puesto || '';
-      document.getElementById('perfil-tel').value = currentUser.tel || '';
+      const rawTel = (currentUser.tel || '').replace(/\D/g, '');
+      const paisSelect = document.getElementById('perfil-pais');
+      const telInput = document.getElementById('perfil-tel');
+      if (paisSelect && telInput) {
+        let prefixFound = '502';
+        const prefixes = ['502', '503', '504', '506', '507', '52', '57', '34', '1'];
+        for (const pfx of prefixes) {
+          if (rawTel.startsWith(pfx) && rawTel.length > pfx.length) {
+            prefixFound = pfx;
+            break;
+          }
+        }
+        paisSelect.value = prefixFound;
+        telInput.value = rawTel.startsWith(prefixFound) ? rawTel.slice(prefixFound.length) : rawTel;
+      } else if (telInput) {
+        telInput.value = rawTel;
+      }
       document.getElementById('perfil-pass-actual').value = '';
       document.getElementById('perfil-pass-nueva').value = '';
       document.getElementById('perfil-pass-confirm').value = '';
@@ -4200,21 +4623,28 @@
 
       try {
         const nombre = document.getElementById('perfil-nombre').value.trim();
+        const email = document.getElementById('perfil-email').value.trim();
         const puesto = document.getElementById('perfil-puesto').value.trim();
-        const tel = document.getElementById('perfil-tel').value.trim();
+        const pais = document.getElementById('perfil-pais') ? document.getElementById('perfil-pais').value : '502';
+        const rawDigits = document.getElementById('perfil-tel').value.replace(/\D/g, '');
+        const tel = pais + rawDigits;
         const avatar = document.getElementById('perfil-avatar').value.trim();
 
         const passActual = document.getElementById('perfil-pass-actual').value;
         const passNueva = document.getElementById('perfil-pass-nueva').value;
         const passConfirm = document.getElementById('perfil-pass-confirm').value;
 
-        // 1. Actualizar perfil básico
-        await window.SantanderAuth.updateProfile(currentUser.id, { nombre, puesto, tel, avatar });
-
-        // 2. Si se solicitó cambio de contraseña
-        if (passNueva || passActual) {
+        // Validar si cambia de correo: requiere contraseña actual
+        if (email && currentUser.email && email.toLowerCase() !== currentUser.email.toLowerCase()) {
           if (!passActual) {
-            throw new Error('Debes ingresar tu contraseña actual para confirmar el cambio.');
+            throw new Error('Por seguridad, debes ingresar tu contraseña actual para autorizar el cambio de correo corporativo.');
+          }
+        }
+
+        // Validar si cambia de contraseña
+        if (passNueva) {
+          if (!passActual) {
+            throw new Error('Debes ingresar tu contraseña actual para confirmar el cambio de clave.');
           }
           if (passNueva !== passConfirm) {
             throw new Error('La nueva contraseña y su confirmación no coinciden.');
@@ -4222,12 +4652,23 @@
           if (passNueva.length < 6) {
             throw new Error('La nueva contraseña debe tener al menos 6 caracteres.');
           }
-          await window.SantanderAuth.changeOwnPassword(currentUser.id, passActual, passNueva);
         }
+
+        // Guardar actualización de perfil y credenciales
+        await window.SantanderAuth.updateProfile(currentUser.id, {
+          nombre,
+          email,
+          puesto,
+          tel,
+          avatar,
+          currentPassword: passActual,
+          newPassword: passNueva
+        });
 
         // Actualizar sesión y estado en pantalla
         currentUser = window.SantanderAuth.getCurrentUser();
         cargarAsesoresDesdeStorage();
+        actualizarBadgeUsuarioActivo();
         renderizarTodo();
         cerrarModalMiPerfil();
         lanzarToast('¡Perfil y credenciales actualizados con éxito!', 'success');
@@ -4268,7 +4709,9 @@
           <tr class="hover:bg-neutral-900/60 transition-colors">
             <td class="py-3 px-6">
               <div class="flex items-center gap-3">
-                <img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover ring-1 ring-white/20">
+                ${u.avatar && u.avatar.trim() && !u.avatar.includes('photo-1535713875002-d1d0cf377fde')
+                ? `<img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover ring-1 ring-white/20">`
+                : `<div class="w-10 h-10 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center font-bold text-xs text-white shrink-0">${(u.nombre || 'U').split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase()}</div>`}
                 <div>
                   <p class="font-bold text-white leading-tight">${u.nombre}</p>
                   <p class="text-xs text-neutral-400 font-mono">${u.email}</p>
@@ -4349,7 +4792,9 @@
       try {
         const nombre = document.getElementById('nuevo-user-nombre').value.trim();
         const email = document.getElementById('nuevo-user-email').value.trim();
-        const tel = document.getElementById('nuevo-user-tel').value.trim();
+        const pais = document.getElementById('nuevo-user-pais') ? document.getElementById('nuevo-user-pais').value : '502';
+        const rawDigits = document.getElementById('nuevo-user-tel').value.replace(/\D/g, '');
+        const tel = pais + rawDigits;
         const puesto = document.getElementById('nuevo-user-puesto').value.trim();
         const rol = document.getElementById('nuevo-user-rol').value;
         const avatar = document.getElementById('nuevo-user-avatar').value.trim();
@@ -4426,6 +4871,21 @@
 
       // Sincronización en tiempo real entre pestañas (Admin <-> Catálogo)
       window.addEventListener('storage', (e) => {
+        // Heartbeat de seguridad: si el usuario activo fue suspendido
+        if (e.key === 'santander_user_status_changed' && currentUser) {
+          try {
+            const data = JSON.parse(e.newValue || '{}');
+            if (data.userId === currentUser.id && data.estado === 'suspendido') {
+              window.SantanderAuth.logout('suspended');
+              window.location.replace('login.html?error=suspended');
+              return;
+            }
+          } catch(err) {}
+        }
+        if (e.key === 'santander_user_profile_updated') {
+          currentUser = window.SantanderAuth.getCurrentUser();
+          actualizarBadgeUsuarioActivo();
+        }
         if (e.key === 'santander_propiedades_locales' || e.key === 'santander_propiedades_eliminadas') {
           cargarPropiedadesDesdeGoogleSheets();
         }
@@ -4446,6 +4906,319 @@
         }
       });
     });
+
+    // ========================================================================
+    // SUITE DE PRODUCTIVIDAD Y GESTIÓN DIARIA (DARK LUXURY - SIN EMOJIS)
+    // ========================================================================
+    function getProdUserId() {
+      return currentUser ? currentUser.id : 'global';
+    }
+
+    // 1. METAS Y PROGRESO (GAMIFICACIÓN COMERCIAL)
+    function getMetaMensual() {
+      const uId = getProdUserId();
+      const val = localStorage.getItem('santander_goal_' + uId);
+      return val ? parseInt(val, 10) : 1000000;
+    }
+
+    function abrirModalAjustarMeta() {
+      const actual = getMetaMensual();
+      const input = document.getElementById('input-ajuste-meta');
+      if (input) input.value = actual;
+      document.getElementById('modal-ajustar-meta')?.classList.remove('hidden');
+    }
+
+    function cerrarModalAjustarMeta() {
+      document.getElementById('modal-ajustar-meta')?.classList.add('hidden');
+    }
+
+    function guardarAjusteMeta(e) {
+      e.preventDefault();
+      const input = document.getElementById('input-ajuste-meta');
+      if (!input) return;
+      const val = parseInt(input.value, 10);
+      if (isNaN(val) || val < 10000) {
+        lanzarToast('Por favor ingresa un monto válido mayor a $10,000 USD', 'error');
+        return;
+      }
+      const uId = getProdUserId();
+      localStorage.setItem('santander_goal_' + uId, String(val));
+      cerrarModalAjustarMeta();
+      renderizarProductividadWorkspace();
+      lanzarToast('Meta comercial mensual actualizada a ' + String.fromCharCode(36) + val.toLocaleString('en-US') + ' USD', 'success');
+    }
+
+    function renderizarMeta() {
+      const uId = getProdUserId();
+      const meta = getMetaMensual();
+      const esAdmin = currentUser && currentUser.rol === 'admin';
+
+      const misPropiedades = propiedades.filter(p => esAdmin || p.id_asesor === uId);
+      const vendidas = misPropiedades.filter(p => p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid'));
+
+      let totalVendidoUSD = 0;
+      vendidas.forEach(p => {
+        const num = parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0;
+        if (num >= 10000) totalVendidoUSD += num;
+      });
+
+      const pct = Math.min(100, Math.round((totalVendidoUSD / meta) * 100));
+      const restante = Math.max(0, meta - totalVendidoUSD);
+
+      const elemTarget = document.getElementById('prod-meta-target');
+      const elemVendido = document.getElementById('prod-meta-vendido');
+      const elemPct = document.getElementById('prod-meta-pct');
+      const elemBar = document.getElementById('prod-meta-bar');
+      const elemCount = document.getElementById('prod-meta-count');
+      const elemMsg = document.getElementById('prod-meta-msg');
+      const elemRestante = document.getElementById('prod-meta-restante');
+
+      if (elemTarget) elemTarget.textContent = String.fromCharCode(36) + meta.toLocaleString('en-US') + ' USD';
+      if (elemVendido) elemVendido.textContent = String.fromCharCode(36) + totalVendidoUSD.toLocaleString('en-US') + ' USD';
+      if (elemPct) elemPct.textContent = pct + '%';
+      if (elemBar) elemBar.style.width = pct + '%';
+      if (elemCount) {
+        elemCount.textContent = vendidas.length + (vendidas.length === 1 ? ' operación cerrada' : ' operaciones cerradas');
+      }
+      if (elemRestante) {
+        elemRestante.textContent = restante === 0 ? 'Meta cumplida' : String.fromCharCode(36) + restante.toLocaleString('en-US') + ' USD restantes';
+      }
+
+      if (elemMsg) {
+        if (pct >= 100) {
+          elemMsg.textContent = 'Objetivo comercial mensual alcanzado con éxito. Excelente desempeño en cartera.';
+        } else if (pct >= 75) {
+          elemMsg.textContent = 'A poca distancia de la meta: mantén el seguimiento activo de negociaciones en cierre.';
+        } else if (pct >= 40) {
+          elemMsg.textContent = 'Ritmo constante: continúa promoviendo las residencias asignadas para acelerar cierres.';
+        } else if (vendidas.length > 0) {
+          elemMsg.textContent = 'Primeros cierres registrados. Continúa con prospectos calificados para cumplir la meta.';
+        } else {
+          elemMsg.textContent = 'Registra el cierre de tus propiedades asignadas para aumentar tu volumen comercial.';
+        }
+      }
+    }
+
+    // 2. GESTOR DE TAREAS Y AGENDA
+    function getTareasUsuario() {
+      const uId = getProdUserId();
+      const raw = localStorage.getItem('santander_tasks_' + uId);
+      if (raw) {
+        try { return JSON.parse(raw); } catch (e) {}
+      }
+      const defaultTasks = [
+        { id: 't1', texto: 'Llamar a prospecto interesado en Penthouse Zona 15', completada: false, creada: Date.now() },
+        { id: 't2', texto: 'Confirmar visita guiada a Mansión en Cayalá a las 4:00 PM', completada: true, creada: Date.now() - 3600000 },
+        { id: 't3', texto: 'Enviar ficha técnica de inversión en Zona 14', completada: false, creada: Date.now() - 7200000 }
+      ];
+      localStorage.setItem('santander_tasks_' + uId, JSON.stringify(defaultTasks));
+      return defaultTasks;
+    }
+
+    function saveTareasUsuario(tareas) {
+      const uId = getProdUserId();
+      localStorage.setItem('santander_tasks_' + uId, JSON.stringify(tareas));
+      renderizarTareas();
+    }
+
+    function agregarTareaProd(e) {
+      e.preventDefault();
+      const input = document.getElementById('prod-task-input');
+      if (!input) return;
+      const texto = input.value.trim();
+      if (!texto) return;
+      const tareas = getTareasUsuario();
+      tareas.unshift({
+        id: 't_' + Date.now(),
+        texto,
+        completada: false,
+        creada: Date.now()
+      });
+      input.value = '';
+      saveTareasUsuario(tareas);
+    }
+
+    function toggleTarea(id) {
+      const tareas = getTareasUsuario();
+      const t = tareas.find(item => item.id === id);
+      if (t) {
+        t.completada = !t.completada;
+        saveTareasUsuario(tareas);
+      }
+    }
+
+    function eliminarTarea(id) {
+      let tareas = getTareasUsuario();
+      tareas = tareas.filter(item => item.id !== id);
+      saveTareasUsuario(tareas);
+    }
+
+    function limpiarTareasCompletadas() {
+      let tareas = getTareasUsuario();
+      tareas = tareas.filter(item => !item.completada);
+      saveTareasUsuario(tareas);
+      lanzarToast('Tareas completadas eliminadas.', 'info');
+    }
+
+    function renderizarTareas() {
+      const tareas = getTareasUsuario();
+      const container = document.getElementById('prod-tasks-lista');
+      const counter = document.getElementById('prod-tasks-counter');
+      if (!container) return;
+
+      const pendientes = tareas.filter(t => !t.completada).length;
+      if (counter) counter.textContent = pendientes + (pendientes === 1 ? ' pendiente' : ' pendientes');
+
+      if (tareas.length === 0) {
+        container.innerHTML = '<div class="py-6 text-center text-xs text-neutral-500">No tienes tareas pendientes. ¡Todo al día!</div>';
+        return;
+      }
+
+      container.innerHTML = tareas.map(t => {
+        return '<div class="flex items-center justify-between p-2.5 rounded-xl bg-[#0D0D0D] border border-neutral-900 group hover:border-neutral-800 transition-all">' +
+          '<div class="flex items-center gap-3 min-w-0 flex-1">' +
+            '<button type="button" onclick="toggleTarea(\'' + t.id + '\')" class="w-5 h-5 rounded-lg border ' + (t.completada ? 'bg-white border-white text-black' : 'border-neutral-700 bg-neutral-900 hover:border-white') + ' flex items-center justify-center shrink-0 cursor-pointer transition-colors">' +
+              (t.completada ? '<i class="fa-solid fa-check text-[10px]"></i>' : '') +
+            '</button>' +
+            '<span class="text-xs truncate ' + (t.completada ? 'line-through text-neutral-500' : 'text-neutral-200') + '">' +
+              t.texto +
+            '</span>' +
+          '</div>' +
+          '<button type="button" onclick="eliminarTarea(\'' + t.id + '\')" class="opacity-0 group-hover:opacity-100 p-1 text-neutral-500 hover:text-white rounded-lg transition-all ml-2 cursor-pointer">' +
+            '<i class="fa-solid fa-trash-can text-xs"></i>' +
+          '</button>' +
+        '</div>';
+      }).join('');
+    }
+
+    // 3. BLOC DE NOTAS CON AUTO-GUARDADO
+    let notesSaveTimeout = null;
+    function getNotasUsuario() {
+      const uId = getProdUserId();
+      return localStorage.getItem('santander_notes_' + uId) || '';
+    }
+
+    function onNotesInput(val) {
+      const status = document.getElementById('prod-notes-status');
+      if (status) status.textContent = 'Guardando...';
+      clearTimeout(notesSaveTimeout);
+      notesSaveTimeout = setTimeout(() => {
+        const uId = getProdUserId();
+        localStorage.setItem('santander_notes_' + uId, val);
+        if (status) status.textContent = 'Guardado localmente';
+      }, 400);
+    }
+
+    function renderizarNotas() {
+      const textarea = document.getElementById('prod-notes-textarea');
+      if (textarea) textarea.value = getNotasUsuario();
+    }
+
+    // 4. LEADS Y CONTACTOS RECIENTES
+    function getLeadsUsuario() {
+      const uId = getProdUserId();
+      const raw = localStorage.getItem('santander_leads_' + uId);
+      if (raw) {
+        try { return JSON.parse(raw); } catch (e) {}
+      }
+      const defaultLeads = [
+        { id: 'l1', nombre: 'Carlos Mendoza', propiedad: 'Penthouse Zona 15', tel: '50255551122' },
+        { id: 'l2', nombre: 'Ing. Rodrigo Castillo', propiedad: 'Mansión Cayalá', tel: '50255553344' },
+        { id: 'l3', nombre: 'Licda. Sofia Morales', propiedad: 'Loft Zona 10', tel: '50255557788' }
+      ];
+      localStorage.setItem('santander_leads_' + uId, JSON.stringify(defaultLeads));
+      return defaultLeads;
+    }
+
+    function abrirModalNuevoLead() {
+      document.getElementById('input-lead-nombre').value = '';
+      document.getElementById('input-lead-propiedad').value = '';
+      document.getElementById('input-lead-tel').value = '';
+      document.getElementById('modal-nuevo-lead')?.classList.remove('hidden');
+    }
+
+    function cerrarModalNuevoLead() {
+      document.getElementById('modal-nuevo-lead')?.classList.add('hidden');
+    }
+
+    function guardarNuevoLead(e) {
+      e.preventDefault();
+      const nombre = document.getElementById('input-lead-nombre').value.trim();
+      const propiedad = document.getElementById('input-lead-propiedad').value.trim();
+      const pais = document.getElementById('input-lead-pais') ? document.getElementById('input-lead-pais').value : '502';
+      const telDigits = document.getElementById('input-lead-tel').value.replace(/\D/g, '');
+      const tel = pais + telDigits;
+
+      if (!nombre || !telDigits) {
+        lanzarToast('Ingresa nombre y teléfono válidos.', 'error');
+        return;
+      }
+
+      const leads = getLeadsUsuario();
+      leads.unshift({
+        id: 'l_' + Date.now(),
+        nombre,
+        propiedad: propiedad || 'Interés general VIP',
+        tel
+      });
+
+      const uId = getProdUserId();
+      localStorage.setItem('santander_leads_' + uId, JSON.stringify(leads.slice(0, 10)));
+      cerrarModalNuevoLead();
+      renderizarLeads();
+      lanzarToast('Contacto ' + nombre + ' registrado con éxito.', 'success');
+    }
+
+    function eliminarLead(id) {
+      let leads = getLeadsUsuario();
+      leads = leads.filter(l => l.id !== id);
+      const uId = getProdUserId();
+      localStorage.setItem('santander_leads_' + uId, JSON.stringify(leads));
+      renderizarLeads();
+    }
+
+    function renderizarLeads() {
+      const leads = getLeadsUsuario().slice(0, 3);
+      const container = document.getElementById('prod-leads-lista');
+      if (!container) return;
+
+      if (leads.length === 0) {
+        container.innerHTML = '<div class="py-6 text-center text-xs text-neutral-500">Sin prospectos registrados aún.</div>';
+        return;
+      }
+
+      container.innerHTML = leads.map(l => {
+        const waMsg = encodeURIComponent('Hola ' + l.nombre + ', le saludo de Santander Real Estate respecto a su interés en: ' + (l.propiedad || 'nuestro portafolio exclusivo') + '.');
+        const waUrl = 'https://wa.me/' + l.tel + '?text=' + waMsg;
+
+        return '<div class="p-3 rounded-2xl bg-[#0D0D0D] border border-neutral-900 flex items-center justify-between gap-3 group hover:border-neutral-800 transition-all">' +
+          '<div class="min-w-0 flex-1">' +
+            '<p class="text-xs font-bold text-white truncate">' + l.nombre + '</p>' +
+            '<p class="text-[11px] text-neutral-400 truncate mt-0.5"><i class="fa-solid fa-house-chimney text-[10px] mr-1 text-neutral-500"></i>' + l.propiedad + '</p>' +
+          '</div>' +
+          '<div class="flex items-center gap-1.5 shrink-0">' +
+            '<a href="' + waUrl + '" target="_blank" class="px-2.5 py-1.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-xs">' +
+              '<i class="fa-brands fa-whatsapp text-xs"></i>' +
+              '<span>Chat</span>' +
+            '</a>' +
+            '<button type="button" onclick="eliminarLead(\'' + l.id + '\')" class="opacity-0 group-hover:opacity-100 p-1.5 text-neutral-500 hover:text-white rounded-lg transition-all cursor-pointer">' +
+              '<i class="fa-solid fa-xmark text-xs"></i>' +
+            '</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function renderizarProductividadWorkspace() {
+      if (document.getElementById('prod-user-name') && currentUser) {
+        document.getElementById('prod-user-name').textContent = currentUser.nombre;
+      }
+      renderizarMeta();
+      renderizarTareas();
+      renderizarNotas();
+      renderizarLeads();
+    }
+  
   </script>
 </body>
 </html>

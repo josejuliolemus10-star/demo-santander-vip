@@ -293,6 +293,10 @@
         notice.className = 'mb-5 p-3.5 rounded-2xl text-xs flex items-start gap-3 bg-red-950/40 border border-red-800/50 text-red-300';
         icon.className = 'fa-solid fa-shield-halved text-sm mt-0.5 shrink-0 text-red-400';
         text.innerHTML = '<strong>Acceso Restringido:</strong> Debes iniciar sesión con una cuenta autorizada para acceder al panel de control.';
+      } else if (reason === 'suspended' || params.get('error') === 'suspended') {
+        notice.className = 'mb-5 p-3.5 rounded-2xl text-xs flex items-start gap-3 bg-red-950/40 border border-red-800/50 text-red-300';
+        icon.className = 'fa-solid fa-ban text-sm mt-0.5 shrink-0 text-red-400';
+        text.innerHTML = '<strong>Cuenta Suspendida:</strong> Tu acceso ha sido revocado por la dirección comercial de Santander VIP. Contacta al administrador.';
       } else if (reason === 'logout') {
         notice.className = 'mb-5 p-3.5 rounded-2xl text-xs flex items-start gap-3 bg-neutral-900 border border-neutral-700 text-neutral-300';
         icon.className = 'fa-solid fa-circle-check text-sm mt-0.5 shrink-0 text-emerald-400';

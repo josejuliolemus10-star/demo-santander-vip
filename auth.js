@@ -597,6 +597,15 @@
         return null;
       }
 
+      // Verificación de seguridad en tiempo real: cuenta suspendida
+      const users = getUsersStore();
+      const dbUser = users.find(u => u.id === session.user.id || (u.email && u.email.toLowerCase() === session.user.email.toLowerCase()));
+      if (dbUser && dbUser.estado === 'suspendido') {
+        this.logout('suspended');
+        window.location.replace('login.html?error=suspended');
+        return null;
+      }
+
       if (options.requiredRole && session.user.rol !== options.requiredRole) {
         console.warn(`Acceso denegado: se requiere rol ${options.requiredRole}`);
         if (options.redirectOnRoleFail) {
@@ -682,7 +691,7 @@
         email: cleanEmail,
         tel: (tel || '').trim() || '50200000000',
         puesto: (puesto || 'Asesor Inmobiliario VIP').trim(),
-        avatar: (avatar || '').trim() || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
+        avatar: (avatar || '').trim(), // Sin foto random por defecto, el sistema renderiza iniciales
         rol: rol === 'admin' ? 'admin' : 'asesor',
         estado: 'activo',
         salt,
@@ -694,10 +703,8 @@
       users.push(newUser);
       saveUsersStore(users);
 
-      // Si es asesor, registrarlo en santander_asesores_locales
-      if (newUser.rol === 'asesor') {
-        syncUserWithAsesoresLocales(newUser);
-      }
+      // Registrar usuario en santander_asesores_locales para el directorio oficial
+      syncUserWithAsesoresLocales(newUser);
 
       return newUser;
     },
@@ -717,6 +724,27 @@
 
       user.estado = user.estado === 'activo' ? 'suspendido' : 'activo';
       saveUsersStore(users);
+
+      // Sincronizar estado con asesores locales en tiempo real
+      try {
+        let locales = JSON.parse(storage.local.getItem(CONFIG.ASYNC_ASESORES_KEY) || '{}');
+        if (user.estado === 'suspendido') {
+          delete locales[user.id];
+        } else {
+          locales[user.id] = {
+            nombre: user.nombre,
+            tel: user.tel,
+            puesto: user.puesto,
+            avatar: user.avatar,
+            email: user.email
+          };
+        }
+        storage.local.setItem(CONFIG.ASYNC_ASESORES_KEY, JSON.stringify(locales));
+        storage.local.setItem('santander_user_status_changed', JSON.stringify({ userId, estado: user.estado, timestamp: Date.now() }));
+      } catch (e) {
+        console.warn('Error sincronizando suspensión con asesores:', e);
+      }
+
       return user;
     },
 
@@ -742,10 +770,27 @@
       return true;
     },
 
+    // Verificar si un correo ya está en uso por otro usuario
+    isEmailTaken(email, excludeUserId = null) {
+      const clean = (email || '').trim().toLowerCase();
+      const users = getUsersStore();
+      return users.some(u => u.id !== excludeUserId && u.email.toLowerCase() === clean);
+    },
+
+    // Verificar contraseña con PBKDF2
+    async verifyPassword(userId, password) {
+      if (!password) return false;
+      const users = getUsersStore();
+      const user = users.find(u => u.id === userId);
+      if (!user || !user.salt || !user.passwordHash) return false;
+      const hash = await hashPassword(password, user.salt);
+      return hash === user.passwordHash;
+    },
+
     // ========================================================================
     // MODAL "MI PERFIL" (Para Asesores y Administrador)
     // ========================================================================
-    async updateProfile(userId, { nombre, tel, puesto, avatar }) {
+    async updateProfile(userId, { nombre, email, tel, puesto, avatar, currentPassword, newPassword }) {
       const current = this.getCurrentUser();
       if (!current || (current.id !== userId && current.rol !== 'admin')) {
         throw new Error('Permiso denegado: no puedes editar este perfil.');
@@ -755,10 +800,43 @@
       const user = users.find(u => u.id === userId);
       if (!user) throw new Error('Usuario no encontrado.');
 
+      // Verificación estricta de seguridad: si se modifica el correo corporativo
+      if (email && email.trim().toLowerCase() !== user.email.toLowerCase()) {
+        const cleanEmail = email.trim().toLowerCase();
+        if (!currentPassword) {
+          throw new Error('Por seguridad, debes ingresar tu contraseña actual para autorizar el cambio de correo.');
+        }
+        const passOk = await this.verifyPassword(userId, currentPassword);
+        if (!passOk) {
+          throw new Error('Contraseña actual incorrecta. No se autorizó el cambio de correo.');
+        }
+        if (this.isEmailTaken(cleanEmail, userId)) {
+          throw new Error('El correo ' + cleanEmail + ' ya está registrado por otro usuario.');
+        }
+        user.email = cleanEmail;
+      }
+
+      // Verificación si se solicitó cambio de clave
+      if (newPassword && newPassword.trim()) {
+        if (!currentPassword) {
+          throw new Error('Debes ingresar tu contraseña actual para establecer una nueva clave.');
+        }
+        const passOk = await this.verifyPassword(userId, currentPassword);
+        if (!passOk) {
+          throw new Error('Contraseña actual incorrecta.');
+        }
+        if (newPassword.length < 6) {
+          throw new Error('La nueva contraseña debe tener al menos 6 caracteres.');
+        }
+        const newSalt = await generateSalt();
+        user.salt = newSalt;
+        user.passwordHash = await hashPassword(newPassword, newSalt);
+      }
+
       if (nombre) user.nombre = nombre.trim();
-      if (tel) user.tel = tel.trim();
+      if (tel !== undefined) user.tel = tel.trim();
       if (puesto) user.puesto = puesto.trim();
-      if (avatar) user.avatar = avatar.trim();
+      if (avatar !== undefined) user.avatar = avatar.trim();
 
       saveUsersStore(users);
 
@@ -767,6 +845,7 @@
         const session = getSession();
         if (session) {
           session.user.nombre = user.nombre;
+          session.user.email = user.email;
           session.user.tel = user.tel;
           session.user.puesto = user.puesto;
           session.user.avatar = user.avatar;
@@ -778,6 +857,11 @@
 
       // Sincronizar con catálogo de asesores
       syncUserWithAsesoresLocales(user);
+
+      // Notificar a otras pestañas
+      try {
+        localStorage.setItem('santander_user_profile_updated', JSON.stringify({ userId, timestamp: Date.now() }));
+      } catch (e) {}
 
       return user;
     },
