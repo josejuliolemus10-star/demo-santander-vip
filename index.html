@@ -124,13 +124,21 @@
   <nav class="fixed top-4 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
     <div class="pointer-events-auto w-full max-w-5xl bg-white/85 backdrop-blur-md rounded-2xl shadow-lg shadow-black/5 border border-white/60 px-5 sm:px-6 py-3 flex items-center justify-between transition-all duration-300">
       
-      <!-- Logo Oficial Santander Real Estate -->
-      <a href="#" class="flex items-center gap-2.5 sm:gap-3 group focus:outline-none shrink-0" aria-label="Santander Real Estate">
-        <img src="assets/logo-santander-horizontal.png" alt="Santander Real Estate" class="h-8 sm:h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]">
+      <!-- Logo Oficial Santander Real Estate (Casa arriba, letras debajo) -->
+      <a href="#" class="flex flex-col items-center group focus:outline-none shrink-0" aria-label="Santander Real Estate">
+        <img src="assets/logo-icon.png" alt="Santander Real Estate" class="h-6 sm:h-7 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+        <div class="flex flex-col items-center leading-none mt-1">
+          <span class="font-serif text-[8.5px] sm:text-[9.5px] font-bold tracking-[0.22em] text-[#1A1A1A] uppercase">
+            SANTANDER
+          </span>
+          <span class="text-[5.5px] sm:text-[6px] tracking-[0.28em] text-[#2A9D8F] font-semibold uppercase mt-0.5">
+            REAL ESTATE
+          </span>
+        </div>
       </a>
 
       <!-- Enlaces al Centro (Desktop) -->
-      <div class="hidden lg:flex items-center space-x-7 text-xs sm:text-sm font-medium text-gray-700">
+      <div class="hidden lg:flex items-center space-x-5 xl:space-x-7 text-xs sm:text-sm font-medium text-gray-700">
         <a href="#hero" class="hover:text-[#2A9D8F] transition-colors py-1">Inicio</a>
         <a href="#firma" class="hover:text-[#2A9D8F] transition-colors py-1">La Firma</a>
         <a href="#servicios" class="hover:text-[#2A9D8F] transition-colors py-1">Servicios</a>
