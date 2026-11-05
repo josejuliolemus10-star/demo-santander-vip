@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-[#0A0A0A]">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Santander Real Estate | Acceso Seguro al Portal VIP</title>
+  
+  <!-- Favicon Oficial Santander Real Estate -->
+  <link rel="icon" type="image/png" href="assets/logo-icon.png">
+  <link rel="apple-touch-icon" href="assets/logo-icon.png">
+
+  <!-- Google Fonts: Outfit, DM Sans & Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Pro Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
+            serif: ['Outfit', 'sans-serif'],
+            montserrat: ['Montserrat', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              black: '#0A0A0A',
+              card: '#141414',
+              surface: '#181818',
+              surfaceLight: '#222222',
+              border: '#2A2A2A',
+              borderLight: '#383838'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Módulo Criptográfico de Seguridad Santander Auth -->
+  <script src="auth.js"></script>
+
+  <style>
+    /* Estética Dark Luxury & Scrollbars */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0A0A0A; }
+    ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 9999px; }
+    .luxury-glow {
+      background: radial-gradient(circle at 50% 0%, rgba(42, 157, 143, 0.08) 0%, rgba(10, 10, 10, 0) 70%);
+    }
+  </style>
+
+  <script>
+    // Si ya existe sesión activa no expirada, redirigir directo al panel
+    if (window.SantanderAuth && window.SantanderAuth.isAuthenticated()) {
+      window.location.replace('admin.html');
+    }
+  </script>
+</head>
+<body class="min-h-full flex flex-col justify-center items-center p-4 sm:p-6 text-neutral-100 bg-[#0A0A0A] luxury-glow antialiased select-none">
+
+  <!-- Contenedor Principal Centrado -->
+  <div class="w-full max-w-md my-auto">
+    
+    <!-- Header de Marca & Logo -->
+    <div class="text-center mb-8">
+      <a href="index.html" class="inline-block transition-transform hover:scale-[1.02] focus:outline-none" title="Volver al sitio público">
+        <img src="assets/logo-santander-horizontal-white.png" alt="Santander Real Estate" class="h-11 sm:h-12 w-auto mx-auto object-contain">
+      </a>
+      <div class="mt-4 flex items-center justify-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">
+          <i class="fa-solid fa-shield-halved text-[9px]"></i> Sistema Seguro RBAC
+        </span>
+        <span class="text-[10px] text-neutral-500 font-mono">PBKDF2 Cifrado</span>
+      </div>
+    </div>
+
+    <!-- Tarjeta Dark Luxury de Autenticación -->
+    <div class="bg-[#141414] border border-[#262626] rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/80 backdrop-blur-xl">
+      
+      <div class="mb-6">
+        <h1 class="font-serif text-2xl font-bold text-white tracking-tight">Acceso al Panel VIP</h1>
+        <p class="text-xs text-neutral-400 mt-1">Ingresa tus credenciales autorizadas de Santander Real Estate.</p>
+      </div>
+
+      <!-- Alerta Dinámica de Estado (Logout, Inactividad, No Autorizado) -->
+      <div id="status-notice" class="hidden mb-5 p-3.5 rounded-2xl text-xs flex items-start gap-3">
+        <i id="status-notice-icon" class="fa-solid fa-circle-info text-sm mt-0.5 shrink-0"></i>
+        <div id="status-notice-text" class="leading-relaxed"></div>
+      </div>
+
+      <!-- Alerta de Bloqueo Anti-Fuerza Bruta (15 Minutos) -->
+      <div id="lockout-banner" class="hidden mb-5 p-4 rounded-2xl bg-red-950/50 border border-red-800/60 text-red-200 text-xs">
+        <div class="flex items-center gap-2 font-bold text-red-400 mb-1">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>ACCESO TEMPORALMENTE BLOQUEADO</span>
+        </div>
+        <p class="text-neutral-300 leading-relaxed mb-2">
+          Se han registrado 5 intentos fallidos consecutivos. Por protocolo de ciberseguridad, la interfaz permanecerá bloqueada por 15 minutos.
+        </p>
+        <div class="flex items-center justify-between pt-2 border-t border-red-900/50 text-[11px] font-mono">
+          <span class="text-neutral-400">Tiempo restante:</span>
+          <span id="lockout-timer" class="font-bold text-red-400 bg-red-900/40 px-2 py-0.5 rounded">15:00</span>
+        </div>
+      </div>
+
+      <!-- Alerta de Error de Validación -->
+      <div id="error-banner" class="hidden mb-5 p-3.5 rounded-2xl bg-red-950/40 border border-red-800/50 text-red-300 text-xs flex items-start gap-2.5">
+        <i class="fa-solid fa-circle-exclamation text-red-400 mt-0.5 shrink-0"></i>
+        <span id="error-text" class="leading-relaxed"></span>
+      </div>
+
+      <!-- Formulario de Login -->
+      <form id="login-form" onsubmit="ejecutarLogin(event)" class="space-y-4">
+        
+        <!-- Campo: Usuario / Correo -->
+        <div>
+          <label for="identifier" class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">
+            Usuario o Correo Corporativo
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-500">
+              <i class="fa-regular fa-envelope text-sm"></i>
+            </div>
+            <input 
+              type="text" 
+              id="identifier" 
+              name="identifier" 
+              required 
+              autocomplete="username"
+              placeholder="nombre@santandervip.gt o usuario"
+              class="w-full pl-10 pr-4 py-3 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white focus:ring-1 focus:ring-white rounded-xl text-sm text-white placeholder-neutral-500 transition-all outline-none"
+            >
+          </div>
+        </div>
+
+        <!-- Campo: Contraseña -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
+              Contraseña
+            </label>
+            <span class="text-[10px] text-neutral-500 font-mono">8+ caracteres</span>
+          </div>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-500">
+              <i class="fa-solid fa-lock text-sm"></i>
+            </div>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              required 
+              autocomplete="current-password"
+              placeholder="••••••••••••"
+              class="w-full pl-10 pr-11 py-3 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white focus:ring-1 focus:ring-white rounded-xl text-sm text-white placeholder-neutral-500 transition-all outline-none font-mono"
+            >
+            <button 
+              type="button" 
+              onclick="togglePasswordVisibility()" 
+              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-400 hover:text-white transition-colors"
+              title="Mostrar/Ocultar contraseña"
+            >
+              <i id="password-toggle-icon" class="fa-regular fa-eye text-sm"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Opciones: Recordarme -->
+        <div class="flex items-center justify-between pt-1">
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input 
+              type="checkbox" 
+              id="remember" 
+              class="w-4 h-4 rounded bg-[#1A1A1A] border-[#333333] text-emerald-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+            >
+            <span class="text-xs text-neutral-400">Mantener sesión en este equipo</span>
+          </label>
+          <span class="text-[11px] text-neutral-500">Auto-logout 2h</span>
+        </div>
+
+        <!-- Botón de Envío -->
+        <button 
+          type="submit" 
+          id="btn-submit"
+          class="w-full mt-2 py-3.5 px-4 bg-white hover:bg-neutral-200 text-black font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-white/5 disabled:opacity-50 disabled:cursor-not-allowed group"
+        >
+          <span id="btn-submit-text" class="flex items-center gap-2">
+            <i class="fa-solid fa-arrow-right-to-bracket text-xs transition-transform group-hover:translate-x-0.5"></i>
+            Ingresar al Portal VIP
+          </span>
+          <span id="btn-submit-spinner" class="hidden items-center gap-2 text-black font-bold">
+            <i class="fa-solid fa-circle-notch fa-spin text-sm"></i>
+            Verificando credenciales...
+          </span>
+        </button>
+
+      </form>
+
+      <!-- Selector Rápido de Credenciales Demo (Para Pruebas y Presentación) -->
+      <div class="mt-6 pt-5 border-t border-[#222222]">
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-500 flex items-center gap-1.5">
+            <i class="fa-solid fa-key text-[9px] text-emerald-400"></i> Accesos Demo para Pruebas
+          </span>
+          <span class="text-[9px] text-neutral-600 font-mono">1-Clic</span>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-2 text-left">
+          <!-- Botón Demo: Carmen Coloma (Admin) -->
+          <button 
+            type="button" 
+            onclick="llenarDemo('carmen.coloma@santandervip.gt', 'Admin@Santander2026!')" 
+            class="p-2.5 rounded-xl bg-[#1A1A1A] hover:bg-[#222222] border border-[#2B2B2B] hover:border-neutral-500 transition-all text-left group"
+          >
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors">Carmen (Admin)</span>
+              <span class="text-[9px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1 rounded font-bold">FULL</span>
+            </div>
+            <p class="text-[10px] text-neutral-500 truncate mt-0.5">Directora Comercial</p>
+          </button>
+
+          <!-- Botón Demo: Santiago Leoni (Asesor) -->
+          <button 
+            type="button" 
+            onclick="llenarDemo('santiago.leoni@santandervip.gt', 'Asesor@Santander2026!')" 
+            class="p-2.5 rounded-xl bg-[#1A1A1A] hover:bg-[#222222] border border-[#2B2B2B] hover:border-neutral-500 transition-all text-left group"
+          >
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors">Santiago (Asesor)</span>
+              <span class="text-[9px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1 rounded font-bold">ASIG</span>
+            </div>
+            <p class="text-[10px] text-neutral-500 truncate mt-0.5">Vista Aislada Propia</p>
+          </button>
+        </div>
+
+        <div class="mt-2 text-center">
+          <p class="text-[10px] text-neutral-500">
+            Contraseña inicial de asesores: <code class="text-neutral-400 bg-neutral-900 px-1 py-0.5 rounded font-mono">Asesor@Santander2026!</code>
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Enlace Volver a la Web Pública -->
+    <div class="text-center mt-6">
+      <a href="index.html" class="inline-flex items-center gap-2 text-xs text-neutral-400 hover:text-white transition-colors">
+        <i class="fa-solid fa-arrow-left text-[11px]"></i>
+        Volver a la Página Principal
+      </a>
+      <p class="text-[11px] text-neutral-600 mt-3 font-sans">
+        © 2026 Santander Real Estate • Todos los derechos reservados.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- Lógica de Interfaz y Anti-Brute Force -->
+  <script>
+    let lockoutInterval = null;
+
+    // Inicializar almacén y verificar estado
+    document.addEventListener('DOMContentLoaded', () => {
+      window.SantanderAuth.init();
+      revisarParametrosUrl();
+      revisarBloqueoAntiFuerzaBruta();
+    });
+
+    // Revisar avisos pasados por URL (?reason=inactivity, etc.)
+    function revisarParametrosUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const reason = params.get('reason');
+      const notice = document.getElementById('status-notice');
+      const icon = document.getElementById('status-notice-icon');
+      const text = document.getElementById('status-notice-text');
+
+      if (!reason) return;
+
+      notice.classList.remove('hidden');
+
+      if (reason === 'inactivity') {
+        notice.className = 'mb-5 p-3.5 rounded-2xl text-xs flex items-start gap-3 bg-amber-950/40 border border-amber-800/50 text-amber-300';
+        icon.className = 'fa-solid fa-hourglass-end text-sm mt-0.5 shrink-0 text-amber-400';
+        text.innerHTML = '<strong>Sesión cerrada por inactividad:</strong> Han transcurrido más de 2 horas sin actividad por protocolos de ciberseguridad. Por favor vuelve a ingresar.';
+      } else if (reason === 'unauthorized') {
+        notice.className = 'mb-5 p-3.5 rounded-2xl text-xs flex items-start gap-3 bg-red-950/40 border border-red-800/50 text-red-300';
+        icon.className = 'fa-solid fa-shield-halved text-sm mt-0.5 shrink-0 text-red-400';
+        text.innerHTML = '<strong>Acceso Restringido:</strong> Debes iniciar sesión con una cuenta autorizada para acceder al panel de control.';
+      } else if (reason === 'logout') {
+        notice.className = 'mb-5 p-3.5 rounded-2xl text-xs flex items-start gap-3 bg-neutral-900 border border-neutral-700 text-neutral-300';
+        icon.className = 'fa-solid fa-circle-check text-sm mt-0.5 shrink-0 text-emerald-400';
+        text.innerHTML = 'Has cerrado tu sesión de forma segura. Hasta pronto.';
+      }
+    }
+
+    // Toggle ver contraseña
+    function togglePasswordVisibility() {
+      const pwd = document.getElementById('password');
+      const icon = document.getElementById('password-toggle-icon');
+      if (pwd.type === 'password') {
+        pwd.type = 'text';
+        icon.className = 'fa-regular fa-eye-slash text-sm text-white';
+      } else {
+        pwd.type = 'password';
+        icon.className = 'fa-regular fa-eye text-sm text-neutral-400';
+      }
+    }
+
+    // Rellenar credenciales demo para pruebas rápidas
+    function llenarDemo(id, pass) {
+      document.getElementById('identifier').value = id;
+      document.getElementById('password').value = pass;
+      ocultarError();
+      const pwd = document.getElementById('password');
+      pwd.focus();
+    }
+
+    // Mostrar / Ocultar Mensaje de Error
+    function mostrarError(msg) {
+      const banner = document.getElementById('error-banner');
+      const text = document.getElementById('error-text');
+      text.textContent = msg;
+      banner.classList.remove('hidden');
+    }
+
+    function ocultarError() {
+      document.getElementById('error-banner').classList.add('hidden');
+    }
+
+    // Manejo de Bloqueo Anti-Fuerza Bruta
+    function revisarBloqueoAntiFuerzaBruta() {
+      const lockout = window.SantanderAuth.getLockoutStatus();
+      const banner = document.getElementById('lockout-banner');
+      const timerSpan = document.getElementById('lockout-timer');
+      const btnSubmit = document.getElementById('btn-submit');
+      const idInput = document.getElementById('identifier');
+      const pwdInput = document.getElementById('password');
+
+      if (lockout.isLocked) {
+        banner.classList.remove('hidden');
+        btnSubmit.disabled = true;
+        idInput.disabled = true;
+        pwdInput.disabled = true;
+
+        if (lockoutInterval) clearInterval(lockoutInterval);
+
+        function actualizarContador() {
+          const l = window.SantanderAuth.getLockoutStatus();
+          if (!l.isLocked) {
+            clearInterval(lockoutInterval);
+            banner.classList.add('hidden');
+            btnSubmit.disabled = false;
+            idInput.disabled = false;
+            pwdInput.disabled = false;
+            ocultarError();
+            return;
+          }
+          const totalSecs = Math.max(0, Math.ceil(l.remainingMs / 1000));
+          const mins = Math.floor(totalSecs / 60);
+          const secs = totalSecs % 60;
+          timerSpan.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        actualizarContador();
+        lockoutInterval = setInterval(actualizarContador, 1000);
+      } else {
+        banner.classList.add('hidden');
+        btnSubmit.disabled = false;
+        idInput.disabled = false;
+        pwdInput.disabled = false;
+      }
+    }
+
+    // Ejecutar Autenticación
+    async function ejecutarLogin(event) {
+      event.preventDefault();
+      ocultarError();
+
+      const id = document.getElementById('identifier').value.trim();
+      const pass = document.getElementById('password').value;
+      const remember = document.getElementById('remember').checked;
+
+      const btnSubmit = document.getElementById('btn-submit');
+      const btnText = document.getElementById('btn-submit-text');
+      const btnSpinner = document.getElementById('btn-submit-spinner');
+
+      // Estado visual cargando
+      btnSubmit.disabled = true;
+      btnText.classList.add('hidden');
+      btnSpinner.classList.remove('hidden');
+      btnSpinner.classList.add('flex');
+
+      try {
+        const result = await window.SantanderAuth.login(id, pass, remember);
+
+        if (result.success) {
+          btnSpinner.innerHTML = '<i class="fa-solid fa-check text-emerald-500"></i> Acceso autorizado. Redirigiendo...';
+          // Redirigir al panel CRM
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectTarget = urlParams.get('redirect') || (document.referrer.includes('panel.html') ? 'panel.html' : 'admin.html');
+          setTimeout(() => {
+            window.location.replace(redirectTarget);
+          }, 350);
+          return;
+        }
+
+        // Si falló
+        mostrarError(result.error || 'Credenciales no autorizadas.');
+        revisarBloqueoAntiFuerzaBruta();
+
+      } catch (err) {
+        console.error(err);
+        mostrarError('Error inesperado de comunicación criptográfica.');
+      } finally {
+        const lockout = window.SantanderAuth.getLockoutStatus();
+        if (!lockout.isLocked) {
+          btnSubmit.disabled = false;
+        }
+        btnText.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+        btnSpinner.classList.remove('flex');
+      }
+    }
+  </script>
+</body>
+</html>

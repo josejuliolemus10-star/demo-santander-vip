@@ -19,6 +19,32 @@
 
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Módulo Criptográfico de Seguridad Santander Auth -->
+  <script src="auth.js"></script>
+  <script>
+    // Route Guard Inmediato Anti-Flicker: Si no hay sesión válida o expiró por inactividad (>2h), redirigir a login.html
+    (function() {
+      try {
+        const raw = sessionStorage.getItem('santander_auth_session') || localStorage.getItem('santander_auth_session');
+        if (!raw) {
+          window.location.replace('login.html?reason=unauthorized&redirect=' + encodeURIComponent(window.location.pathname.split('/').pop() || 'admin.html'));
+          return;
+        }
+        const s = JSON.parse(raw);
+        const now = Date.now();
+        const twoHours = 2 * 60 * 60 * 1000;
+        if (!s || !s.user || (s.lastActivity && (now - s.lastActivity > twoHours))) {
+          sessionStorage.removeItem('santander_auth_session');
+          localStorage.removeItem('santander_auth_session');
+          window.location.replace('login.html?reason=inactivity&redirect=' + encodeURIComponent(window.location.pathname.split('/').pop() || 'admin.html'));
+          return;
+        }
+      } catch(e) {
+        window.location.replace('login.html?reason=unauthorized');
+      }
+    })();
+  </script>
+
   <!-- Chart.js para Gráficos Analíticos -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -106,14 +132,21 @@
           <span id="badge-sidebar-asesores" class="ml-auto text-[11px] bg-neutral-900 text-neutral-300 px-2 py-0.5 rounded-full font-bold border border-neutral-800">9 Asesores</span>
         </button>
 
-        <!-- 4. Google Sheet CSV -->
-        <button type="button" onclick="navegarA('sheets')" data-tab="sheets" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white hover:bg-neutral-900/80 transition-all text-left">
+        <!-- 4. Google Sheet CSV (Solo Admin Global) -->
+        <button id="nav-item-sheets" type="button" onclick="navegarA('sheets')" data-tab="sheets" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white hover:bg-neutral-900/80 transition-all text-left">
           <i class="fa-solid fa-table-list w-5 text-center text-neutral-400"></i>
           <span>Google Sheet CSV</span>
           <span class="ml-auto flex items-center gap-1.5 text-[11px] text-emerald-400 font-semibold bg-emerald-950/60 border border-emerald-800/50 px-2 py-0.5 rounded-full">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             Sync
           </span>
+        </button>
+
+        <!-- 5. Gestión de Usuarios y Roles RBAC (Solo Admin Global) -->
+        <button id="nav-item-usuarios" type="button" onclick="navegarA('usuarios')" data-tab="usuarios" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white hover:bg-neutral-900/80 transition-all text-left">
+          <i class="fa-solid fa-users-gear w-5 text-center text-neutral-400"></i>
+          <span>Usuarios & Roles</span>
+          <span class="ml-auto text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">RBAC</span>
         </button>
 
         <div class="pt-5 px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
@@ -135,15 +168,32 @@
       </nav>
     </div>
 
-    <!-- Perfil del Agente Activo -->
-    <div class="p-4 border-t border-[#222222] bg-[#0A0A0A]">
+    <!-- Perfil del Usuario Activo RBAC Dinámico -->
+    <div class="p-4 border-t border-[#222222] bg-[#0A0A0A] space-y-3">
       <div class="flex items-center gap-3">
-        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80" alt="Carmen Coloma" class="w-10 h-10 rounded-full object-cover ring-2 ring-white/20">
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-bold text-white truncate">Carmen Coloma</p>
-          <p class="text-[11px] text-neutral-400 truncate font-medium">Directora Comercial VIP</p>
+        <div class="relative shrink-0">
+          <img id="sidebar-user-avatar" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80" alt="Usuario Activo" class="w-10 h-10 rounded-full object-cover ring-2 ring-white/20">
+          <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-[#0A0A0A]" title="Sesión activa en línea"></span>
         </div>
-        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20" title="Sesión activa en línea"></span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5">
+            <p id="sidebar-user-name" class="text-sm font-bold text-white truncate">Carmen Coloma</p>
+            <span id="sidebar-user-badge" class="text-[9px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.2 rounded font-bold uppercase shrink-0">Admin</span>
+          </div>
+          <p id="sidebar-user-puesto" class="text-[11px] text-neutral-400 truncate font-medium">Directora Comercial VIP</p>
+        </div>
+      </div>
+
+      <!-- Acciones de Usuario: Mi Perfil y Cerrar Sesión -->
+      <div class="grid grid-cols-2 gap-2 pt-1">
+        <button type="button" onclick="abrirModalMiPerfil()" class="px-2.5 py-1.5 bg-[#1A1A1A] hover:bg-[#222222] border border-[#2E2E2E] hover:border-neutral-500 rounded-lg text-xs font-semibold text-neutral-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+          <i class="fa-regular fa-user text-neutral-400"></i>
+          <span>Mi Perfil</span>
+        </button>
+        <button type="button" onclick="ejecutarCerrarSesion()" class="px-2.5 py-1.5 bg-red-950/30 hover:bg-red-900/50 border border-red-900/40 hover:border-red-700/60 rounded-lg text-xs font-semibold text-red-300 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+          <i class="fa-solid fa-power-off text-red-400 text-[11px]"></i>
+          <span>Salir</span>
+        </button>
       </div>
     </div>
   </aside>
@@ -241,7 +291,7 @@
                 </p>
               </div>
             </div>
-            <div class="flex items-center gap-2.5 shrink-0">
+            <div id="dash-financial-actions" class="flex items-center gap-2.5 shrink-0">
               <button type="button" onclick="navegarA('sheets')" class="px-3.5 py-2 text-xs font-bold text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-xl transition-all">
                 Ver Hoja Google Sheets
               </button>
@@ -249,6 +299,10 @@
                 <i class="fa-solid fa-download"></i>
                 Exportar CSV
               </button>
+            </div>
+            <div id="dash-asesor-banner-badge" class="hidden items-center gap-2 px-3 py-1.5 rounded-full bg-blue-950/60 border border-blue-800/50 text-blue-300 text-xs font-semibold">
+              <i class="fa-solid fa-user-check text-blue-400"></i>
+              <span>Vista Aislada: Portafolio Personal</span>
             </div>
           </div>
 
@@ -1098,6 +1152,105 @@
 
         </section>
 
+        <!-- ========================================================
+             6. GESTIÓN DE USUARIOS Y ACCESOS RBAC (SOLO ADMIN GLOBAL)
+             ======================================================== -->
+        <section id="view-usuarios" class="view-panel hidden space-y-8">
+          
+          <!-- Encabezado de Gestión de Usuarios -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
+                  <i class="fa-solid fa-shield-halved text-[9px]"></i> Módulo de Ciberseguridad RBAC
+                </span>
+                <span class="text-xs text-neutral-500 font-mono">Control de Cuentas</span>
+              </div>
+              <h1 class="font-serif text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Gestión de Usuarios y Accesos
+              </h1>
+              <p class="text-neutral-400 text-sm mt-1">
+                Administración de directores, asesores autorizados, contraseñas criptográficas y estados de cuenta.
+              </p>
+            </div>
+            
+            <button type="button" onclick="abrirModalNuevoUsuario()" class="px-4 py-2.5 text-xs font-bold text-black bg-white hover:bg-neutral-200 rounded-xl shadow-md transition-all flex items-center gap-2 shrink-0 cursor-pointer">
+              <i class="fa-solid fa-user-plus text-xs"></i>
+              <span>+ Registrar Nuevo Usuario</span>
+            </button>
+          </div>
+
+          <!-- 4 Tarjetas de Métricas de Cuentas -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-[#141414] border border-[#262626] rounded-2xl p-4 sm:p-5">
+              <div class="flex items-center justify-between text-neutral-400 mb-2">
+                <span class="text-xs font-medium uppercase tracking-wider">Total Cuentas</span>
+                <i class="fa-solid fa-users text-sm text-neutral-500"></i>
+              </div>
+              <p id="kpi-usuarios-total" class="font-serif text-2xl sm:text-3xl font-bold text-white">--</p>
+              <p class="text-[11px] text-neutral-500 mt-1">Registradas en el sistema</p>
+            </div>
+
+            <div class="bg-[#141414] border border-[#262626] rounded-2xl p-4 sm:p-5">
+              <div class="flex items-center justify-between text-neutral-400 mb-2">
+                <span class="text-xs font-medium uppercase tracking-wider">Administradores</span>
+                <i class="fa-solid fa-shield-halved text-sm text-emerald-400"></i>
+              </div>
+              <p id="kpi-usuarios-admins" class="font-serif text-2xl sm:text-3xl font-bold text-white">--</p>
+              <p class="text-[11px] text-emerald-400 mt-1">Acceso global total</p>
+            </div>
+
+            <div class="bg-[#141414] border border-[#262626] rounded-2xl p-4 sm:p-5">
+              <div class="flex items-center justify-between text-neutral-400 mb-2">
+                <span class="text-xs font-medium uppercase tracking-wider">Asesores Activos</span>
+                <i class="fa-solid fa-user-tie text-sm text-blue-400"></i>
+              </div>
+              <p id="kpi-usuarios-asesores" class="font-serif text-2xl sm:text-3xl font-bold text-white">--</p>
+              <p class="text-[11px] text-blue-400 mt-1">Con vista aislada propia</p>
+            </div>
+
+            <div class="bg-[#141414] border border-[#262626] rounded-2xl p-4 sm:p-5">
+              <div class="flex items-center justify-between text-neutral-400 mb-2">
+                <span class="text-xs font-medium uppercase tracking-wider">Suspendidas</span>
+                <i class="fa-solid fa-user-slash text-sm text-red-400"></i>
+              </div>
+              <p id="kpi-usuarios-suspendidos" class="font-serif text-2xl sm:text-3xl font-bold text-white">--</p>
+              <p class="text-[11px] text-red-400 mt-1">Acceso bloqueado en login</p>
+            </div>
+          </div>
+
+          <!-- Tabla Dark Luxury de Usuarios -->
+          <div class="bg-[#141414] border border-[#262626] rounded-2xl overflow-hidden shadow-xl">
+            <div class="p-4 sm:p-5 border-b border-[#222222] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 class="font-serif text-base font-bold text-white">Directorio de Accesos y Privilegios RBAC</h3>
+                <p class="text-xs text-neutral-400">Modifica roles, resetea contraseñas y gestiona suspensiones de cuenta (sin eliminar de la base).</p>
+              </div>
+              <span class="text-[11px] text-neutral-500 font-mono bg-[#1A1A1A] border border-[#2B2B2B] px-2.5 py-1 rounded-lg">Cifrado NIST PBKDF2</span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm text-neutral-300">
+                <thead class="bg-[#0E0E0E] text-[11px] uppercase tracking-wider text-neutral-400 border-b border-[#222222]">
+                  <tr>
+                    <th class="py-3.5 px-6">Usuario / Asesor</th>
+                    <th class="py-3.5 px-4">Rol RBAC</th>
+                    <th class="py-3.5 px-4">Estado</th>
+                    <th class="py-3.5 px-4">WhatsApp / Tel</th>
+                    <th class="py-3.5 px-4 text-center">Propiedades</th>
+                    <th class="py-3.5 px-4">Último Ingreso</th>
+                    <th class="py-3.5 px-6 text-right">Acciones de Seguridad</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-usuarios-tbody" class="divide-y divide-[#1F1F1F]">
+                  <!-- Filas generadas dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
       </div>
     </main>
 
@@ -1453,6 +1606,272 @@
     </div>
   </div>
 
+  <!-- ========================================================
+       MODAL: MI PERFIL (Para Asesores y Administrador)
+       ======================================================== -->
+  <div id="modal-mi-perfil" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-[#141414] border border-[#2E2E2E] rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative my-8">
+      
+      <!-- Botón Cerrar -->
+      <button type="button" onclick="cerrarModalMiPerfil()" class="absolute top-5 right-5 text-neutral-400 hover:text-white p-2 text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 rounded-2xl bg-[#1F1F1F] border border-[#333333] flex items-center justify-center text-white text-xl">
+          <i class="fa-regular fa-id-card"></i>
+        </div>
+        <div>
+          <h2 class="font-serif text-2xl font-bold text-white">Mi Perfil Profesional</h2>
+          <p class="text-xs text-neutral-400">Actualiza tus datos de contacto corporativo y credenciales.</p>
+        </div>
+      </div>
+
+      <form onsubmit="guardarMiPerfil(event)" class="space-y-4">
+        
+        <!-- Foto de Perfil & Avatar Preview -->
+        <div class="flex items-center gap-4 p-4 rounded-2xl bg-[#0D0D0D] border border-[#242424]">
+          <img id="perfil-avatar-preview" src="" alt="Avatar" class="w-16 h-16 rounded-full object-cover ring-2 ring-white/30 shrink-0">
+          <div class="flex-1 min-w-0">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1">
+              URL Fotografía de Perfil
+            </label>
+            <input 
+              type="url" 
+              id="perfil-avatar" 
+              oninput="actualizarPreviewAvatarPerfil()" 
+              placeholder="https://..." 
+              class="w-full px-3 py-2 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-xs text-white placeholder-neutral-500 outline-none"
+            >
+          </div>
+        </div>
+
+        <!-- Nombre Completo -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">
+            Nombre Completo
+          </label>
+          <input 
+            type="text" 
+            id="perfil-nombre" 
+            required 
+            class="w-full px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none"
+          >
+        </div>
+
+        <!-- Email y Puesto -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
+              Correo Corporativo (Fijo)
+            </label>
+            <input 
+              type="email" 
+              id="perfil-email" 
+              disabled 
+              class="w-full px-3.5 py-2.5 bg-[#0E0E0E] border border-[#222222] rounded-xl text-sm text-neutral-400 outline-none cursor-not-allowed font-mono"
+            >
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">
+              Puesto / Especialidad VIP
+            </label>
+            <input 
+              type="text" 
+              id="perfil-puesto" 
+              required 
+              class="w-full px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none"
+            >
+          </div>
+        </div>
+
+        <!-- WhatsApp / Teléfono -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5 flex items-center justify-between">
+            <span>Número de WhatsApp para Clientes</span>
+            <span class="text-[10px] text-emerald-400 font-mono"><i class="fa-brands fa-whatsapp"></i> Botón Web Directo</span>
+          </label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-500 font-mono text-xs">
+              +
+            </span>
+            <input 
+              type="tel" 
+              id="perfil-tel" 
+              required 
+              placeholder="50252945088" 
+              class="w-full pl-8 pr-4 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none font-mono"
+            >
+          </div>
+          <p class="text-[10px] text-neutral-500 mt-1">Formato internacional sin espacios ni símbolos (ej: 50252945088). Este número recibe los leads de WhatsApp de tus propiedades en el sitio web.</p>
+        </div>
+
+        <!-- Sección Cambio de Contraseña -->
+        <div class="pt-4 border-t border-[#222222] space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-neutral-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-key text-[10px] text-amber-400"></i> Cambiar Mi Contraseña
+            </h4>
+            <span class="text-[10px] text-neutral-500 font-mono">Opcional</span>
+          </div>
+
+          <div>
+            <label class="block text-[11px] text-neutral-400 mb-1">Contraseña Actual (Requerida solo si vas a cambiar clave)</label>
+            <input 
+              type="password" 
+              id="perfil-pass-actual" 
+              autocomplete="current-password"
+              placeholder="••••••••••••" 
+              class="w-full px-3.5 py-2 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-xs text-white placeholder-neutral-500 outline-none font-mono"
+            >
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] text-neutral-400 mb-1">Nueva Contraseña (min. 6)</label>
+              <input 
+                type="password" 
+                id="perfil-pass-nueva" 
+                autocomplete="new-password"
+                placeholder="••••••••••••" 
+                class="w-full px-3.5 py-2 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-xs text-white placeholder-neutral-500 outline-none font-mono"
+              >
+            </div>
+            <div>
+              <label class="block text-[11px] text-neutral-400 mb-1">Confirmar Nueva Contraseña</label>
+              <input 
+                type="password" 
+                id="perfil-pass-confirm" 
+                autocomplete="new-password"
+                placeholder="••••••••••••" 
+                class="w-full px-3.5 py-2 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-xs text-white placeholder-neutral-500 outline-none font-mono"
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-[#222222]">
+          <button type="button" onclick="cerrarModalMiPerfil()" class="px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-300 text-xs font-semibold rounded-xl transition-all cursor-pointer">
+            Cancelar
+          </button>
+          <button type="submit" id="btn-guardar-perfil" class="px-5 py-2.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-floppy-disk text-xs"></i>
+            Guardar Cambios
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL: REGISTRAR NUEVO USUARIO RBAC (SOLO ADMIN GLOBAL)
+       ======================================================== -->
+  <div id="modal-nuevo-usuario" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-[#141414] border border-[#2E2E2E] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative my-8">
+      <button type="button" onclick="cerrarModalNuevoUsuario()" class="absolute top-5 right-5 text-neutral-400 hover:text-white p-2 text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 rounded-2xl bg-[#1F1F1F] border border-[#333333] flex items-center justify-center text-white text-xl">
+          <i class="fa-solid fa-user-plus"></i>
+        </div>
+        <div>
+          <h2 class="font-serif text-2xl font-bold text-white">Nuevo Usuario RBAC</h2>
+          <p class="text-xs text-neutral-400">Registra un nuevo integrante para acceso seguro al portal.</p>
+        </div>
+      </div>
+
+      <form onsubmit="guardarNuevoUsuario(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Nombre Completo</label>
+          <input type="text" id="nuevo-user-nombre" required placeholder="Ej: Marcela Arango" class="w-full px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Correo Corporativo</label>
+            <input type="email" id="nuevo-user-email" required placeholder="marcela@santandervip.gt" class="w-full px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">WhatsApp / Teléfono</label>
+            <input type="tel" id="nuevo-user-tel" required placeholder="50255556666" class="w-full px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none font-mono">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Rol de Acceso RBAC</label>
+            <select id="nuevo-user-rol" class="w-full px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white outline-none">
+              <option value="asesor">Asesor Inmobiliario (Vista Aislada)</option>
+              <option value="admin">Administrador Global (Acceso Total)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Puesto / Cargo</label>
+            <input type="text" id="nuevo-user-puesto" required placeholder="Consultora de Propiedades" class="w-full px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">URL Foto de Perfil (Opcional)</label>
+          <input type="url" id="nuevo-user-avatar" placeholder="https://images.unsplash.com/..." class="w-full px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Contraseña Inicial Temporal</label>
+          <input type="password" id="nuevo-user-pass" required minlength="6" placeholder="Mínimo 6 caracteres" class="w-full px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none font-mono">
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-[#222222]">
+          <button type="button" onclick="cerrarModalNuevoUsuario()" class="px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-300 text-xs font-semibold rounded-xl transition-all cursor-pointer">Cancelar</button>
+          <button type="submit" class="px-5 py-2.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl transition-all shadow-md cursor-pointer">Crear Cuenta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL: RESETEAR CONTRASEÑA POR ADMIN (SOLO ADMIN GLOBAL)
+       ======================================================== -->
+  <div id="modal-reset-clave" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-[#141414] border border-[#2E2E2E] rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl relative">
+      <button type="button" onclick="cerrarModalResetClave()" class="absolute top-5 right-5 text-neutral-400 hover:text-white p-2 text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-lg">
+          <i class="fa-solid fa-key"></i>
+        </div>
+        <div>
+          <h2 class="font-serif text-lg font-bold text-white">Resetear Contraseña</h2>
+          <p id="reset-user-nombre-label" class="text-xs text-neutral-400 truncate">Usuario seleccionado</p>
+        </div>
+      </div>
+
+      <form onsubmit="ejecutarResetClave(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Nueva Contraseña</label>
+          <input type="password" id="reset-pass-nueva" required minlength="6" placeholder="Mínimo 6 caracteres" class="w-full px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none font-mono">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Confirmar Nueva Contraseña</label>
+          <input type="password" id="reset-pass-confirm" required minlength="6" placeholder="Repite la contraseña" class="w-full px-3.5 py-2.5 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none font-mono">
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-[#222222]">
+          <button type="button" onclick="cerrarModalResetClave()" class="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-300 text-xs font-semibold rounded-xl transition-all cursor-pointer">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold rounded-xl transition-all shadow-md cursor-pointer">Aplicar Reseteo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Toast de Notificaciones -->
   <div id="toast-notificacion" class="fixed bottom-6 right-6 z-50 transform translate-y-32 opacity-0 transition-all duration-500 pointer-events-none">
     <div class="bg-neutral-900 text-white px-5 py-4 rounded-2xl shadow-2xl border border-neutral-700 flex items-center gap-4 max-w-md">
@@ -1470,6 +1889,12 @@
        SCRIPTS JAVASCRIPT: LÓGICA COMPLETA DEL PANEL
        ======================================================== -->
   <script>
+    // ========================================================
+    // 0. CIBERSEGURIDAD, SESIÓN RBAC & USUARIO ACTIVO
+    // ========================================================
+    let currentUser = (window.SantanderAuth && window.SantanderAuth.requireAuth) ? window.SantanderAuth.requireAuth() : null;
+    let userAResetearId = null;
+
     // ========================================================
     // 1. CONFIGURACIÓN Y ESTADO GLOBAL
     // ========================================================
@@ -1921,6 +2346,7 @@
     // 3. RENDERIZADO GLOBAL (DASHBOARD, INVENTARIO, ASESORES)
     // ========================================================
     function renderizarTodo() {
+      actualizarBadgeUsuarioActivo();
       renderizarDashboard();
       renderizarInventario();
       renderizarAsesores();
@@ -2077,14 +2503,20 @@
     }
 
     function renderizarDashboard() {
-      const total = propiedades.length;
+      // Si el rol es Asesor Inmobiliario, aislar sus métricas exclusivamente a sus propiedades asignadas
+      const esAsesor = (currentUser && currentUser.rol === 'asesor');
+      const propsDashboard = esAsesor 
+        ? propiedades.filter(p => p.id_asesor === currentUser.id)
+        : propiedades;
+
+      const total = propsDashboard.length;
       let enVenta = 0;
       let enRenta = 0;
       let vendidas = 0;
       let valorTotalVenta = 0;
       const zonasMap = {};
 
-      propiedades.forEach(p => {
+      propsDashboard.forEach(p => {
         const precioNum = parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0;
         const esRenta = precioNum < 10000;
         const esVendida = p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid');
@@ -2230,8 +2662,14 @@
     // 3.2 RENDERIZAR INVENTARIO DE PROPIEDADES
     function renderizarInventario() {
       const search = (document.getElementById('inventario-search')?.value || '').toLowerCase().trim();
+      const esAsesor = (currentUser && currentUser.rol === 'asesor');
+
+      // Si el rol es Asesor Inmobiliario, aislar su universo estrictamente a sus propiedades asignadas
+      const poolBase = esAsesor 
+        ? propiedades.filter(p => p.id_asesor === currentUser.id)
+        : propiedades;
       
-      let filtradas = propiedades.filter(p => {
+      let filtradas = poolBase.filter(p => {
         const matchSearch = !search || 
           p.titulo.toLowerCase().includes(search) || 
           p.ubicacion.toLowerCase().includes(search) || 
@@ -2249,7 +2687,7 @@
         else if (filtroEstadoActivo === 'disponible') matchEstado = !esVendida;
 
         let matchAsesor = true;
-        if (filtroAsesorActivo) {
+        if (!esAsesor && filtroAsesorActivo) {
           matchAsesor = (p.id_asesor === filtroAsesorActivo);
         }
 
@@ -2257,17 +2695,15 @@
       });
 
       // Conjunto base para calcular conteos:
-      // Si hay un asesor seleccionado, los conteos de venta, renta y vendidas reflejan SUS propiedades.
-      // Si no, reflejan el total de todo el catálogo.
-      const baseParaConteos = filtroAsesorActivo 
-        ? propiedades.filter(p => p.id_asesor === filtroAsesorActivo)
-        : propiedades;
+      const baseParaConteos = (!esAsesor && filtroAsesorActivo)
+        ? poolBase.filter(p => p.id_asesor === filtroAsesorActivo)
+        : poolBase;
 
       const totalVenta = baseParaConteos.filter(p => (parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0) >= 10000).length;
       const totalRenta = baseParaConteos.filter(p => (parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0) < 10000).length;
       const totalVendidas = baseParaConteos.filter(p => p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid')).length;
 
-      document.getElementById('filter-count-todos').textContent = propiedades.length;
+      document.getElementById('filter-count-todos').textContent = poolBase.length;
       document.getElementById('filter-count-venta').textContent = totalVenta;
       document.getElementById('filter-count-renta').textContent = totalRenta;
       document.getElementById('filter-count-vendida').textContent = totalVendidas;
@@ -2343,12 +2779,14 @@
                     <button type="button" onclick="abrirModalEditar('${p.id}')" class="px-2.5 py-1 text-xs font-bold text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg transition-all flex items-center gap-1" title="Editar propiedad">
                       <i class="fa-regular fa-pen-to-square"></i> Editar
                     </button>
+                    ${(currentUser && currentUser.rol === 'admin') ? `
                     <button type="button" onclick="copiarFilaCSV('${p.id}')" class="px-2.5 py-1 text-xs font-bold text-black bg-white hover:bg-neutral-200 rounded-lg transition-all flex items-center gap-1 shadow-xs" title="Copiar fila para Google Sheets">
                       <i class="fa-regular fa-copy"></i> Fila
                     </button>
-                    <button type="button" onclick="confirmarEliminarPropiedad('${p.id}')" class="p-1.5 text-neutral-400 hover:text-red-400 rounded-lg hover:bg-red-950/40 border border-transparent hover:border-red-900/40 transition-all" title="Eliminar propiedad">
+                    <button type="button" onclick="confirmarEliminarPropiedad('${p.id}')" class="p-1.5 text-neutral-400 hover:text-red-400 rounded-lg hover:bg-red-950/40 border border-transparent hover:border-red-900/40 transition-all cursor-pointer" title="Eliminar propiedad (Solo Admin)">
                       <i class="fa-regular fa-trash-can"></i>
                     </button>
+                    ` : ''}
                   </div>
                 </td>
               </tr>
@@ -2655,6 +3093,12 @@
     }
 
     function navegarA(vistaId) {
+      // Bloqueo estricto RBAC: Solo Administrador Global puede acceder a usuarios o sheets
+      if ((vistaId === 'usuarios' || vistaId === 'sheets') && (!currentUser || currentUser.rol !== 'admin')) {
+        lanzarToast('Acceso denegado: Se requieren permisos de Administrador Global.', 'error');
+        vistaId = 'dashboard';
+      }
+
       document.querySelectorAll('.view-panel').forEach(panel => {
         panel.classList.add('hidden');
       });
@@ -2676,10 +3120,15 @@
         'propiedades': 'Gestión de Propiedades VIP',
         'asesores': 'Directorio de Asesores VIP',
         'sheets': 'Conexión Google Sheets CSV',
-        'configuracion': 'Configuración del Sistema'
+        'configuracion': 'Configuración del Sistema',
+        'usuarios': 'Gestión de Usuarios & Roles RBAC'
       };
       const breadcrumb = document.getElementById('breadcrumb-view');
       if (breadcrumb) breadcrumb.textContent = titles[vistaId] || 'Panel';
+
+      if (vistaId === 'usuarios') {
+        renderizarUsuarios();
+      }
 
       const overlay = document.getElementById('mobile-overlay');
       const sidebar = document.getElementById('sidebar');
@@ -2733,7 +3182,10 @@
     function guardarNuevaPropiedad() {
       const titulo = document.getElementById('titulo').value.trim();
       const precio = document.getElementById('precio').value.trim();
-      const asesor = document.getElementById('asesor').value;
+      let asesor = document.getElementById('asesor').value;
+      if (currentUser && currentUser.rol === 'asesor') {
+        asesor = currentUser.id;
+      }
       const cuartos = document.getElementById('cuartos').value.trim();
       const banos = document.getElementById('banos').value.trim();
       const metros = document.getElementById('metros').value.trim();
@@ -3193,6 +3645,10 @@
     // GESTIÓN DE ELIMINACIÓN DE PROPIEDADES VIP
     // ========================================================
     function confirmarEliminarPropiedad(id) {
+      if (!currentUser || currentUser.rol !== 'admin') {
+        lanzarToast('Acción no autorizada: Solo el Administrador puede eliminar propiedades.', 'error');
+        return;
+      }
       const p = propiedades.find(x => String(x.id) === String(id));
       if (!p) return;
       propiedadIdAEliminar = String(id);
@@ -3405,9 +3861,325 @@
     }
 
     // ========================================================
+    // 6.5 FUNCIONES DE CONTROL DE ACCESO RBAC, PERFIL & ROLES
+    // ========================================================
+    function actualizarBadgeUsuarioActivo() {
+      if (window.SantanderAuth) {
+        currentUser = window.SantanderAuth.getCurrentUser();
+      }
+      if (!currentUser) return;
+
+      const avatarEl = document.getElementById('sidebar-user-avatar');
+      const nameEl = document.getElementById('sidebar-user-name');
+      const puestoEl = document.getElementById('sidebar-user-puesto');
+      const badgeEl = document.getElementById('sidebar-user-badge');
+
+      if (avatarEl) avatarEl.src = currentUser.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80';
+      if (nameEl) nameEl.textContent = currentUser.nombre;
+      if (puestoEl) puestoEl.textContent = currentUser.puesto;
+      if (badgeEl) {
+        if (currentUser.rol === 'admin') {
+          badgeEl.className = 'text-[9px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.2 rounded font-bold uppercase shrink-0';
+          badgeEl.textContent = 'Admin Global';
+        } else {
+          badgeEl.className = 'text-[9px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1.5 py-0.2 rounded font-bold uppercase shrink-0';
+          badgeEl.textContent = 'Asesor VIP';
+        }
+      }
+
+      // Restricciones de Menú y Pantallas
+      const navUsuarios = document.getElementById('nav-item-usuarios');
+      const navSheets = document.getElementById('nav-item-sheets');
+      const dashFinancial = document.getElementById('dash-financial-actions');
+      const dashAsesorBadge = document.getElementById('dash-asesor-banner-badge');
+      const selectAsesorNueva = document.getElementById('asesor');
+
+      if (currentUser.rol === 'asesor') {
+        if (navUsuarios) navUsuarios.style.display = 'none';
+        if (navSheets) navSheets.style.display = 'none';
+        if (dashFinancial) dashFinancial.style.display = 'none';
+        if (dashAsesorBadge) {
+          dashAsesorBadge.classList.remove('hidden');
+          dashAsesorBadge.classList.add('flex');
+        }
+        if (selectAsesorNueva) {
+          selectAsesorNueva.value = currentUser.id;
+          selectAsesorNueva.disabled = true;
+        }
+      } else {
+        if (navUsuarios) navUsuarios.style.display = 'flex';
+        if (navSheets) navSheets.style.display = 'flex';
+        if (dashFinancial) dashFinancial.style.display = 'flex';
+        if (dashAsesorBadge) {
+          dashAsesorBadge.classList.add('hidden');
+          dashAsesorBadge.classList.remove('flex');
+        }
+        if (selectAsesorNueva) {
+          selectAsesorNueva.disabled = false;
+        }
+      }
+    }
+
+    // Cerrar sesión
+    function ejecutarCerrarSesion() {
+      if (confirm('¿Deseas cerrar tu sesión segura en el Portal Santander VIP?')) {
+        window.SantanderAuth.logout('logout');
+      }
+    }
+
+    // MODAL: MI PERFIL
+    function abrirModalMiPerfil() {
+      if (!currentUser) return;
+      document.getElementById('perfil-avatar').value = currentUser.avatar || '';
+      document.getElementById('perfil-avatar-preview').src = currentUser.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80';
+      document.getElementById('perfil-nombre').value = currentUser.nombre || '';
+      document.getElementById('perfil-email').value = currentUser.email || '';
+      document.getElementById('perfil-puesto').value = currentUser.puesto || '';
+      document.getElementById('perfil-tel').value = currentUser.tel || '';
+      document.getElementById('perfil-pass-actual').value = '';
+      document.getElementById('perfil-pass-nueva').value = '';
+      document.getElementById('perfil-pass-confirm').value = '';
+
+      document.getElementById('modal-mi-perfil')?.classList.remove('hidden');
+    }
+
+    function cerrarModalMiPerfil() {
+      document.getElementById('modal-mi-perfil')?.classList.add('hidden');
+    }
+
+    function actualizarPreviewAvatarPerfil() {
+      const url = document.getElementById('perfil-avatar').value.trim();
+      const prev = document.getElementById('perfil-avatar-preview');
+      if (url && prev) prev.src = url;
+    }
+
+    async function guardarMiPerfil(event) {
+      event.preventDefault();
+      const btn = document.getElementById('btn-guardar-perfil');
+      btn.disabled = true;
+
+      try {
+        const nombre = document.getElementById('perfil-nombre').value.trim();
+        const puesto = document.getElementById('perfil-puesto').value.trim();
+        const tel = document.getElementById('perfil-tel').value.trim();
+        const avatar = document.getElementById('perfil-avatar').value.trim();
+
+        const passActual = document.getElementById('perfil-pass-actual').value;
+        const passNueva = document.getElementById('perfil-pass-nueva').value;
+        const passConfirm = document.getElementById('perfil-pass-confirm').value;
+
+        // 1. Actualizar perfil básico
+        await window.SantanderAuth.updateProfile(currentUser.id, { nombre, puesto, tel, avatar });
+
+        // 2. Si se solicitó cambio de contraseña
+        if (passNueva || passActual) {
+          if (!passActual) {
+            throw new Error('Debes ingresar tu contraseña actual para confirmar el cambio.');
+          }
+          if (passNueva !== passConfirm) {
+            throw new Error('La nueva contraseña y su confirmación no coinciden.');
+          }
+          if (passNueva.length < 6) {
+            throw new Error('La nueva contraseña debe tener al menos 6 caracteres.');
+          }
+          await window.SantanderAuth.changeOwnPassword(currentUser.id, passActual, passNueva);
+        }
+
+        // Actualizar sesión y estado en pantalla
+        currentUser = window.SantanderAuth.getCurrentUser();
+        cargarAsesoresDesdeStorage();
+        renderizarTodo();
+        cerrarModalMiPerfil();
+        lanzarToast('¡Perfil y credenciales actualizados con éxito!', 'success');
+
+      } catch (err) {
+        alert(err.message || 'Error al actualizar el perfil.');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // MODAL & GESTIÓN DE USUARIOS (RBAC - SOLO ADMIN)
+    function renderizarUsuarios() {
+      if (!currentUser || currentUser.rol !== 'admin') return;
+      const users = window.SantanderAuth.getUsers();
+
+      // Métricas
+      const total = users.length;
+      const admins = users.filter(u => u.rol === 'admin').length;
+      const asesores = users.filter(u => u.rol === 'asesor' && u.estado === 'activo').length;
+      const suspendidos = users.filter(u => u.estado === 'suspendido').length;
+
+      document.getElementById('kpi-usuarios-total').textContent = total;
+      document.getElementById('kpi-usuarios-admins').textContent = admins;
+      document.getElementById('kpi-usuarios-asesores').textContent = asesores;
+      document.getElementById('kpi-usuarios-suspendidos').textContent = suspendidos;
+
+      const tbody = document.getElementById('tabla-usuarios-tbody');
+      if (!tbody) return;
+
+      tbody.innerHTML = users.map(u => {
+        const esAdmin = u.rol === 'admin';
+        const esSuspendido = u.estado === 'suspendido';
+        const propsCount = propiedades.filter(p => p.id_asesor === u.id).length;
+        const ultimoIngresoStr = u.ultimoAcceso ? new Date(u.ultimoAcceso).toLocaleDateString('es-GT', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Sin registros';
+
+        return `
+          <tr class="hover:bg-neutral-900/60 transition-colors">
+            <td class="py-3 px-6">
+              <div class="flex items-center gap-3">
+                <img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover ring-1 ring-white/20">
+                <div>
+                  <p class="font-bold text-white leading-tight">${u.nombre}</p>
+                  <p class="text-xs text-neutral-400 font-mono">${u.email}</p>
+                </div>
+              </div>
+            </td>
+            <td class="py-3 px-4">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${esAdmin ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'}">
+                <i class="fa-solid ${esAdmin ? 'fa-shield-halved' : 'fa-user-tie'} text-[9px]"></i>
+                ${esAdmin ? 'Admin Global' : 'Asesor VIP'}
+              </span>
+            </td>
+            <td class="py-3 px-4">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${esSuspendido ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}">
+                <span class="w-1.5 h-1.5 rounded-full ${esSuspendido ? 'bg-red-400' : 'bg-emerald-400 animate-pulse'}"></span>
+                ${esSuspendido ? 'Suspendido' : 'Activo'}
+              </span>
+            </td>
+            <td class="py-3 px-4 text-xs font-mono text-neutral-300">
+              <a href="https://wa.me/${u.tel}" target="_blank" class="hover:text-emerald-400 flex items-center gap-1">
+                <i class="fa-brands fa-whatsapp text-emerald-500"></i> +${u.tel}
+              </a>
+            </td>
+            <td class="py-3 px-4 text-center">
+              <span class="text-xs font-bold text-white bg-neutral-900 border border-neutral-800 px-2.5 py-1 rounded-lg">
+                ${propsCount}
+              </span>
+            </td>
+            <td class="py-3 px-4 text-xs text-neutral-400">
+              ${ultimoIngresoStr}
+            </td>
+            <td class="py-3 px-6 text-right">
+              <div class="inline-flex items-center gap-2">
+                <button type="button" onclick="abrirModalResetClave('${u.id}', '${u.nombre}')" class="px-2.5 py-1 text-xs font-semibold text-neutral-300 hover:text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg transition-all cursor-pointer" title="Resetear contraseña">
+                  <i class="fa-solid fa-key text-[10px] mr-1 text-amber-400"></i> Reset
+                </button>
+                ${u.id !== 'carmen' ? `
+                <button type="button" onclick="toggleEstadoCuenta('${u.id}')" class="px-2.5 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${esSuspendido ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-800/50 hover:bg-emerald-900/60' : 'bg-red-950/40 text-red-400 border border-red-800/50 hover:bg-red-900/60'}" title="${esSuspendido ? 'Reactivar cuenta' : 'Suspender cuenta'}">
+                  <i class="fa-solid ${esSuspendido ? 'fa-user-check' : 'fa-user-slash'} text-[10px] mr-1"></i>
+                  ${esSuspendido ? 'Reactivar' : 'Suspender'}
+                </button>
+                ` : '<span class="text-[10px] text-neutral-600 italic px-2">Principal</span>'}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function toggleEstadoCuenta(userId) {
+      try {
+        const u = window.SantanderAuth.toggleUserStatus(userId);
+        renderizarUsuarios();
+        lanzarToast(`Cuenta de ${u.nombre} ahora está: ${u.estado.toUpperCase()}`, u.estado === 'activo' ? 'success' : 'info');
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    // Modal Crear Usuario
+    function abrirModalNuevoUsuario() {
+      document.getElementById('nuevo-user-nombre').value = '';
+      document.getElementById('nuevo-user-email').value = '';
+      document.getElementById('nuevo-user-tel').value = '';
+      document.getElementById('nuevo-user-puesto').value = '';
+      document.getElementById('nuevo-user-avatar').value = '';
+      document.getElementById('nuevo-user-pass').value = '';
+      document.getElementById('modal-nuevo-usuario')?.classList.remove('hidden');
+    }
+
+    function cerrarModalNuevoUsuario() {
+      document.getElementById('modal-nuevo-usuario')?.classList.add('hidden');
+    }
+
+    async function guardarNuevoUsuario(event) {
+      event.preventDefault();
+      try {
+        const nombre = document.getElementById('nuevo-user-nombre').value.trim();
+        const email = document.getElementById('nuevo-user-email').value.trim();
+        const tel = document.getElementById('nuevo-user-tel').value.trim();
+        const puesto = document.getElementById('nuevo-user-puesto').value.trim();
+        const rol = document.getElementById('nuevo-user-rol').value;
+        const avatar = document.getElementById('nuevo-user-avatar').value.trim();
+        const password = document.getElementById('nuevo-user-pass').value;
+
+        const nuevo = await window.SantanderAuth.createUser({
+          nombre, email, tel, puesto, rol, password, avatar
+        });
+
+        cargarAsesoresDesdeStorage();
+        renderizarUsuarios();
+        renderizarTodo();
+        cerrarModalNuevoUsuario();
+        lanzarToast(`Usuario ${nuevo.nombre} (${nuevo.rol.toUpperCase()}) registrado exitosamente.`, 'success');
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    // Modal Reset Contraseña
+    function abrirModalResetClave(userId, userName) {
+      userAResetearId = userId;
+      document.getElementById('reset-user-nombre-label').textContent = `Usuario: ${userName}`;
+      document.getElementById('reset-pass-nueva').value = '';
+      document.getElementById('reset-pass-confirm').value = '';
+      document.getElementById('modal-reset-clave')?.classList.remove('hidden');
+    }
+
+    function cerrarModalResetClave() {
+      userAResetearId = null;
+      document.getElementById('modal-reset-clave')?.classList.add('hidden');
+    }
+
+    async function ejecutarResetClave(event) {
+      event.preventDefault();
+      try {
+        const pass1 = document.getElementById('reset-pass-nueva').value;
+        const pass2 = document.getElementById('reset-pass-confirm').value;
+
+        if (pass1 !== pass2) {
+          throw new Error('Las contraseñas no coinciden.');
+        }
+        if (pass1.length < 6) {
+          throw new Error('La contraseña debe tener mínimo 6 caracteres.');
+        }
+
+        await window.SantanderAuth.resetUserPassword(userAResetearId, pass1);
+        cerrarModalResetClave();
+        lanzarToast('Contraseña restablecida exitosamente.', 'success');
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    // ========================================================
     // 7. INICIALIZACIÓN AL CARGAR LA PÁGINA
     // ========================================================
     document.addEventListener('DOMContentLoaded', () => {
+      // Iniciar sesión y seguridad
+      if (window.SantanderAuth) {
+        window.SantanderAuth.init();
+        currentUser = window.SantanderAuth.requireAuth();
+        if (!currentUser) return;
+
+        // Iniciar monitor de auto-logout por inactividad (2 horas)
+        window.SantanderAuth.startInactivityMonitor(() => {
+          window.SantanderAuth.logout('inactivity');
+        });
+      }
+
+      actualizarBadgeUsuarioActivo();
       poblarSelectsAsesores();
       cargarPropiedadesDesdeGoogleSheets();
 
