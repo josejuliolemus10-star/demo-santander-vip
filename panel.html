@@ -153,8 +153,8 @@
           Accesos Directos
         </div>
 
-        <!-- 5. Configuración -->
-        <button type="button" onclick="navegarA('configuracion')" data-tab="configuracion" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white hover:bg-neutral-900/80 transition-all text-left">
+        <!-- 5. Configuración (Solo Admin Global) -->
+        <button id="nav-item-configuracion" type="button" onclick="navegarA('configuracion')" data-tab="configuracion" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white hover:bg-neutral-900/80 transition-all text-left">
           <i class="fa-solid fa-sliders w-5 text-center text-neutral-400"></i>
           <span>Configuración</span>
         </button>
@@ -223,8 +223,8 @@
       <!-- Acciones Rápidas del Topbar -->
       <div class="flex items-center gap-3 sm:gap-4">
         
-        <!-- Estado de Sincronización con Google Sheets -->
-        <button type="button" onclick="sincronizarAhora(true)" title="Clic para recargar datos desde Google Sheets" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-700 text-xs font-semibold transition-all">
+        <!-- Estado de Sincronización con Google Sheets (Solo Admin) -->
+        <button id="btn-top-sync" type="button" onclick="sincronizarAhora(true)" title="Clic para recargar datos desde Google Sheets" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-700 text-xs font-semibold transition-all">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span id="sync-status-text" class="hidden sm:inline">Google Sheets Conectado</span>
           <i id="sync-spinner" class="fa-solid fa-arrows-rotate text-neutral-400 text-xs ml-1"></i>
@@ -264,7 +264,7 @@
               </p>
             </div>
             <div class="flex items-center gap-2.5">
-              <button type="button" onclick="sincronizarAhora(true)" class="px-3.5 py-2 text-xs font-bold text-white bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 rounded-xl shadow-xs transition-all flex items-center gap-2">
+              <button id="btn-dash-sync" type="button" onclick="sincronizarAhora(true)" class="px-3.5 py-2 text-xs font-bold text-white bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 rounded-xl shadow-xs transition-all flex items-center gap-2">
                 <i class="fa-solid fa-rotate text-neutral-300"></i>
                 <span>Sincronizar Google Sheets</span>
               </button>
@@ -275,8 +275,8 @@
             </div>
           </div>
 
-          <!-- Banner Informativo de Conexión en Vivo -->
-          <div class="bg-[#141414] text-white rounded-2xl p-5 sm:p-6 shadow-md border border-[#2A2A2A] flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <!-- Banner Informativo de Conexión en Vivo (Solo Admin Global) -->
+          <div id="dash-google-sheet-banner" class="bg-[#141414] text-white rounded-2xl p-5 sm:p-6 shadow-md border border-[#2A2A2A] flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 rounded-2xl bg-neutral-900 border border-neutral-700 flex items-center justify-center text-white text-2xl shrink-0">
                 <i class="fa-brands fa-google-drive"></i>
@@ -300,10 +300,29 @@
                 Exportar CSV
               </button>
             </div>
-            <div id="dash-asesor-banner-badge" class="hidden items-center gap-2 px-3 py-1.5 rounded-full bg-blue-950/60 border border-blue-800/50 text-blue-300 text-xs font-semibold">
-              <i class="fa-solid fa-user-check text-blue-400"></i>
-              <span>Vista Aislada: Portafolio Personal</span>
+          <!-- Banner Aislado Personal para Asesor VIP -->
+          <div id="dash-asesor-banner" class="hidden bg-[#141414] text-white rounded-2xl p-5 sm:p-6 shadow-md border border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-2xl bg-[#1A1A1A] border border-blue-500/30 flex items-center justify-center text-blue-400 text-2xl shrink-0">
+                <i class="fa-solid fa-user-tie"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-serif text-base sm:text-lg font-bold text-white">Portafolio Asignado a <span id="dash-asesor-banner-name">Asesor</span></h3>
+                  <span class="text-[10px] font-bold uppercase tracking-wider bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-full">Vista Aislada VIP</span>
+                </div>
+                <p class="text-xs text-neutral-400 mt-1 max-w-xl">
+                  Estás visualizando exclusivamente las propiedades asignadas a tu gestión. Solo puedes modificar la disponibilidad de tus propios inmuebles.
+                </p>
+              </div>
             </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="px-3 py-1.5 rounded-xl bg-[#1A1A1A] border border-[#2B2B2B] text-xs font-semibold text-neutral-300 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>CRM Personal Activo</span>
+              </span>
+            </div>
+          </div>
           </div>
 
           <!-- 6 Tarjetas KPI del Dashboard (Fondo oscuro con acentos definidos) -->
@@ -521,8 +540,8 @@
           <div class="bg-[#141414] rounded-2xl border border-[#2A2A2A] shadow-xs overflow-hidden">
             <div class="p-6 border-b border-neutral-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h3 class="font-serif text-lg font-bold text-white">Propiedades VIP en Portafolio</h3>
-                <p class="text-xs text-neutral-400">Listado interactivo conectado directamente con Google Sheets.</p>
+                <h3 id="dash-props-title" class="font-serif text-lg font-bold text-white">Propiedades VIP en Portafolio</h3>
+                <p id="dash-props-subtitle" class="text-xs text-neutral-400">Listado interactivo conectado directamente con Google Sheets.</p>
               </div>
               <div class="flex items-center gap-2">
                 <button type="button" onclick="navegarA('propiedades')" class="px-3.5 py-2 text-xs font-bold text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-xl transition-all">
@@ -971,7 +990,7 @@
               <span id="badge-header-asesores" class="text-xs font-bold text-white bg-neutral-900 border border-neutral-700 px-3.5 py-2 rounded-xl">
                 <i class="fa-solid fa-shield-halved text-white mr-1.5"></i>9 Asesores Oficiales
               </span>
-              <button type="button" onclick="abrirModalNuevoAsesor()" class="px-3.5 py-2 text-xs font-bold text-black bg-white hover:bg-neutral-200 rounded-xl shadow-md transition-all flex items-center gap-1.5">
+              <button id="btn-nuevo-asesor-header" type="button" onclick="abrirModalNuevoAsesor()" class="px-3.5 py-2 text-xs font-bold text-black bg-white hover:bg-neutral-200 rounded-xl shadow-md transition-all flex items-center gap-1.5">
                 <i class="fa-solid fa-user-plus"></i>
                 <span>Nuevo Asesor</span>
               </button>
@@ -2653,74 +2672,97 @@
           `).join('');
       }
 
-      // Tabla de Recientes en el Dashboard
+      // Tabla de Recientes en el Dashboard (Aislada por Rol RBAC)
       const dashboardTbody = document.getElementById('dashboard-recientes-tbody');
       if (dashboardTbody) {
-        dashboardTbody.innerHTML = propiedades.slice(0, 6).map(p => {
-          const asesor = asesores[p.id_asesor] || asesores['carmen'];
-          const esVendida = p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid');
-          const precioNum = parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0;
-          const tipoBadge = precioNum < 10000 ? '<span class="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-bold">Renta</span>' : '<span class="text-xs bg-neutral-800 text-white border border-neutral-700 px-2 py-0.5 rounded font-bold">Venta</span>';
-
-          const esReciente = esPropiedadReciente(p);
-          const badgeNuevo = (esReciente && !esVendida)
-            ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0"><i class="fa-solid fa-sparkles text-[9px]"></i> Nuevo</span>'
-            : '';
-
-          return `
-            <tr class="hover:bg-neutral-900/60 transition-colors">
-              <td class="py-3 px-6">
-                <div class="flex items-center gap-3">
-                  <div class="w-12 h-12 rounded-xl overflow-hidden bg-neutral-900 shrink-0 relative border border-neutral-800">
-                    <img src="${p.imagen_portada}" alt="${p.titulo}" class="w-full h-full object-cover">
-                    ${esVendida ? '<div class="absolute inset-0 bg-red-600/40 flex items-center justify-center text-[10px] font-black text-white">SOLD</div>' : ''}
-                  </div>
-                  <div class="min-w-0">
-                    <div class="flex items-center gap-2">
-                      <p class="font-bold text-white truncate max-w-xs hover:text-neutral-300 cursor-pointer" onclick="verDetallePropiedad('${p.id}')">${p.titulo}</p>
-                      ${badgeNuevo}
-                    </div>
-                    <p class="text-xs text-neutral-400 truncate max-w-xs">${p.ubicacion}</p>
-                  </div>
-                </div>
-              </td>
-              <td class="py-3 px-4 font-serif font-bold text-white">${p.precio}</td>
-              <td class="py-3 px-4">
-                <div class="space-y-1">
-                  ${tipoBadge}
-                  <p class="text-xs text-neutral-400">${p.cuartos} • ${p.metros}</p>
-                </div>
-              </td>
-              <td class="py-3 px-4">
-                <div class="flex items-center gap-2">
-                  <img src="${asesor.avatar}" class="w-6 h-6 rounded-full object-cover">
-                  <span class="text-xs font-medium text-neutral-300 truncate max-w-[120px]">${asesor.nombre}</span>
-                </div>
-              </td>
-              <td class="py-3 px-4 text-center">
-                <button type="button" onclick="toggleEstadoPropiedad('${p.id}')" class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${esVendida ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30'}" title="Clic para cambiar estado">
-                  ${esVendida ? '<i class="fa-solid fa-lock mr-1"></i> Vendida' : '<i class="fa-solid fa-check mr-1"></i> Disponible'}
-                </button>
-              </td>
-              <td class="py-3 px-6 text-right">
-                <div class="inline-flex items-center gap-1.5">
-                  <button type="button" onclick="verDetallePropiedad('${p.id}')" class="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800" title="Ver detalles">
-                    <i class="fa-regular fa-eye"></i>
-                  </button>
-                  <button type="button" onclick="abrirModalEditar('${p.id}')" class="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800" title="Editar propiedad">
-                    <i class="fa-regular fa-pen-to-square"></i>
-                  </button>
-                  <button type="button" onclick="copiarFilaCSV('${p.id}')" class="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800" title="Copiar fila Google Sheets">
-                    <i class="fa-regular fa-copy"></i>
-                  </button>
-                  <button type="button" onclick="confirmarEliminarPropiedad('${p.id}')" class="p-2 text-neutral-400 hover:text-red-400 rounded-lg hover:bg-red-950/40" title="Eliminar propiedad">
-                    <i class="fa-regular fa-trash-can"></i>
-                  </button>
-                </div>
+        if (propsDashboard.length === 0) {
+          dashboardTbody.innerHTML = `
+            <tr>
+              <td colspan="6" class="py-12 text-center text-neutral-500">
+                <i class="fa-solid fa-folder-open text-3xl mb-2 block text-neutral-600"></i>
+                ${esAsesor ? 'No tienes propiedades asignadas actualmente.' : 'No hay propiedades registradas.'}
               </td>
             </tr>
           `;
-        }).join('');
+        } else {
+          dashboardTbody.innerHTML = propsDashboard.slice(0, 8).map(p => {
+            const asesor = asesores[p.id_asesor] || asesores['carmen'];
+            const esVendida = p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid');
+            const precioNum = parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0;
+            const tipoBadge = precioNum < 10000 ? '<span class="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-bold">Renta</span>' : '<span class="text-xs bg-neutral-800 text-white border border-neutral-700 px-2 py-0.5 rounded font-bold">Venta</span>';
+
+            const esReciente = esPropiedadReciente(p);
+            const badgeNuevo = (esReciente && !esVendida)
+              ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0"><i class="fa-solid fa-sparkles text-[9px]"></i> Nuevo</span>'
+              : '';
+
+            // Solo el administrador o el asesor asignado a esta casa pueden alternar el estado
+            const puedeCambiarEstado = (!currentUser || currentUser.rol === 'admin' || p.id_asesor === currentUser.id);
+            const esAdmin = (currentUser && currentUser.rol === 'admin');
+
+            return `
+              <tr class="hover:bg-neutral-900/60 transition-colors">
+                <td class="py-3 px-6">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl overflow-hidden bg-neutral-900 shrink-0 relative border border-neutral-800">
+                      <img src="${p.imagen_portada}" alt="${p.titulo}" class="w-full h-full object-cover">
+                      ${esVendida ? '<div class="absolute inset-0 bg-red-600/40 flex items-center justify-center text-[10px] font-black text-white">SOLD</div>' : ''}
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2">
+                        <p class="font-bold text-white truncate max-w-xs hover:text-neutral-300 cursor-pointer" onclick="verDetallePropiedad('${p.id}')">${p.titulo}</p>
+                        ${badgeNuevo}
+                      </div>
+                      <p class="text-xs text-neutral-400 truncate max-w-xs">${p.ubicacion}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3 px-4 font-serif font-bold text-white">${p.precio}</td>
+                <td class="py-3 px-4">
+                  <div class="space-y-1">
+                    ${tipoBadge}
+                    <p class="text-xs text-neutral-400">${p.cuartos} • ${p.metros}</p>
+                  </div>
+                </td>
+                <td class="py-3 px-4">
+                  <div class="flex items-center gap-2">
+                    <img src="${asesor.avatar}" class="w-6 h-6 rounded-full object-cover">
+                    <span class="text-xs font-medium text-neutral-300 truncate max-w-[120px]">${asesor.nombre}</span>
+                  </div>
+                </td>
+                <td class="py-3 px-4 text-center">
+                  ${puedeCambiarEstado ? `
+                  <button type="button" onclick="toggleEstadoPropiedad('${p.id}')" class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${esVendida ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30'}" title="Clic para cambiar estado">
+                    ${esVendida ? '<i class="fa-solid fa-lock mr-1"></i> Vendida' : '<i class="fa-solid fa-check mr-1"></i> Disponible'}
+                  </button>
+                  ` : `
+                  <span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider opacity-60 cursor-not-allowed ${esVendida ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}" title="Acceso denegado: Solo puedes modificar tus propias propiedades">
+                    ${esVendida ? '<i class="fa-solid fa-lock mr-1"></i> Vendida' : '<i class="fa-solid fa-check mr-1"></i> Disponible'}
+                  </span>
+                  `}
+                </td>
+                <td class="py-3 px-6 text-right">
+                  <div class="inline-flex items-center gap-1.5">
+                    <button type="button" onclick="verDetallePropiedad('${p.id}')" class="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800" title="Ver detalles">
+                      <i class="fa-regular fa-eye"></i>
+                    </button>
+                    <button type="button" onclick="abrirModalEditar('${p.id}')" class="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800" title="Editar propiedad">
+                      <i class="fa-regular fa-pen-to-square"></i>
+                    </button>
+                    ${esAdmin ? `
+                    <button type="button" onclick="copiarFilaCSV('${p.id}')" class="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800" title="Copiar fila Google Sheets">
+                      <i class="fa-regular fa-copy"></i>
+                    </button>
+                    <button type="button" onclick="confirmarEliminarPropiedad('${p.id}')" class="p-2 text-neutral-400 hover:text-red-400 rounded-lg hover:bg-red-950/40" title="Eliminar propiedad">
+                      <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                    ` : ''}
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
       }
     }
 
@@ -3004,6 +3046,12 @@
       const prop = propiedades.find(p => String(p.id) === String(id));
       if (!prop) return;
 
+      // Bloqueo RBAC: Asesor solo puede cambiar el estado de sus propiedades
+      if (currentUser && currentUser.rol === 'asesor' && prop.id_asesor !== currentUser.id) {
+        lanzarToast("Acceso denegado: Solo puedes modificar la disponibilidad de tus propias propiedades.", "error");
+        return;
+      }
+
       const nuevoEstado = prop.es_vendida ? false : true;
       prop.es_vendida = nuevoEstado;
       prop.estado = nuevoEstado ? 'Vendida' : 'Disponible';
@@ -3059,10 +3107,12 @@
                     <p class="text-[11px] text-neutral-500 font-mono mt-1 truncate">${a.email || 'contacto@santandervip.gt'}</p>
                   </div>
                 </div>
-                <!-- Botón Eliminar Asesor -->
+                <!-- Botón Eliminar Asesor (Solo Admin Global) -->
+                ${(currentUser && currentUser.rol === 'admin') ? `
                 <button type="button" onclick="confirmarEliminarAsesor('${key}')" class="p-2 text-neutral-500 hover:text-red-400 hover:bg-red-950/40 border border-transparent hover:border-red-900/40 rounded-xl transition-all shrink-0 cursor-pointer" title="Eliminar asesor VIP">
                   <i class="fa-regular fa-trash-can text-sm"></i>
                 </button>
+                ` : ''}
               </div>
 
               <!-- Métricas del Asesor -->
@@ -3158,9 +3208,9 @@
     }
 
     function navegarA(vistaId) {
-      // Bloqueo estricto RBAC: Solo Administrador Global puede acceder a usuarios o sheets
-      if ((vistaId === 'usuarios' || vistaId === 'sheets') && (!currentUser || currentUser.rol !== 'admin')) {
-        lanzarToast('Acceso denegado: Se requieren permisos de Administrador Global.', 'error');
+      // Bloqueo estricto RBAC: Solo Administrador Global puede acceder a usuarios, sheets o configuración
+      if ((vistaId === 'usuarios' || vistaId === 'sheets' || vistaId === 'configuracion') && (!currentUser || currentUser.rol !== 'admin')) {
+        lanzarToast('Acceso denegado: Se requieren privilegios de Administrador Global.', 'error');
         vistaId = 'dashboard';
       }
 
@@ -3417,6 +3467,10 @@
     }
 
     function abrirModalNuevoAsesor() {
+      if (!currentUser || currentUser.rol !== 'admin') {
+        lanzarToast('Acceso denegado: Solo el Administrador Global puede registrar nuevos asesores.', 'error');
+        return;
+      }
       document.getElementById('modal-nuevo-asesor')?.classList.remove('hidden');
     }
     function cerrarModalNuevoAsesor() {
@@ -3498,6 +3552,10 @@
     let asesorKeyAEliminar = null;
 
     function confirmarEliminarAsesor(key) {
+      if (!currentUser || currentUser.rol !== 'admin') {
+        lanzarToast('Acceso denegado: Solo el Administrador Global puede eliminar asesores.', 'error');
+        return;
+      }
       const a = asesores[key];
       if (!a) return;
       asesorKeyAEliminar = key;
@@ -3605,6 +3663,13 @@
     function abrirModalEditar(id) {
       const p = propiedades.find(x => String(x.id) === String(id));
       if (!p) return;
+
+      // Bloqueo RBAC: Asesor solo puede editar sus propiedades
+      if (currentUser && currentUser.rol === 'asesor' && p.id_asesor !== currentUser.id) {
+        lanzarToast("Acceso denegado: No tienes permiso para editar propiedades de otros asesores.", "error");
+        return;
+      }
+
       propiedadEnEdicion = String(id);
 
       document.getElementById('edit-prop-id').value = p.id;
@@ -3621,6 +3686,8 @@
         selectAsesor.innerHTML = Object.entries(asesores).map(([k, a]) => {
           return `<option value="${k}" class="bg-neutral-900 text-white" ${k === p.id_asesor ? 'selected' : ''}>${a.nombre} — ${a.puesto}</option>`;
         }).join('');
+        // Asesor no puede reasignar su propiedad a otro asesor
+        selectAsesor.disabled = (currentUser && currentUser.rol === 'asesor');
       }
 
       const esVendida = p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid');
@@ -3660,6 +3727,12 @@
       const id = propiedadEnEdicion;
       const p = propiedades.find(x => String(x.id) === String(id));
       if (!p) return;
+
+      // Bloqueo RBAC: Asesor solo puede guardar cambios en sus propiedades
+      if (currentUser && currentUser.rol === 'asesor' && p.id_asesor !== currentUser.id) {
+        lanzarToast("Acceso denegado: No tienes permiso para editar propiedades de otros asesores.", "error");
+        return;
+      }
 
       const titulo = document.getElementById('edit-titulo').value.trim();
       const precio = document.getElementById('edit-precio').value.trim();
@@ -3952,33 +4025,59 @@
         }
       }
 
-      // Restricciones de Menú y Pantallas
+      // Restricciones de Menú y Pantallas RBAC (Google Sheets & Configuración)
       const navUsuarios = document.getElementById('nav-item-usuarios');
       const navSheets = document.getElementById('nav-item-sheets');
+      const navConfig = document.getElementById('nav-item-configuracion');
+      const topSync = document.getElementById('btn-top-sync');
+      const dashSync = document.getElementById('btn-dash-sync');
+      const dashSheetBanner = document.getElementById('dash-google-sheet-banner');
+      const dashAsesorBanner = document.getElementById('dash-asesor-banner');
       const dashFinancial = document.getElementById('dash-financial-actions');
-      const dashAsesorBadge = document.getElementById('dash-asesor-banner-badge');
+      const dashTitle = document.getElementById('dash-props-title');
+      const dashSubtitle = document.getElementById('dash-props-subtitle');
       const selectAsesorNueva = document.getElementById('asesor');
 
       if (currentUser.rol === 'asesor') {
+        // Bloquear accesos administrativos y Google Sheets a asesores
         if (navUsuarios) navUsuarios.style.display = 'none';
         if (navSheets) navSheets.style.display = 'none';
-        if (dashFinancial) dashFinancial.style.display = 'none';
-        if (dashAsesorBadge) {
-          dashAsesorBadge.classList.remove('hidden');
-          dashAsesorBadge.classList.add('flex');
+        if (navConfig) navConfig.style.display = 'none';
+        if (topSync) topSync.style.display = 'none';
+        if (dashSync) dashSync.style.display = 'none';
+        if (dashSheetBanner) dashSheetBanner.style.display = 'none';
+        if (dashAsesorBanner) {
+          dashAsesorBanner.classList.remove('hidden');
+          dashAsesorBanner.style.display = 'flex';
+          const nameSpan = document.getElementById('dash-asesor-banner-name');
+          if (nameSpan) nameSpan.textContent = currentUser.nombre;
         }
+        if (dashFinancial) dashFinancial.style.display = 'none';
+        const btnNuevoAsesorHdr = document.getElementById('btn-nuevo-asesor-header');
+        if (btnNuevoAsesorHdr) btnNuevoAsesorHdr.style.display = 'none';
+        if (dashTitle) dashTitle.textContent = 'Mis Propiedades Asignadas';
+        if (dashSubtitle) dashSubtitle.textContent = 'Portafolio exclusivo asignado a tu gestión.';
         if (selectAsesorNueva) {
           selectAsesorNueva.value = currentUser.id;
           selectAsesorNueva.disabled = true;
         }
       } else {
+        // Modo Admin Global: Acceso total
         if (navUsuarios) navUsuarios.style.display = 'flex';
         if (navSheets) navSheets.style.display = 'flex';
-        if (dashFinancial) dashFinancial.style.display = 'flex';
-        if (dashAsesorBadge) {
-          dashAsesorBadge.classList.add('hidden');
-          dashAsesorBadge.classList.remove('flex');
+        if (navConfig) navConfig.style.display = 'flex';
+        if (topSync) topSync.style.display = 'inline-flex';
+        if (dashSync) dashSync.style.display = 'inline-flex';
+        if (dashSheetBanner) dashSheetBanner.style.display = 'flex';
+        if (dashAsesorBanner) {
+          dashAsesorBanner.classList.add('hidden');
+          dashAsesorBanner.style.display = 'none';
         }
+        if (dashFinancial) dashFinancial.style.display = 'flex';
+        const btnNuevoAsesorHdr = document.getElementById('btn-nuevo-asesor-header');
+        if (btnNuevoAsesorHdr) btnNuevoAsesorHdr.style.display = 'inline-flex';
+        if (dashTitle) dashTitle.textContent = 'Propiedades VIP en Portafolio';
+        if (dashSubtitle) dashSubtitle.textContent = 'Listado interactivo conectado directamente con Google Sheets.';
         if (selectAsesorNueva) {
           selectAsesorNueva.disabled = false;
         }
