@@ -125,6 +125,13 @@
           <span id="badge-total-props" class="ml-auto text-[11px] bg-neutral-900 text-neutral-200 px-2.5 py-0.5 rounded-full font-bold border border-neutral-800">10 VIP</span>
         </button>
 
+        <!-- Calendario & Citas VIP (Disponible para Todos) -->
+        <button id="nav-item-calendario" type="button" onclick="navegarA('calendario')" data-tab="calendario" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white hover:bg-neutral-900/80 transition-all text-left">
+          <i class="fa-solid fa-calendar-days w-5 text-center text-neutral-400"></i>
+          <span>Calendario & Citas</span>
+          <span id="badge-sidebar-citas" class="ml-auto text-[11px] bg-neutral-900 text-neutral-300 px-2 py-0.5 rounded-full font-bold border border-neutral-800">0 citas</span>
+        </button>
+
         <!-- 3. Asesores VIP -->
         <button type="button" onclick="navegarA('asesores')" data-tab="asesores" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white hover:bg-neutral-900/80 transition-all text-left">
           <i class="fa-solid fa-user-tie w-5 text-center text-neutral-400"></i>
@@ -692,7 +699,10 @@
                 </div>
 
                 <div class="pt-3 border-t border-neutral-900 flex items-center justify-between text-[11px] text-neutral-500 mt-4">
-                  <span>Marca tareas para mantener al día tus compromisos comerciales.</span>
+                  <button type="button" onclick="navegarA('calendario')" class="hover:text-white transition-colors flex items-center gap-1 cursor-pointer font-semibold text-neutral-400 hover:underline">
+                    <i class="fa-solid fa-calendar-days text-emerald-400"></i>
+                    <span>Ver Calendario Completo</span>
+                  </button>
                   <button type="button" onclick="limpiarTareasCompletadas()" class="hover:text-white transition-colors underline cursor-pointer">Limpiar terminadas</button>
                 </div>
               </div>
@@ -1208,6 +1218,137 @@
         <!-- ========================================================
              VISTA 4: GOOGLE SHEET CSV (CONEXIÓN EN VIVO)
              ======================================================== -->
+        
+        <!-- =======================================================
+             SECCIÓN 3.5: CALENDARIO & AGEDA DE CITAS VIP
+             ======================================================= -->
+        <section id="view-calendario" class="view-panel hidden space-y-8">
+          
+          <!-- Encabezado de Calendario -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-neutral-800/80">
+            <div class="flex items-center gap-3.5">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-neutral-800 to-neutral-900 border border-neutral-700/80 flex items-center justify-center text-white text-xl shadow-md shrink-0">
+                <i class="fa-solid fa-calendar-days"></i>
+              </div>
+              <div>
+                <h2 class="font-serif text-2xl font-bold text-white tracking-tight">Calendario & Agenda de Citas VIP</h2>
+                <p class="text-xs text-neutral-400 mt-0.5">Programa visitas guiadas, firmas de promesas, citas con inversionistas y notas de lockbox.</p>
+              </div>
+            </div>
+
+            <!-- Acciones Rápidas del Calendario -->
+            <div class="flex flex-wrap items-center gap-2.5">
+              <button type="button" onclick="descargarCalendarioICS()" class="px-3.5 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white rounded-xl text-xs font-semibold border border-neutral-700 transition-all flex items-center gap-2 cursor-pointer shadow-xs" title="Exportar para iPhone, Android o Google Calendar">
+                <i class="fa-solid fa-mobile-screen-button text-xs text-emerald-400"></i>
+                <span>Descargar .ics Móvil</span>
+              </button>
+              <button type="button" onclick="abrirModalSincronizarCalendario()" class="px-3.5 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white rounded-xl text-xs font-semibold border border-neutral-700 transition-all flex items-center gap-2 cursor-pointer shadow-xs">
+                <i class="fa-solid fa-cloud-arrow-up text-xs text-blue-400"></i>
+                <span>Sincronizar / Respaldo</span>
+              </button>
+              <button type="button" onclick="abrirModalNuevaActividad()" class="px-4 py-2.5 bg-white hover:bg-neutral-200 text-black rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md">
+                <i class="fa-solid fa-plus text-xs"></i>
+                <span>Nueva Actividad</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Cuadrícula Principal: Calendario Mensual (7 cols) + Agenda Diaria (5 cols) -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Calendario Mensual Interactivo -->
+            <div class="lg:col-span-7 bg-[#141414] rounded-3xl p-6 border border-[#262626] shadow-sm flex flex-col justify-between">
+              <div>
+                <!-- Barra de Navegación del Mes -->
+                <div class="flex items-center justify-between pb-4 mb-4 border-b border-neutral-800/80">
+                  <h3 id="cal-mes-ano-titulo" class="font-serif text-xl font-bold text-white tracking-wide">
+                    Noviembre 2026
+                  </h3>
+                  <div class="flex items-center gap-1.5">
+                    <button type="button" onclick="cambiarMesCalendario(-1)" class="w-8 h-8 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white border border-neutral-800 flex items-center justify-center transition-all cursor-pointer" title="Mes Anterior">
+                      <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </button>
+                    <button type="button" onclick="irHoyCalendario()" class="px-3 h-8 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-800 text-xs font-semibold transition-all cursor-pointer">
+                      Hoy
+                    </button>
+                    <button type="button" onclick="cambiarMesCalendario(1)" class="w-8 h-8 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white border border-neutral-800 flex items-center justify-center transition-all cursor-pointer" title="Mes Siguiente">
+                      <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Cabeceras de Días de la Semana -->
+                <div class="grid grid-cols-7 gap-2 mb-2 text-center">
+                  <span class="text-[11px] font-bold uppercase tracking-wider text-neutral-500 py-1">Dom</span>
+                  <span class="text-[11px] font-bold uppercase tracking-wider text-neutral-400 py-1">Lun</span>
+                  <span class="text-[11px] font-bold uppercase tracking-wider text-neutral-400 py-1">Mar</span>
+                  <span class="text-[11px] font-bold uppercase tracking-wider text-neutral-400 py-1">Mié</span>
+                  <span class="text-[11px] font-bold uppercase tracking-wider text-neutral-400 py-1">Jue</span>
+                  <span class="text-[11px] font-bold uppercase tracking-wider text-neutral-400 py-1">Vie</span>
+                  <span class="text-[11px] font-bold uppercase tracking-wider text-neutral-500 py-1">Sáb</span>
+                </div>
+
+                <!-- Celdas de los Días del Mes (Generadas Dinámicamente) -->
+                <div id="cal-grid-dias" class="grid grid-cols-7 gap-2">
+                  <!-- Inyectado por renderizarCalendario() -->
+                </div>
+              </div>
+
+              <!-- Leyenda Minimalista Dark Luxury -->
+              <div class="pt-4 mt-4 border-t border-neutral-900 flex flex-wrap items-center justify-between text-[11px] text-neutral-500 gap-2">
+                <div class="flex items-center gap-3">
+                  <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Visitas</span>
+                  <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400"></span> Firmas/Cierres</span>
+                  <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-400"></span> Reuniones</span>
+                </div>
+                <span>Haz clic en un día para ver su agenda.</span>
+              </div>
+            </div>
+
+            <!-- Panel Lateral: Agenda del Día Seleccionado & Próximas Citas -->
+            <div class="lg:col-span-5 space-y-6">
+              
+              <!-- Agenda del Día -->
+              <div class="bg-[#141414] rounded-3xl p-6 border border-[#262626] shadow-sm">
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-neutral-800">
+                  <div class="min-w-0">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Agenda Seleccionada</span>
+                    <h4 id="cal-dia-seleccionado-titulo" class="font-serif text-base font-bold text-white truncate mt-0.5">
+                      Cargando fecha...
+                    </h4>
+                  </div>
+                  <button type="button" onclick="abrirModalNuevaActividad()" class="px-3 py-1.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl transition-all shadow-xs shrink-0 cursor-pointer">
+                    + Agendar
+                  </button>
+                </div>
+
+                <!-- Lista de Citas del Día -->
+                <div id="cal-agenda-dia-lista" class="space-y-2.5 max-h-80 overflow-y-auto pr-1">
+                  <!-- Inyectado por renderizarDetalleDiaSeleccionado() -->
+                </div>
+              </div>
+
+              <!-- Próximos Eventos de la Semana -->
+              <div class="bg-[#141414] rounded-3xl p-6 border border-[#262626] shadow-sm">
+                <div class="flex items-center justify-between pb-3 mb-3 border-b border-neutral-800">
+                  <h4 class="font-serif text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-xs text-neutral-400"></i>
+                    <span>Próximos Compromisos (7 días)</span>
+                  </h4>
+                  <span class="text-[10px] font-mono text-neutral-500">Recordatorios</span>
+                </div>
+
+                <div id="cal-proximos-eventos-lista" class="space-y-2">
+                  <!-- Inyectado dinámicamente -->
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
         <section id="view-sheets" class="view-panel hidden space-y-8">
           
           <!-- Encabezado de Sheets -->
@@ -2459,7 +2600,7 @@
     const propiedadesRespaldo = [
       { id: "1", titulo: "Penthouse Exclusivo - Zona 15", precio: "$770,000 USD", cuartos: "3 Habs", banos: "2.5 Baños", metros: "292 m²", ubicacion: "Zona 15 • Vista Hermosa", imagen_portada: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80", id_asesor: "carmen", estado: "Disponible", es_vendida: false },
       { id: "2", titulo: "Mansión Moderna en Cayalá", precio: "$1,250,000 USD", cuartos: "4 Habs", banos: "5 Baños", metros: "650 m²", ubicacion: "Zona 16 • Paseo Cayalá", imagen_portada: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80", id_asesor: "santiago", estado: "Disponible", es_vendida: false },
-      { id: "3", titulo: "Apartamento Ideal Inversión - Zona 14", precio: "$285,000 USD", cuartos: "2 Habs", banos: "2 Baños", metros: "115 m²", ubicacion: "Zona 14 • Las Américas", imagen_portada: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80", id_asesor: "joseluis", estado: "Vendida", es_vendida: true }
+      { id: "3", titulo: "Apartamento Ideal Inversión - Zona 14", precio: "$285,000 USD", cuartos: "2 Habs", banos: "2 Baños", metros: "115 m²", ubicacion: "Zona 14 • Las Américas", imagen_portada: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80", id_asesor: "joseluis", estado: "Disponible", es_vendida: false }
     ];
 
     let propiedades = [...propiedadesRespaldo];
@@ -3625,6 +3766,7 @@
         'dashboard': 'Dashboard Ejecutivo',
         'propiedades': 'Gestión de Propiedades VIP',
         'asesores': 'Directorio de Asesores VIP',
+        'calendario': 'Calendario & Agenda de Citas VIP',
         'sheets': 'Conexión Google Sheets CSV',
         'configuracion': 'Configuración del Sistema',
         'usuarios': 'Gestión de Usuarios & Roles RBAC'
@@ -5031,21 +5173,76 @@
     // ========================================================================
     // SUITE DE PRODUCTIVIDAD Y GESTIÓN DIARIA (DARK LUXURY - SIN EMOJIS)
     // ========================================================================
+    // ============================================================================
+    // SUITE DE PRODUCTIVIDAD, CALENDARIO & METAS COMERCIALES VIP (DARK LUXURY)
+    // ============================================================================
     function getProdUserId() {
       return currentUser ? currentUser.id : 'global';
     }
 
-    // 1. METAS Y PROGRESO (GAMIFICACIÓN COMERCIAL)
-    function getMetaMensual() {
+    // 1. METAS Y PROGRESO COMERCIAL (USD / GTQ & PRECIO DE CIERRE)
+    function getMetaMensualConfig() {
       const uId = getProdUserId();
-      const val = localStorage.getItem('santander_goal_' + uId);
-      return val ? parseInt(val, 10) : 1000000;
+      const raw = localStorage.getItem('santander_goal_config_' + uId);
+      if (raw) {
+        try {
+          const cfg = JSON.parse(raw);
+          if (cfg && cfg.monto) return cfg;
+        } catch(e) {}
+      }
+      const legacy = localStorage.getItem('santander_goal_' + uId);
+      if (legacy) {
+        const val = parseInt(legacy, 10);
+        if (!isNaN(val) && val > 0) return { monto: val, moneda: 'USD' };
+      }
+      return { monto: 1000000, moneda: 'USD' };
+    }
+
+    function cambiarMonedaAjusteMeta(moneda) {
+      const simboloEl = document.getElementById('ajuste-meta-simbolo');
+      const inputEl = document.getElementById('input-ajuste-meta-monto');
+      const presetsEl = document.getElementById('ajuste-meta-presets');
+      const ayudaEl = document.getElementById('ajuste-meta-ayuda');
+
+      if (moneda === 'GTQ') {
+        if (simboloEl) simboloEl.textContent = 'Q';
+        if (inputEl && (!inputEl.value || inputEl.value === '1000000')) inputEl.value = '7800000';
+        if (ayudaEl) ayudaEl.textContent = 'Ingresa el monto en Quetzales (ej: 7800000 para Q7.8M GTQ).';
+        if (presetsEl) {
+          presetsEl.innerHTML = `
+            <button type="button" onclick="setPresetMeta(4000000)" class="py-1.5 px-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white rounded-lg text-xs font-mono font-bold border border-neutral-800 transition-all cursor-pointer">Q4.0M</button>
+            <button type="button" onclick="setPresetMeta(7800000)" class="py-1.5 px-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white rounded-lg text-xs font-mono font-bold border border-neutral-800 transition-all cursor-pointer">Q7.8M</button>
+            <button type="button" onclick="setPresetMeta(10000000)" class="py-1.5 px-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white rounded-lg text-xs font-mono font-bold border border-neutral-800 transition-all cursor-pointer">Q10M</button>
+            <button type="button" onclick="setPresetMeta(15000000)" class="py-1.5 px-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white rounded-lg text-xs font-mono font-bold border border-neutral-800 transition-all cursor-pointer">Q15M</button>
+          `;
+        }
+      } else {
+        if (simboloEl) simboloEl.textContent = '$';
+        if (inputEl && (!inputEl.value || inputEl.value === '7800000')) inputEl.value = '1000000';
+        if (ayudaEl) ayudaEl.textContent = 'Ingresa el monto en USD (ejemplo: 1000000 para $1.0M USD).';
+        if (presetsEl) {
+          presetsEl.innerHTML = `
+            <button type="button" onclick="setPresetMeta(500000)" class="py-1.5 px-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white rounded-lg text-xs font-mono font-bold border border-neutral-800 transition-all cursor-pointer">$500K</button>
+            <button type="button" onclick="setPresetMeta(1000000)" class="py-1.5 px-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white rounded-lg text-xs font-mono font-bold border border-neutral-800 transition-all cursor-pointer">$1.0M</button>
+            <button type="button" onclick="setPresetMeta(1500000)" class="py-1.5 px-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white rounded-lg text-xs font-mono font-bold border border-neutral-800 transition-all cursor-pointer">$1.5M</button>
+            <button type="button" onclick="setPresetMeta(2000000)" class="py-1.5 px-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white rounded-lg text-xs font-mono font-bold border border-neutral-800 transition-all cursor-pointer">$2.0M</button>
+          `;
+        }
+      }
+    }
+
+    function setPresetMeta(val) {
+      const inputEl = document.getElementById('input-ajuste-meta-monto');
+      if (inputEl) inputEl.value = val;
     }
 
     function abrirModalAjustarMeta() {
-      const actual = getMetaMensual();
-      const input = document.getElementById('input-ajuste-meta');
-      if (input) input.value = actual;
+      const cfg = getMetaMensualConfig();
+      const selMoneda = document.getElementById('input-ajuste-meta-moneda');
+      const inputMonto = document.getElementById('input-ajuste-meta-monto');
+      if (selMoneda) selMoneda.value = cfg.moneda || 'USD';
+      cambiarMonedaAjusteMeta(cfg.moneda || 'USD');
+      if (inputMonto) inputMonto.value = cfg.monto || 1000000;
       document.getElementById('modal-ajustar-meta')?.classList.remove('hidden');
     }
 
@@ -5055,36 +5252,147 @@
 
     function guardarAjusteMeta(e) {
       e.preventDefault();
-      const input = document.getElementById('input-ajuste-meta');
-      if (!input) return;
-      const val = parseInt(input.value, 10);
-      if (isNaN(val) || val < 10000) {
-        lanzarToast('Por favor ingresa un monto válido mayor a $10,000 USD', 'error');
+      const inputMonto = document.getElementById('input-ajuste-meta-monto');
+      const selectMoneda = document.getElementById('input-ajuste-meta-moneda');
+      if (!inputMonto) return;
+      const val = parseInt(inputMonto.value, 10);
+      const moneda = selectMoneda ? selectMoneda.value : 'USD';
+      const minVal = moneda === 'GTQ' ? 50000 : 10000;
+      if (isNaN(val) || val < minVal) {
+        lanzarToast('Ingresa un monto válido mayor a ' + (moneda === 'GTQ' ? 'Q50,000' : '$10,000'), 'error');
         return;
       }
       const uId = getProdUserId();
+      localStorage.setItem('santander_goal_config_' + uId, JSON.stringify({ monto: val, moneda }));
       localStorage.setItem('santander_goal_' + uId, String(val));
       cerrarModalAjustarMeta();
       renderizarProductividadWorkspace();
-      lanzarToast('Meta comercial mensual actualizada a ' + String.fromCharCode(36) + val.toLocaleString('en-US') + ' USD', 'success');
+      const formatted = moneda === 'GTQ' ? ('Q' + val.toLocaleString('es-GT') + ' GTQ') : ('$' + val.toLocaleString('en-US') + ' USD');
+      lanzarToast('Meta comercial mensual actualizada a ' + formatted, 'success');
+    }
+
+    function toggleDetalleCierres() {
+      const cont = document.getElementById('prod-meta-operaciones-container');
+      if (!cont) return;
+      cont.classList.toggle('hidden');
+    }
+
+    // Modal Editar Precio Real de Cierre
+    function abrirModalEditarPrecioCierre(propId) {
+      const prop = propiedades.find(p => String(p.id) === String(propId));
+      if (!prop) return;
+
+      document.getElementById('edit-cierre-prop-id').value = prop.id;
+      document.getElementById('edit-cierre-prop-titulo').textContent = prop.titulo;
+      document.getElementById('edit-cierre-prop-lista').textContent = prop.precio;
+
+      let montoActual = 0;
+      let monedaActual = 'USD';
+
+      if (prop.precio_cierre) {
+        montoActual = prop.precio_cierre;
+        monedaActual = prop.precio_cierre_moneda || 'USD';
+      } else {
+        const raw = String(prop.precio || '');
+        monedaActual = raw.includes('Q') ? 'GTQ' : 'USD';
+        montoActual = parseInt(raw.replace(/[^0-9]/g, ''), 10) || 0;
+      }
+
+      document.getElementById('edit-cierre-moneda').value = monedaActual;
+      document.getElementById('edit-cierre-monto').value = montoActual;
+      document.getElementById('edit-cierre-notas').value = prop.precio_cierre_notas || '';
+
+      document.getElementById('modal-editar-precio-cierre')?.classList.remove('hidden');
+    }
+
+    function cerrarModalEditarPrecioCierre() {
+      document.getElementById('modal-editar-precio-cierre')?.classList.add('hidden');
+    }
+
+    function guardarPrecioCierre(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-cierre-prop-id').value;
+      const moneda = document.getElementById('edit-cierre-moneda').value;
+      const monto = parseInt(document.getElementById('edit-cierre-monto').value, 10);
+      const notas = document.getElementById('edit-cierre-notas').value.trim();
+
+      if (isNaN(monto) || monto <= 0) {
+        lanzarToast('Ingresa un monto de cierre válido.', 'error');
+        return;
+      }
+
+      const prop = propiedades.find(p => String(p.id) === String(id));
+      if (!prop) return;
+
+      prop.precio_cierre = monto;
+      prop.precio_cierre_moneda = moneda;
+      prop.precio_cierre_notas = notas;
+
+      // Persistir en santander_propiedades_locales
+      try {
+        let locales = JSON.parse(localStorage.getItem('santander_propiedades_locales') || '[]');
+        const idx = locales.findIndex(l => String(l.id) === String(id));
+        if (idx !== -1) {
+          locales[idx].precio_cierre = monto;
+          locales[idx].precio_cierre_moneda = moneda;
+          locales[idx].precio_cierre_notas = notas;
+        } else {
+          locales.unshift({ ...prop });
+        }
+        localStorage.setItem('santander_propiedades_locales', JSON.stringify(locales));
+      } catch (err) { console.error(err); }
+
+      cerrarModalEditarPrecioCierre();
+      renderizarProductividadWorkspace();
+      renderizarTodo();
+
+      const displayMonto = moneda === 'GTQ' ? ('Q' + monto.toLocaleString('es-GT') + ' GTQ') : ('$' + monto.toLocaleString('en-US') + ' USD');
+      lanzarToast('Precio de cierre registrado: ' + displayMonto, 'success');
     }
 
     function renderizarMeta() {
       const uId = getProdUserId();
-      const meta = getMetaMensual();
-      const esAdmin = currentUser && currentUser.rol === 'admin';
+      const config = getMetaMensualConfig();
+      const meta = config.monto;
+      const moneda = config.moneda || 'USD';
 
-      const misPropiedades = propiedades.filter(p => esAdmin || p.id_asesor === uId);
+      // REGLA CLAVE: Solo contar propiedades que pertenecen al usuario activo
+      const misPropiedades = propiedades.filter(p => p.id_asesor === uId);
       const vendidas = misPropiedades.filter(p => p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid'));
 
-      let totalVendidoUSD = 0;
+      let totalVendidoEnMonedaMeta = 0;
       vendidas.forEach(p => {
-        const num = parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0;
-        if (num >= 10000) totalVendidoUSD += num;
+        let montoNum = 0;
+        let propMoneda = 'USD';
+
+        if (p.precio_cierre && !isNaN(Number(p.precio_cierre))) {
+          montoNum = Number(p.precio_cierre);
+          propMoneda = p.precio_cierre_moneda || 'USD';
+        } else {
+          const rawPrecio = String(p.precio || '');
+          propMoneda = rawPrecio.includes('Q') ? 'GTQ' : 'USD';
+          montoNum = parseInt(rawPrecio.replace(/[^0-9]/g, ''), 10) || 0;
+        }
+
+        // Tasa estándar: 1 USD = 7.80 GTQ
+        if (moneda === 'USD' && propMoneda === 'GTQ') {
+          montoNum = Math.round(montoNum / 7.8);
+        } else if (moneda === 'GTQ' && propMoneda === 'USD') {
+          montoNum = Math.round(montoNum * 7.8);
+        }
+
+        totalVendidoEnMonedaMeta += montoNum;
       });
 
-      const pct = Math.min(100, Math.round((totalVendidoUSD / meta) * 100));
-      const restante = Math.max(0, meta - totalVendidoUSD);
+      const pct = meta > 0 ? Math.min(100, Math.round((totalVendidoEnMonedaMeta / meta) * 100)) : 0;
+      const restante = Math.max(0, meta - totalVendidoEnMonedaMeta);
+
+      const formato = (val) => {
+        if (moneda === 'GTQ') {
+          return 'Q' + val.toLocaleString('es-GT') + ' GTQ';
+        }
+        return '$' + val.toLocaleString('en-US') + ' USD';
+      };
 
       const elemTarget = document.getElementById('prod-meta-target');
       const elemVendido = document.getElementById('prod-meta-vendido');
@@ -5094,46 +5402,72 @@
       const elemMsg = document.getElementById('prod-meta-msg');
       const elemRestante = document.getElementById('prod-meta-restante');
 
-      if (elemTarget) elemTarget.textContent = String.fromCharCode(36) + meta.toLocaleString('en-US') + ' USD';
-      if (elemVendido) elemVendido.textContent = String.fromCharCode(36) + totalVendidoUSD.toLocaleString('en-US') + ' USD';
+      if (elemTarget) elemTarget.textContent = formato(meta);
+      if (elemVendido) elemVendido.textContent = formato(totalVendidoEnMonedaMeta);
       if (elemPct) elemPct.textContent = pct + '%';
       if (elemBar) elemBar.style.width = pct + '%';
       if (elemCount) {
         elemCount.textContent = vendidas.length + (vendidas.length === 1 ? ' operación cerrada' : ' operaciones cerradas');
       }
       if (elemRestante) {
-        elemRestante.textContent = restante === 0 ? 'Meta cumplida' : String.fromCharCode(36) + restante.toLocaleString('en-US') + ' USD restantes';
+        elemRestante.textContent = restante === 0 ? 'Meta cumplida' : formato(restante) + ' restantes';
+      }
+
+      // Detalle de operaciones vendidas del asesor
+      const containerOperaciones = document.getElementById('prod-meta-operaciones-lista');
+      if (containerOperaciones) {
+        if (vendidas.length === 0) {
+          containerOperaciones.innerHTML = '<p class="text-xs text-neutral-500 py-3 text-center italic">Sin operaciones cerradas aún. Marca una de tus propiedades como Vendida para registrar avance.</p>';
+        } else {
+          containerOperaciones.innerHTML = vendidas.map(p => {
+            const displayCierre = p.precio_cierre 
+              ? (p.precio_cierre_moneda === 'GTQ' ? ('Q' + p.precio_cierre.toLocaleString('es-GT')) : ('$' + p.precio_cierre.toLocaleString('en-US') + ' USD'))
+              : p.precio;
+
+            return `
+              <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#0D0D0D] border border-neutral-900 hover:border-neutral-800 transition-all text-xs">
+                <div class="min-w-0 flex-1 pr-2">
+                  <p class="font-bold text-white truncate">${p.titulo}</p>
+                  <p class="text-[11px] text-neutral-400 font-mono mt-0.5">
+                    Cierre Real: <span class="text-emerald-400 font-bold">${displayCierre}</span>
+                    <span class="text-neutral-500 text-[10px] ml-1">(Lista: ${p.precio})</span>
+                  </p>
+                </div>
+                <button type="button" onclick="abrirModalEditarPrecioCierre('${p.id}')" class="px-2.5 py-1 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-700 rounded-lg text-[11px] font-semibold transition-all flex items-center gap-1 cursor-pointer shrink-0" title="Editar precio de cierre acordado">
+                  <i class="fa-solid fa-pen text-[10px] text-amber-400"></i> Editar Cierre
+                </button>
+              </div>
+            `;
+          }).join('');
+        }
       }
 
       if (elemMsg) {
-        if (pct >= 100) {
-          elemMsg.textContent = 'Objetivo comercial mensual alcanzado con éxito. Excelente desempeño en cartera.';
+        if (vendidas.length === 0) {
+          elemMsg.textContent = 'Aún no registras operaciones cerradas. Las propiedades que marques como Vendidas se sumarán aquí automáticamente.';
+        } else if (pct >= 100) {
+          elemMsg.textContent = '¡Felicidades! Objetivo comercial mensual alcanzado con éxito. Excelente desempeño en cartera.';
         } else if (pct >= 75) {
           elemMsg.textContent = 'A poca distancia de la meta: mantén el seguimiento activo de negociaciones en cierre.';
-        } else if (pct >= 40) {
-          elemMsg.textContent = 'Ritmo constante: continúa promoviendo las residencias asignadas para acelerar cierres.';
-        } else if (vendidas.length > 0) {
-          elemMsg.textContent = 'Primeros cierres registrados. Continúa con prospectos calificados para cumplir la meta.';
         } else {
-          elemMsg.textContent = 'Registra el cierre de tus propiedades asignadas para aumentar tu volumen comercial.';
+          elemMsg.textContent = 'Operaciones en curso registradas. Continúa promoviendo tus propiedades exclusivas para alcanzar el 100%.';
         }
       }
     }
 
-    // 2. GESTOR DE TAREAS Y AGENDA
+    // 2. GESTOR DE TAREAS Y AGENDA (SIN ELEMENTOS FALSOS / UNDEFINED)
     function getTareasUsuario() {
       const uId = getProdUserId();
       const raw = localStorage.getItem('santander_tasks_' + uId);
       if (raw) {
-        try { return JSON.parse(raw); } catch (e) {}
+        try {
+          const arr = JSON.parse(raw);
+          if (Array.isArray(arr)) {
+            return arr.filter(t => t && (t.texto || t.title || t.descripcion));
+          }
+        } catch (e) {}
       }
-      const defaultTasks = [
-        { id: 't1', texto: 'Llamar a prospecto interesado en Penthouse Zona 15', completada: false, creada: Date.now() },
-        { id: 't2', texto: 'Confirmar visita guiada a Mansión en Cayalá a las 4:00 PM', completada: true, creada: Date.now() - 3600000 },
-        { id: 't3', texto: 'Enviar ficha técnica de inversión en Zona 14', completada: false, creada: Date.now() - 7200000 }
-      ];
-      localStorage.setItem('santander_tasks_' + uId, JSON.stringify(defaultTasks));
-      return defaultTasks;
+      return [];
     }
 
     function saveTareasUsuario(tareas) {
@@ -5191,64 +5525,70 @@
       if (counter) counter.textContent = pendientes + (pendientes === 1 ? ' pendiente' : ' pendientes');
 
       if (tareas.length === 0) {
-        container.innerHTML = '<div class="py-6 text-center text-xs text-neutral-500">No tienes tareas pendientes. ¡Todo al día!</div>';
+        container.innerHTML = '<div class="py-8 text-center text-xs text-neutral-500 italic">No tienes tareas pendientes. ¡Todo al día! Escribe arriba para agregar una nueva.</div>';
         return;
       }
 
       container.innerHTML = tareas.map(t => {
-        return '<div class="flex items-center justify-between p-2.5 rounded-xl bg-[#0D0D0D] border border-neutral-900 group hover:border-neutral-800 transition-all">' +
-          '<div class="flex items-center gap-3 min-w-0 flex-1">' +
-            '<button type="button" onclick="toggleTarea(\'' + t.id + '\')" class="w-5 h-5 rounded-lg border ' + (t.completada ? 'bg-white border-white text-black' : 'border-neutral-700 bg-neutral-900 hover:border-white') + ' flex items-center justify-center shrink-0 cursor-pointer transition-colors">' +
-              (t.completada ? '<i class="fa-solid fa-check text-[10px]"></i>' : '') +
-            '</button>' +
-            '<span class="text-xs truncate ' + (t.completada ? 'line-through text-neutral-500' : 'text-neutral-200') + '">' +
-              t.texto +
-            '</span>' +
-          '</div>' +
-          '<button type="button" onclick="eliminarTarea(\'' + t.id + '\')" class="opacity-0 group-hover:opacity-100 p-1 text-neutral-500 hover:text-white rounded-lg transition-all ml-2 cursor-pointer">' +
-            '<i class="fa-solid fa-trash-can text-xs"></i>' +
-          '</button>' +
-        '</div>';
+        const textoSeguro = t.texto || t.title || t.descripcion || 'Tarea pendiente';
+        return `
+          <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#0D0D0D] border border-neutral-900 group hover:border-neutral-800 transition-all">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <button type="button" onclick="toggleTarea('${t.id}')" class="w-5 h-5 rounded-lg border ${t.completada ? 'bg-white border-white text-black' : 'border-neutral-700 bg-neutral-900 hover:border-white'} flex items-center justify-center shrink-0 cursor-pointer transition-colors" title="${t.completada ? 'Marcar pendiente' : 'Marcar completada'}">
+                ${t.completada ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}
+              </button>
+              <span class="text-xs truncate ${t.completada ? 'line-through text-neutral-500' : 'text-neutral-200'}">
+                ${textoSeguro}
+              </span>
+            </div>
+            <button type="button" onclick="eliminarTarea('${t.id}')" class="opacity-0 group-hover:opacity-100 p-1 text-neutral-500 hover:text-white rounded-lg transition-all ml-2 cursor-pointer" title="Eliminar tarea">
+              <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+          </div>
+        `;
       }).join('');
     }
 
-    // 3. BLOC DE NOTAS CON AUTO-GUARDADO
-    let notesSaveTimeout = null;
-    function getNotasUsuario() {
+    // 3. BLOC DE NOTAS PRIVADO CON AUTO-GUARDADO
+    let timeoutNotas = null;
+
+    function renderizarNotas() {
       const uId = getProdUserId();
-      return localStorage.getItem('santander_notes_' + uId) || '';
+      const notas = localStorage.getItem('santander_notes_' + uId) || '';
+      const textarea = document.getElementById('prod-notepad');
+      if (textarea && document.activeElement !== textarea) {
+        textarea.value = notas;
+      }
     }
 
-    function onNotesInput(val) {
-      const status = document.getElementById('prod-notes-status');
-      if (status) status.textContent = 'Guardando...';
-      clearTimeout(notesSaveTimeout);
-      notesSaveTimeout = setTimeout(() => {
+    function autoGuardarNotas() {
+      const textarea = document.getElementById('prod-notepad');
+      if (!textarea) return;
+      const statusEl = document.getElementById('prod-notes-status');
+      if (statusEl) statusEl.textContent = 'Guardando...';
+
+      if (timeoutNotas) clearTimeout(timeoutNotas);
+      timeoutNotas = setTimeout(() => {
         const uId = getProdUserId();
-        localStorage.setItem('santander_notes_' + uId, val);
-        if (status) status.textContent = 'Guardado localmente';
+        localStorage.setItem('santander_notes_' + uId, textarea.value);
+        if (statusEl) statusEl.textContent = 'Sincronizado';
       }, 400);
     }
 
-    function renderizarNotas() {
-      const textarea = document.getElementById('prod-notes-textarea');
-      if (textarea) textarea.value = getNotasUsuario();
-    }
-
-    // 4. LEADS Y CONTACTOS RECIENTES
+    // 4. RESUMEN DE LEADS Y CONTACTOS VIP (SCROLLABLE & SIN FALSOS)
     function getLeadsUsuario() {
       const uId = getProdUserId();
       const raw = localStorage.getItem('santander_leads_' + uId);
       if (raw) {
-        try { return JSON.parse(raw); } catch (e) {}
+        try {
+          const arr = JSON.parse(raw);
+          if (Array.isArray(arr)) {
+            // Filtrar cualquier elemento con nombre undefined o corrupto
+            return arr.filter(l => l && l.nombre && l.nombre !== 'undefined');
+          }
+        } catch (e) {}
       }
-      const defaultLeads = [
-        { id: 'l1', nombre: 'Carlos Mendoza', propiedad: 'Penthouse Zona 15', tel: '50255551122' },
-        { id: 'l2', nombre: 'Ing. Rodrigo Castillo', propiedad: 'Mansión Cayalá', tel: '50255553344' },
-        { id: 'l3', nombre: 'Licda. Sofia Morales', propiedad: 'Loft Zona 10', tel: '50255557788' }
-      ];
-      localStorage.setItem('santander_leads_' + uId, JSON.stringify(defaultLeads));
-      return defaultLeads;
+      return [];
     }
 
     function abrirModalNuevoLead() {
@@ -5279,12 +5619,12 @@
       leads.unshift({
         id: 'l_' + Date.now(),
         nombre,
-        propiedad: propiedad || 'Interés general VIP',
+        propiedad: propiedad || 'Interés en Portafolio VIP',
         tel
       });
 
       const uId = getProdUserId();
-      localStorage.setItem('santander_leads_' + uId, JSON.stringify(leads.slice(0, 10)));
+      localStorage.setItem('santander_leads_' + uId, JSON.stringify(leads));
       cerrarModalNuevoLead();
       renderizarLeads();
       lanzarToast('Contacto ' + nombre + ' registrado con éxito.', 'success');
@@ -5299,35 +5639,500 @@
     }
 
     function renderizarLeads() {
-      const leads = getLeadsUsuario().slice(0, 3);
+      const leads = getLeadsUsuario();
       const container = document.getElementById('prod-leads-lista');
       if (!container) return;
 
       if (leads.length === 0) {
-        container.innerHTML = '<div class="py-6 text-center text-xs text-neutral-500">Sin prospectos registrados aún.</div>';
+        container.innerHTML = '<div class="py-8 text-center text-xs text-neutral-500 italic">Sin prospectos registrados aún. Haz clic en "+ Nuevo" para agregar tu primer lead.</div>';
         return;
       }
 
       container.innerHTML = leads.map(l => {
-        const waMsg = encodeURIComponent('Hola ' + l.nombre + ', le saludo de Santander Real Estate respecto a su interés en: ' + (l.propiedad || 'nuestro portafolio exclusivo') + '.');
+        const propTexto = (l.propiedad && String(l.propiedad).trim() && l.propiedad !== 'undefined')
+          ? l.propiedad
+          : 'Portafolio VIP';
+        const waMsg = encodeURIComponent('Hola ' + l.nombre + ', le saludo de Santander Real Estate respecto a su interés en: ' + propTexto + '.');
         const waUrl = 'https://wa.me/' + l.tel + '?text=' + waMsg;
 
-        return '<div class="p-3 rounded-2xl bg-[#0D0D0D] border border-neutral-900 flex items-center justify-between gap-3 group hover:border-neutral-800 transition-all">' +
-          '<div class="min-w-0 flex-1">' +
-            '<p class="text-xs font-bold text-white truncate">' + l.nombre + '</p>' +
-            '<p class="text-[11px] text-neutral-400 truncate mt-0.5"><i class="fa-solid fa-house-chimney text-[10px] mr-1 text-neutral-500"></i>' + l.propiedad + '</p>' +
-          '</div>' +
-          '<div class="flex items-center gap-1.5 shrink-0">' +
-            '<a href="' + waUrl + '" target="_blank" class="px-2.5 py-1.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-xs">' +
-              '<i class="fa-brands fa-whatsapp text-xs"></i>' +
-              '<span>Chat</span>' +
-            '</a>' +
-            '<button type="button" onclick="eliminarLead(\'' + l.id + '\')" class="opacity-0 group-hover:opacity-100 p-1.5 text-neutral-500 hover:text-white rounded-lg transition-all cursor-pointer">' +
-              '<i class="fa-solid fa-xmark text-xs"></i>' +
-            '</button>' +
-          '</div>' +
-        '</div>';
+        return `
+          <div class="p-3 rounded-2xl bg-[#0D0D0D] border border-neutral-900 flex items-center justify-between gap-3 group hover:border-neutral-800 transition-all">
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-bold text-white truncate">${l.nombre}</p>
+              <p class="text-[11px] text-neutral-400 truncate mt-0.5 flex items-center gap-1.5">
+                <i class="fa-solid fa-house-chimney text-[10px] text-neutral-500"></i>
+                <span>${propTexto}</span>
+              </p>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <a href="${waUrl}" target="_blank" class="px-2.5 py-1.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-xs">
+                <i class="fa-brands fa-whatsapp text-xs"></i>
+                <span>Chat</span>
+              </a>
+              <button type="button" onclick="eliminarLead('${l.id}')" class="opacity-0 group-hover:opacity-100 p-1.5 text-neutral-500 hover:text-white rounded-lg transition-all cursor-pointer" title="Eliminar lead">
+                <i class="fa-solid fa-xmark text-xs"></i>
+              </button>
+            </div>
+          </div>
+        `;
       }).join('');
+    }
+
+    // ============================================================================
+    // 5. CALENDARIO DE ACTIVIDADES, CITAS & RECORDATORIOS (PERSISTENCIA TOTAL)
+    // ============================================================================
+    var fechaCalendarioActual = new Date();
+    var diaCalendarioSeleccionado = new Date();
+
+    function formatFechaYMD(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function getActividadesCalendario() {
+      const uId = getProdUserId();
+      const raw = localStorage.getItem('santander_calendar_' + uId);
+      if (raw) {
+        try {
+          const arr = JSON.parse(raw);
+          if (Array.isArray(arr)) return arr;
+        } catch(e) {}
+      }
+      return [];
+    }
+
+    function saveActividadesCalendario(actividades) {
+      const uId = getProdUserId();
+      localStorage.setItem('santander_calendar_' + uId, JSON.stringify(actividades));
+      actualizarBadgeCitas();
+      renderizarCalendario();
+    }
+
+    function actualizarBadgeCitas() {
+      const actividades = getActividadesCalendario();
+      const pendientes = actividades.filter(a => !a.completada).length;
+      const badge = document.getElementById('badge-sidebar-citas');
+      if (badge) {
+        badge.textContent = pendientes + (pendientes === 1 ? ' cita' : ' citas');
+      }
+    }
+
+    function cambiarMesCalendario(delta) {
+      fechaCalendarioActual.setMonth(fechaCalendarioActual.getMonth() + delta);
+      renderizarCalendario();
+    }
+
+    function irHoyCalendario() {
+      fechaCalendarioActual = new Date();
+      diaCalendarioSeleccionado = new Date();
+      renderizarCalendario();
+    }
+
+    function seleccionarDiaCalendario(y, m, d) {
+      diaCalendarioSeleccionado = new Date(y, m, d);
+      renderizarCalendario();
+    }
+
+    function seleccionarDiaPorFecha(fechaStr) {
+      const parts = fechaStr.split('-');
+      if (parts.length === 3) {
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        const d = parseInt(parts[2], 10);
+        fechaCalendarioActual = new Date(y, m, 1);
+        diaCalendarioSeleccionado = new Date(y, m, d);
+        renderizarCalendario();
+      }
+    }
+
+    function renderizarCalendario() {
+      if (!fechaCalendarioActual || isNaN(fechaCalendarioActual.getTime())) {
+        fechaCalendarioActual = new Date();
+      }
+      if (!diaCalendarioSeleccionado || isNaN(diaCalendarioSeleccionado.getTime())) {
+        diaCalendarioSeleccionado = new Date();
+      }
+      const year = fechaCalendarioActual.getFullYear();
+      const month = fechaCalendarioActual.getMonth();
+
+      const meses = [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+      ];
+
+      const titleEl = document.getElementById('cal-mes-ano-titulo');
+      if (titleEl) titleEl.textContent = `${meses[month]} ${year}`;
+
+      const gridEl = document.getElementById('cal-grid-dias');
+      if (!gridEl) return;
+
+      const primerDiaSemana = new Date(year, month, 1).getDay(); // 0 = Dom
+      const diasEnMes = new Date(year, month + 1, 0).getDate();
+      const hoyStr = formatFechaYMD(new Date());
+      const selStr = formatFechaYMD(diaCalendarioSeleccionado);
+
+      const actividades = getActividadesCalendario();
+      const actPorFecha = {};
+      actividades.forEach(a => {
+        if (a.fecha) {
+          actPorFecha[a.fecha] = (actPorFecha[a.fecha] || 0) + 1;
+        }
+      });
+
+      let html = '';
+
+      // Espacios vacíos al inicio
+      for (let i = 0; i < primerDiaSemana; i++) {
+        html += '<div class="p-2 sm:p-3 min-h-[50px] sm:min-h-[70px] rounded-2xl bg-[#0F0F0F]/30 border border-transparent opacity-20"></div>';
+      }
+
+      // Días del mes
+      for (let d = 1; d <= diasEnMes; d++) {
+        const fechaLoop = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const esHoy = fechaLoop === hoyStr;
+        const esSel = fechaLoop === selStr;
+        const numAct = actPorFecha[fechaLoop] || 0;
+
+        let cellCls = "p-2 sm:p-2.5 min-h-[50px] sm:min-h-[70px] rounded-2xl border transition-all cursor-pointer flex flex-col justify-between group relative select-none ";
+        if (esSel) {
+          cellCls += "bg-white text-black border-white shadow-xl scale-[1.02] z-10";
+        } else if (esHoy) {
+          cellCls += "bg-emerald-950/20 text-white border-emerald-500/50 hover:border-emerald-400";
+        } else {
+          cellCls += "bg-[#111111] text-neutral-300 border-neutral-800/80 hover:border-neutral-600 hover:bg-[#181818]";
+        }
+
+        html += `
+          <div onclick="seleccionarDiaCalendario(${year}, ${month}, ${d})" class="${cellCls}">
+            <div class="flex items-center justify-between">
+              <span class="text-xs sm:text-sm font-bold ${esSel ? 'text-black' : (esHoy ? 'text-emerald-400' : 'text-neutral-200')}">${d}</span>
+              ${esHoy && !esSel ? '<span class="text-[9px] font-black uppercase text-emerald-400 tracking-wider">Hoy</span>' : ''}
+            </div>
+            <div class="flex items-center gap-1 mt-1">
+              ${numAct > 0 ? `
+                <span class="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${esSel ? 'bg-black text-white' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'}">
+                  <span class="w-1 h-1 rounded-full ${esSel ? 'bg-emerald-400' : 'bg-emerald-400 animate-pulse'}"></span>
+                  ${numAct} ${numAct === 1 ? 'cita' : 'citas'}
+                </span>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }
+
+      gridEl.innerHTML = html;
+
+      renderizarDetalleDiaSeleccionado();
+      renderizarProximosEventosSemana();
+      actualizarBadgeCitas();
+    }
+
+    function renderizarDetalleDiaSeleccionado() {
+      const container = document.getElementById('cal-agenda-dia-lista');
+      const headerFecha = document.getElementById('cal-dia-seleccionado-titulo');
+      if (!container) return;
+
+      const selStr = formatFechaYMD(diaCalendarioSeleccionado);
+      const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+      const nomDia = diasSemana[diaCalendarioSeleccionado.getDay()];
+      const diaNum = diaCalendarioSeleccionado.getDate();
+      const nomMes = meses[diaCalendarioSeleccionado.getMonth()];
+      const anoNum = diaCalendarioSeleccionado.getFullYear();
+
+      if (headerFecha) {
+        headerFecha.textContent = `${nomDia}, ${diaNum} de ${nomMes} ${anoNum}`;
+      }
+
+      const actividades = getActividadesCalendario();
+      const delDia = actividades.filter(a => a.fecha === selStr);
+
+      delDia.sort((a, b) => (a.hora || '').localeCompare(b.hora || ''));
+
+      if (delDia.length === 0) {
+        container.innerHTML = `
+          <div class="py-8 text-center text-xs text-neutral-500">
+            <i class="fa-regular fa-calendar-check text-2xl mb-2 text-neutral-600 block"></i>
+            No tienes compromisos agendados para este día.
+            <div class="mt-3">
+              <button type="button" onclick="abrirModalNuevaActividad('${selStr}')" class="px-3.5 py-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-700 text-xs font-semibold rounded-xl transition-all cursor-pointer">
+                + Agendar Cita Aquí
+              </button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const badgeTipos = {
+        'visita': { label: 'Visita Guiada', cls: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
+        'firma': { label: 'Firma / Cierre', cls: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
+        'reunion': { label: 'Reunión VIP', cls: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
+        'llamada': { label: 'Llamada', cls: 'bg-purple-500/20 text-purple-400 border-purple-500/30' },
+        'inspeccion': { label: 'Inspección', cls: 'bg-neutral-800 text-neutral-300 border-neutral-700' }
+      };
+
+      container.innerHTML = delDia.map(a => {
+        const bInfo = badgeTipos[a.tipo] || badgeTipos['visita'];
+        const esCompletada = !!a.completada;
+
+        return `
+          <div class="p-3.5 rounded-2xl bg-[#0D0D0D] border border-neutral-900 hover:border-neutral-700 transition-all group">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-start gap-3 min-w-0 flex-1">
+                <button type="button" onclick="toggleCompletarActividad('${a.id}')" class="mt-0.5 w-5 h-5 rounded-lg border ${esCompletada ? 'bg-white border-white text-black' : 'border-neutral-700 bg-neutral-900 hover:border-white'} flex items-center justify-center shrink-0 cursor-pointer transition-colors" title="${esCompletada ? 'Marcar pendiente' : 'Marcar completada'}">
+                  ${esCompletada ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}
+                </button>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2 mb-1 flex-wrap">
+                    <span class="text-xs font-mono font-bold text-white bg-neutral-900 px-2 py-0.5 rounded-md border border-neutral-800">
+                      <i class="fa-regular fa-clock text-[10px] mr-1 text-neutral-400"></i>${a.hora || 'Hora por definir'}
+                    </span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${bInfo.cls}">
+                      ${bInfo.label}
+                    </span>
+                  </div>
+                  <h4 class="text-sm font-bold text-white leading-tight ${esCompletada ? 'line-through text-neutral-500' : ''}">${a.titulo}</h4>
+                  ${a.propiedad ? `
+                    <p class="text-xs text-neutral-400 mt-1 flex items-center gap-1.5 truncate">
+                      <i class="fa-solid fa-house-chimney text-[10px] text-emerald-400"></i>
+                      <span>${a.propiedad}</span>
+                    </p>
+                  ` : ''}
+                  ${a.cliente ? `
+                    <p class="text-xs text-neutral-400 mt-0.5 flex items-center gap-1.5 truncate">
+                      <i class="fa-solid fa-user text-[10px] text-neutral-500"></i>
+                      <span>${a.cliente}</span>
+                    </p>
+                  ` : ''}
+                  ${a.notas ? `
+                    <p class="text-[11px] text-neutral-400 mt-1.5 bg-[#141414] p-2 rounded-xl border border-neutral-900 font-mono leading-relaxed">
+                      ${a.notas}
+                    </p>
+                  ` : ''}
+                </div>
+              </div>
+              <button type="button" onclick="eliminarActividadCalendario('${a.id}')" class="opacity-0 group-hover:opacity-100 p-1.5 text-neutral-500 hover:text-red-400 hover:bg-red-950/30 rounded-lg transition-all cursor-pointer shrink-0" title="Eliminar actividad">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderizarProximosEventosSemana() {
+      const container = document.getElementById('cal-proximos-eventos-lista');
+      if (!container) return;
+
+      const actividades = getActividadesCalendario();
+      const hoyStr = formatFechaYMD(new Date());
+
+      const proximos = actividades
+        .filter(a => a.fecha >= hoyStr && !a.completada)
+        .sort((a, b) => (a.fecha + a.hora).localeCompare(b.fecha + b.hora))
+        .slice(0, 5);
+
+      if (proximos.length === 0) {
+        container.innerHTML = '<p class="text-xs text-neutral-500 italic py-2">No hay compromisos pendientes para los próximos días.</p>';
+        return;
+      }
+
+      container.innerHTML = proximos.map(a => {
+        return `
+          <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#0D0D0D] border border-neutral-900 hover:border-neutral-800 transition-all text-xs">
+            <div class="min-w-0 flex-1 pr-2">
+              <p class="font-bold text-white truncate">${a.titulo}</p>
+              <p class="text-[11px] text-neutral-400 font-mono mt-0.5">
+                <span class="text-emerald-400 font-bold">${a.fecha}</span> • ${a.hora || 'Sin hora'}
+                ${a.propiedad ? ` • <span class="text-neutral-300 truncate">${a.propiedad}</span>` : ''}
+              </p>
+            </div>
+            <button type="button" onclick="seleccionarDiaPorFecha('${a.fecha}')" class="px-2 py-1 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white rounded-lg text-[10px] font-semibold border border-neutral-800 transition-all shrink-0 cursor-pointer">
+              Ver día
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function abrirModalNuevaActividad(fechaDefecto) {
+      const fInput = document.getElementById('actividad-fecha');
+      const hInput = document.getElementById('actividad-hora');
+      const tInput = document.getElementById('actividad-titulo');
+      const cInput = document.getElementById('actividad-cliente');
+      const nInput = document.getElementById('actividad-notas');
+      const propSel = document.getElementById('actividad-propiedad');
+
+      if (tInput) tInput.value = '';
+      if (cInput) cInput.value = '';
+      if (nInput) nInput.value = '';
+      if (fInput) fInput.value = fechaDefecto || formatFechaYMD(diaCalendarioSeleccionado || new Date());
+      if (hInput) {
+        const now = new Date();
+        const hrs = String(now.getHours() + 1).padStart(2, '0');
+        hInput.value = `${hrs}:00`;
+      }
+
+      // Poblar propiedades del usuario en el selector
+      if (propSel) {
+        const uId = getProdUserId();
+        const esAdmin = currentUser && currentUser.rol === 'admin';
+        const misProps = propiedades.filter(p => esAdmin || p.id_asesor === uId);
+
+        propSel.innerHTML = '<option value="" selected>Sin propiedad específica</option>' +
+          misProps.map(p => `<option value="${p.titulo}">${p.titulo}</option>`).join('');
+      }
+
+      document.getElementById('modal-nueva-actividad')?.classList.remove('hidden');
+    }
+
+    function cerrarModalNuevaActividad() {
+      document.getElementById('modal-nueva-actividad')?.classList.add('hidden');
+    }
+
+    function guardarNuevaActividadCalendario(e) {
+      e.preventDefault();
+      const titulo = document.getElementById('actividad-titulo').value.trim();
+      const fecha = document.getElementById('actividad-fecha').value;
+      const hora = document.getElementById('actividad-hora').value;
+      const tipo = document.getElementById('actividad-tipo').value;
+      const propiedad = document.getElementById('actividad-propiedad').value;
+      const cliente = document.getElementById('actividad-cliente').value.trim();
+      const notas = document.getElementById('actividad-notas').value.trim();
+
+      if (!titulo || !fecha || !hora) {
+        lanzarToast('Por favor completa título, fecha y hora.', 'error');
+        return;
+      }
+
+      const actividades = getActividadesCalendario();
+      actividades.unshift({
+        id: 'act_' + Date.now(),
+        titulo,
+        fecha,
+        hora,
+        tipo,
+        propiedad,
+        cliente,
+        notas,
+        completada: false,
+        creada: Date.now()
+      });
+
+      saveActividadesCalendario(actividades);
+      cerrarModalNuevaActividad();
+      seleccionarDiaPorFecha(fecha);
+      lanzarToast('Compromiso agendado para el ' + fecha + ' a las ' + hora, 'success');
+    }
+
+    function toggleCompletarActividad(id) {
+      const actividades = getActividadesCalendario();
+      const act = actividades.find(a => a.id === id);
+      if (act) {
+        act.completada = !act.completada;
+        saveActividadesCalendario(actividades);
+      }
+    }
+
+    function eliminarActividadCalendario(id) {
+      let actividades = getActividadesCalendario();
+      actividades = actividades.filter(a => a.id !== id);
+      saveActividadesCalendario(actividades);
+      lanzarToast('Actividad eliminada de la agenda.', 'info');
+    }
+
+    function descargarCalendarioICS() {
+      const actividades = getActividadesCalendario();
+      if (actividades.length === 0) {
+        lanzarToast('No tienes actividades registradas para exportar.', 'info');
+        return;
+      }
+
+      let ics = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Santander Real Estate//Agenda VIP//ES',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH'
+      ];
+
+      actividades.forEach(a => {
+        const fParts = (a.fecha || '').split('-');
+        if (fParts.length !== 3) return;
+        const hParts = (a.hora || '10:00').split(':');
+        const dtStart = `${fParts[0]}${fParts[1]}${fParts[2]}T${hParts[0]}${hParts[1] || '00'}00`;
+        const dtEnd = `${fParts[0]}${fParts[1]}${fParts[2]}T${String(parseInt(hParts[0], 10) + 1).padStart(2, '0')}${hParts[1] || '00'}00`;
+
+        ics.push('BEGIN:VEVENT');
+        ics.push(`UID:santander_${a.id}@santandervip.gt`);
+        ics.push(`DTSTAMP:${fParts[0]}${fParts[1]}${fParts[2]}T000000Z`);
+        ics.push(`DTSTART:${dtStart}`);
+        ics.push(`DTEND:${dtEnd}`);
+        ics.push(`SUMMARY:${a.titulo}`);
+        ics.push(`DESCRIPTION:${(a.notas || '') + (a.propiedad ? (' | Propiedad: ' + a.propiedad) : '')}`);
+        if (a.propiedad) ics.push(`LOCATION:${a.propiedad}`);
+        ics.push('END:VEVENT');
+      });
+
+      ics.push('END:VCALENDAR');
+
+      const blob = new Blob([ics.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Agenda_Santander_${currentUser ? currentUser.id : 'VIP'}_${formatFechaYMD(new Date())}.ics`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      lanzarToast('Calendario iCalendar (.ics) descargado. Ábrelo en iPhone, Android o Google Calendar.', 'success');
+    }
+
+    function abrirModalSincronizarCalendario() {
+      const uId = getProdUserId();
+      const actividades = getActividadesCalendario();
+      const jsonEl = document.getElementById('cal-sync-json');
+      if (jsonEl) {
+        jsonEl.value = JSON.stringify(actividades, null, 2);
+      }
+      document.getElementById('modal-sincronizar-calendario')?.classList.remove('hidden');
+    }
+
+    function cerrarModalSincronizarCalendario() {
+      document.getElementById('modal-sincronizar-calendario')?.classList.add('hidden');
+    }
+
+    function copiarRespaldoCalendario() {
+      const jsonEl = document.getElementById('cal-sync-json');
+      if (!jsonEl || !jsonEl.value) return;
+      navigator.clipboard.writeText(jsonEl.value).then(() => {
+        lanzarToast('Código de respaldo copiado al portapapeles.', 'success');
+      }).catch(() => {
+        jsonEl.select();
+        document.execCommand('copy');
+        lanzarToast('Código de respaldo copiado.', 'success');
+      });
+    }
+
+    function importarRespaldoCalendario() {
+      const jsonEl = document.getElementById('cal-sync-json');
+      if (!jsonEl || !jsonEl.value.trim()) {
+        lanzarToast('Pega un código de respaldo válido.', 'error');
+        return;
+      }
+      try {
+        const parsed = JSON.parse(jsonEl.value.trim());
+        if (!Array.isArray(parsed)) throw new Error('El formato debe ser una lista de eventos.');
+        saveActividadesCalendario(parsed);
+        cerrarModalSincronizarCalendario();
+        lanzarToast(`Se restauraron ${parsed.length} actividades exitosamente.`, 'success');
+      } catch (err) {
+        lanzarToast('Error al importar respaldo: ' + err.message, 'error');
+      }
     }
 
     function renderizarProductividadWorkspace() {
@@ -5338,6 +6143,7 @@
       renderizarTareas();
       renderizarNotas();
       renderizarLeads();
+      actualizarBadgeCitas();
     }
   
   </script>
@@ -5366,6 +6172,228 @@
         <button type="button" onclick="ejecutarEliminacionUsuarioRBAC()" class="flex-1 py-3 px-4 bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-xl transition-all shadow-lg shadow-red-900/40 cursor-pointer">
           Sí, Eliminar
         </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal Editar Precio Real de Cierre -->
+  <div id="modal-editar-precio-cierre" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#141414] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-neutral-800 text-white relative">
+      <div class="flex items-center justify-between pb-4 border-b border-neutral-800 mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-950/60 text-emerald-400 border border-emerald-800/50 flex items-center justify-center text-sm font-bold">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+          </div>
+          <div>
+            <h3 class="font-serif text-lg font-bold text-white">Precio Real de Cierre</h3>
+            <p class="text-xs text-neutral-400">Modifica el monto final acordado para el cierre de esta propiedad.</p>
+          </div>
+        </div>
+        <button type="button" onclick="cerrarModalEditarPrecioCierre()" class="text-neutral-400 hover:text-white p-2">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="guardarPrecioCierre(event)" class="space-y-4">
+        <input type="hidden" id="edit-cierre-prop-id" value="">
+
+        <div class="p-3 rounded-2xl bg-[#0D0D0D] border border-neutral-900">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Propiedad</span>
+          <p id="edit-cierre-prop-titulo" class="text-xs font-bold text-white truncate mt-0.5"></p>
+          <p class="text-[11px] text-neutral-400 mt-0.5">Precio de Lista Original: <span id="edit-cierre-prop-lista" class="font-mono text-neutral-200"></span></p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-3">
+          <div class="col-span-5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Moneda</label>
+            <select id="edit-cierre-moneda" class="w-full px-3 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-xs text-white outline-none cursor-pointer">
+              <option value="USD" selected>Dólares ($ USD)</option>
+              <option value="GTQ">Quetzales (Q GTQ)</option>
+            </select>
+          </div>
+          <div class="col-span-7">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Monto de Cierre Acordado</label>
+            <input 
+              type="number" 
+              id="edit-cierre-monto" 
+              required 
+              min="1000" 
+              step="1000" 
+              placeholder="750000" 
+              class="w-full px-3 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-sm text-white placeholder-neutral-500 outline-none font-mono"
+            >
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Notas del Cierre (Opcional)</label>
+          <input 
+            type="text" 
+            id="edit-cierre-notas" 
+            placeholder="Ej. Cierre negociado con 5% de descuento, pago de contado." 
+            class="w-full px-3.5 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-xs text-white placeholder-neutral-500 outline-none"
+          >
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-neutral-800">
+          <button type="button" onclick="cerrarModalEditarPrecioCierre()" class="px-4 py-2 text-xs font-bold text-neutral-400 hover:text-white rounded-xl cursor-pointer">Cancelar</button>
+          <button type="submit" class="px-5 py-2.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl shadow-md cursor-pointer">Guardar Precio</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Modal Nueva Actividad / Cita Calendario -->
+  <div id="modal-nueva-actividad" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#141414] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-neutral-800 text-white relative">
+      <div class="flex items-center justify-between pb-4 border-b border-neutral-800 mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-neutral-900 text-white border border-neutral-800 flex items-center justify-center text-sm font-bold">
+            <i class="fa-solid fa-calendar-plus"></i>
+          </div>
+          <div>
+            <h3 class="font-serif text-lg font-bold text-white">Agendar Actividad VIP</h3>
+            <p class="text-xs text-neutral-400">Programa una cita o visita guiada en tu agenda oficial.</p>
+          </div>
+        </div>
+        <button type="button" onclick="cerrarModalNuevaActividad()" class="text-neutral-400 hover:text-white p-2">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="guardarNuevaActividadCalendario(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Título del Compromiso *</label>
+          <input 
+            type="text" 
+            id="actividad-titulo" 
+            required 
+            placeholder="Ej. Visita guiada a Penthouse Zona 15 con inversionista" 
+            class="w-full px-3.5 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-xs text-white placeholder-neutral-500 outline-none"
+          >
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Fecha *</label>
+            <input 
+              type="date" 
+              id="actividad-fecha" 
+              required 
+              class="w-full px-3.5 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-xs text-white outline-none font-mono"
+            >
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Hora *</label>
+            <input 
+              type="time" 
+              id="actividad-hora" 
+              required 
+              class="w-full px-3.5 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-xs text-white outline-none font-mono"
+            >
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Tipo de Actividad</label>
+            <select id="actividad-tipo" class="w-full px-3.5 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-xs text-white outline-none cursor-pointer">
+              <option value="visita" selected>Visita Guiada a Inmueble</option>
+              <option value="firma">Firma de Promesa / Cierre</option>
+              <option value="reunion">Reunión con Cliente VIP</option>
+              <option value="llamada">Llamada de Negociación</option>
+              <option value="inspeccion">Inspección / Llaves Lockbox</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Propiedad Asociada</label>
+            <select id="actividad-propiedad" class="w-full px-3.5 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-xs text-white outline-none cursor-pointer">
+              <option value="" selected>Sin propiedad específica</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Inversionista / Contacto (Opcional)</label>
+          <input 
+            type="text" 
+            id="actividad-cliente" 
+            placeholder="Ej. Rodrigo Castillo (+502 5555-1234)" 
+            class="w-full px-3.5 py-2.5 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-xs text-white placeholder-neutral-500 outline-none"
+          >
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">Notas Privadas / Código de Lockbox</label>
+          <textarea 
+            id="actividad-notas" 
+            rows="2" 
+            placeholder="Ej. Clave de lockbox: 4829#. Anunciarse en garita principal. Llevar contrato impreso." 
+            class="w-full px-3.5 py-2 bg-[#0D0D0D] border border-neutral-800 focus:border-white rounded-xl text-xs text-white placeholder-neutral-500 outline-none resize-none font-mono"
+          ></textarea>
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-neutral-800">
+          <button type="button" onclick="cerrarModalNuevaActividad()" class="px-4 py-2 text-xs font-bold text-neutral-400 hover:text-white rounded-xl cursor-pointer">Cancelar</button>
+          <button type="submit" class="px-5 py-2.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl shadow-md cursor-pointer">Guardar Compromiso</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Sincronizar / Respaldo Calendario -->
+  <div id="modal-sincronizar-calendario" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#141414] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-neutral-800 text-white relative">
+      <div class="flex items-center justify-between pb-4 border-b border-neutral-800 mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-neutral-900 text-white border border-neutral-800 flex items-center justify-center text-sm font-bold">
+            <i class="fa-solid fa-cloud-arrow-up text-blue-400"></i>
+          </div>
+          <div>
+            <h3 class="font-serif text-lg font-bold text-white">Sincronización & Respaldo</h3>
+            <p class="text-xs text-neutral-400">Lleva tu agenda entre dispositivos o expórtala a tu móvil.</p>
+          </div>
+        </div>
+        <button type="button" onclick="cerrarModalSincronizarCalendario()" class="text-neutral-400 hover:text-white p-2">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Opción 1: iCalendar para móvil -->
+        <div class="p-4 rounded-2xl bg-[#0D0D0D] border border-neutral-900 flex items-center justify-between gap-4">
+          <div>
+            <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+              <i class="fa-solid fa-mobile-screen-button text-emerald-400"></i>
+              <span>Apple Calendar / Google Calendar (.ics)</span>
+            </h4>
+            <p class="text-[11px] text-neutral-400 mt-1 leading-relaxed">Descarga tus citas para abrirlas en la app de Calendario de tu iPhone o Android.</p>
+          </div>
+          <button type="button" onclick="descargarCalendarioICS(); cerrarModalSincronizarCalendario();" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shrink-0 cursor-pointer shadow-md">
+            Descargar
+          </button>
+        </div>
+
+        <!-- Opción 2: Copiar respaldo JSON para otro dispositivo -->
+        <div class="p-4 rounded-2xl bg-[#0D0D0D] border border-neutral-900 space-y-2">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+              <i class="fa-solid fa-copy text-amber-400"></i>
+              <span>Copiar / Pegar Respaldo entre Navegadores</span>
+            </h4>
+            <button type="button" onclick="copiarRespaldoCalendario()" class="px-2.5 py-1 bg-neutral-800 hover:bg-neutral-700 text-white text-[11px] font-semibold rounded-lg cursor-pointer">
+              Copiar
+            </button>
+          </div>
+          <textarea id="cal-sync-json" rows="3" placeholder="Pega aquí el código de respaldo de tu otro dispositivo para restaurar tu agenda..." class="w-full p-2.5 bg-[#141414] border border-neutral-800 rounded-xl text-[11px] text-neutral-300 font-mono outline-none resize-none"></textarea>
+          <div class="flex justify-end">
+            <button type="button" onclick="importarRespaldoCalendario()" class="px-3.5 py-1.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold rounded-xl cursor-pointer">
+              Restaurar en este Dispositivo
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
