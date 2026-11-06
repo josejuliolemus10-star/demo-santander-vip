@@ -71,17 +71,30 @@ console.log('--- 1. Testing Core Auth & PBKDF2 ---');
     console.log(`✔ ${file} security and RBAC checks PASSED`);
   }
 
-  // 4. Test index.html legal components and intellectual property
-  console.log('\n--- 4. Testing Legal Modals & Image Authorship in index.html ---');
+  // 4. Test legal dedicated pages and intellectual property shielding
+  console.log('\n--- 4. Testing Dedicated Legal Pages & Image Authorship ---');
   const indexHtml = fs.readFileSync('index.html', 'utf8');
-  assert(indexHtml.includes('id="modal-terminos"'), 'index.html must contain modal-terminos');
-  assert(indexHtml.includes('id="modal-privacidad"'), 'index.html must contain modal-privacidad');
-  assert(indexHtml.includes('id="modal-propiedad-intelectual"'), 'index.html must contain modal-propiedad-intelectual');
-  assert(indexHtml.includes('Santander Real Estate es el autor, creador y titular'), 'index.html must declare Santander Real Estate as creator of images');
-  assert(indexHtml.includes('abrirModalTerminos'), 'index.html must export abrirModalTerminos');
-  assert(indexHtml.includes('abrirModalPrivacidad'), 'index.html must export abrirModalPrivacidad');
-  assert(indexHtml.includes('abrirModalPropiedadIntelectual'), 'index.html must export abrirModalPropiedadIntelectual');
-  console.log('✔ Legal Modals, Terms of Service, Privacy Policy & Authorship PASSED 100%');
+  assert(indexHtml.includes('href="terminos.html"'), 'index.html must link to terminos.html');
+  assert(indexHtml.includes('href="privacidad.html"'), 'index.html must link to privacidad.html');
+  assert(indexHtml.includes('href="derechos-imagen.html"'), 'index.html must link to derechos-imagen.html');
+  assert(indexHtml.includes('href="legal.html"'), 'index.html must link to legal.html');
+  console.log('✔ index.html footer links to all dedicated legal pages PASSED');
+
+  const legalFiles = ['terminos.html', 'privacidad.html', 'derechos-imagen.html', 'legal.html'];
+  for (const lf of legalFiles) {
+    assert(fs.existsSync(lf), `${lf} must exist`);
+    const content = fs.readFileSync(lf, 'utf8');
+    assert(content.includes('Santander Real Estate Guatemala'), `${lf} must include corporate legal name`);
+    assert(content.includes('10482910-3'), `${lf} must include SAT NIT`);
+    assert(content.includes('assets/logo-icon-white.png'), `${lf} must include Santander logo icon`);
+    console.log(`✔ ${lf} verified with corporate identity and legal shielding`);
+  }
+  
+  const derechosContent = fs.readFileSync('derechos-imagen.html', 'utf8');
+  assert(derechosContent.includes('creador, autor') || derechosContent.includes('autor, creador'), 'derechos-imagen.html must declare Santander Real Estate as original author/creator');
+  assert(derechosContent.includes('Decreto') && derechosContent.includes('33-98'), 'derechos-imagen.html must cite Decreto 33-98 Ley de Derecho de Autor');
+  assert(derechosContent.includes('274') && derechosContent.includes('Penal'), 'derechos-imagen.html must cite Penal Code articles');
+  console.log('✔ Image and Drone Authorship Certification & Penal Warning PASSED 100%');
 
   console.log('\n======================================================');
   console.log('ALL CYBERSECURITY AND FUNCTIONAL TESTS PASSED (100%)');
