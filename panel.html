@@ -277,7 +277,7 @@
               </p>
             </div>
             <div class="flex items-center gap-2.5">
-              <button id="btn-dash-sync" type="button" onclick="sincronizarAhora(true)" class="px-3.5 py-2 text-xs font-bold text-white bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 rounded-xl shadow-xs transition-all flex items-center gap-2">
+              <button id="btn-dash-sync" type="button" onclick="sincronizarAhora(true)" class="hidden px-3.5 py-2 text-xs font-bold text-white bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 rounded-xl shadow-xs transition-all flex items-center gap-2">
                 <i class="fa-solid fa-rotate text-neutral-300"></i>
                 <span>Sincronizar Google Sheets</span>
               </button>
@@ -289,7 +289,7 @@
           </div>
 
           <!-- Banner Informativo de Conexión en Vivo (Solo Admin Global) -->
-          <div id="dash-google-sheet-banner" class="bg-[#141414] text-white rounded-2xl p-5 sm:p-6 shadow-md border border-[#2A2A2A] flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div id="dash-google-sheet-banner" class="hidden bg-[#141414] text-white rounded-2xl p-5 sm:p-6 shadow-md border border-[#2A2A2A] flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 rounded-2xl bg-neutral-900 border border-neutral-700 flex items-center justify-center text-white text-2xl shrink-0">
                 <i class="fa-brands fa-google-drive"></i>
@@ -304,7 +304,7 @@
                 </p>
               </div>
             </div>
-            <div id="dash-financial-actions" class="flex items-center gap-2.5 shrink-0">
+            <div id="dash-financial-actions" class="hidden flex items-center gap-2.5 shrink-0">
               <button type="button" onclick="navegarA('sheets')" class="px-3.5 py-2 text-xs font-bold text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-xl transition-all">
                 Ver Hoja Google Sheets
               </button>
@@ -2741,6 +2741,51 @@
     // Cargar asesores locales adicionales registrados en el panel
     cargarAsesoresDesdeStorage();
 
+        // ========================================================
+    // 0. MÓDULO DE CIBERSEGURIDAD, SANITIZACIÓN & DEFENSE-IN-DEPTH
+    // ========================================================
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function sanitizeUrl(url) {
+      if (!url || typeof url !== 'string') return '';
+      const clean = url.trim();
+      if (/^(https?:\/\/|data:image\/(jpeg|png|webp|gif|svg\+xml);base64,|\/)/i.test(clean)) {
+        return clean;
+      }
+      return '';
+    }
+
+    function sanitizePhone(phone) {
+      if (!phone || typeof phone !== 'string') return '';
+      return String(phone).replace(/[^0-9]/g, '');
+    }
+
+    function obtenerIniciales(nombre) {
+      if (!nombre) return 'U';
+      const parts = String(nombre).trim().split(/\s+/).filter(Boolean);
+      if (parts.length === 0) return 'U';
+      if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    function esAvatarValido(avatar) {
+      if (!avatar || typeof avatar !== 'string') return false;
+      const a = avatar.trim();
+      if (!a) return false;
+      if (/^javascript:/i.test(a) || /^data:text/i.test(a)) return false;
+      if (a.includes('photo-1535713875002-d1d0cf377fde')) return false;
+      if (a.includes('ui-avatars.com')) return false;
+      return (/^https?:\/\//i.test(a) || /^data:image\//i.test(a));
+    }
+
     // Propiedades de respaldo local por si Google Sheets no responde
     const propiedadesRespaldo = [
       { id: "1", titulo: "Penthouse Exclusivo - Zona 15", precio: "$770,000 USD", cuartos: "3 Habs", banos: "2.5 Baños", metros: "292 m²", ubicacion: "Zona 15 • Vista Hermosa", imagen_portada: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80", id_asesor: "carmen", estado: "Disponible", es_vendida: false },
@@ -3384,7 +3429,7 @@
           `;
         } else {
           dashboardTbody.innerHTML = propsDashboard.slice(0, 8).map(p => {
-            const asesor = asesores[p.id_asesor] || asesores['carmen'];
+            const asesor = asesores[p.id_asesor] || asesores['carmen'] || { nombre: 'Asesor', avatar: '', puesto: 'Asesor VIP' };
             const esVendida = p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid');
             const precioNum = parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0;
             const tipoBadge = precioNum < 10000 ? '<span class="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-bold">Renta</span>' : '<span class="text-xs bg-neutral-800 text-white border border-neutral-700 px-2 py-0.5 rounded font-bold">Venta</span>';
@@ -3394,43 +3439,53 @@
               ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0"><i class="fa-solid fa-sparkles text-[9px]"></i> Nuevo</span>'
               : '';
 
-            // Solo el administrador o el asesor asignado a esta casa pueden alternar el estado
-            const puedeCambiarEstado = (!currentUser || currentUser.rol === 'admin' || p.id_asesor === currentUser.id);
             const esAdmin = (currentUser && currentUser.rol === 'admin');
+            const esDuenio = (currentUser && p.id_asesor === currentUser.id);
+            const puedeCambiarEstado = (esAdmin || esDuenio);
+
+            const safeId = escapeHtml(p.id);
+            const safeTitulo = escapeHtml(p.titulo);
+            const safeUbicacion = escapeHtml(p.ubicacion);
+            const safePrecio = escapeHtml(p.precio);
+            const safeCuartos = escapeHtml(p.cuartos);
+            const safeMetros = escapeHtml(p.metros);
+            const safeAsesorNombre = escapeHtml(asesor.nombre);
+            const safePortada = sanitizeUrl(p.imagen_portada) || 'assets/logo-icon.png';
+            const safeAsesorAvatar = sanitizeUrl(asesor.avatar);
 
             return `
               <tr class="hover:bg-neutral-900/60 transition-colors">
                 <td class="py-3 px-6">
                   <div class="flex items-center gap-3">
                     <div class="w-12 h-12 rounded-xl overflow-hidden bg-neutral-900 shrink-0 relative border border-neutral-800">
-                      <img src="${p.imagen_portada}" alt="${p.titulo}" class="w-full h-full object-cover">
+                      <img src="${safePortada}" alt="${safeTitulo}" class="w-full h-full object-cover">
                       ${esVendida ? '<div class="absolute inset-0 bg-red-600/40 flex items-center justify-center text-[10px] font-black text-white">SOLD</div>' : ''}
                     </div>
                     <div class="min-w-0">
                       <div class="flex items-center gap-2">
-                        <p class="font-bold text-white truncate max-w-xs hover:text-neutral-300 cursor-pointer" onclick="verDetallePropiedad('${p.id}')">${p.titulo}</p>
+                        <p class="font-bold text-white truncate max-w-xs hover:text-neutral-300 cursor-pointer" onclick="verDetallePropiedad('${safeId}')">${safeTitulo}</p>
                         ${badgeNuevo}
                       </div>
-                      <p class="text-xs text-neutral-400 truncate max-w-xs">${p.ubicacion}</p>
+                      <p class="text-xs text-neutral-400 truncate max-w-xs">${safeUbicacion}</p>
                     </div>
                   </div>
                 </td>
-                <td class="py-3 px-4 font-serif font-bold text-white">${p.precio}</td>
+                <td class="py-3 px-4 font-serif font-bold text-white">${safePrecio}</td>
                 <td class="py-3 px-4">
                   <div class="space-y-1">
                     ${tipoBadge}
-                    <p class="text-xs text-neutral-400">${p.cuartos} • ${p.metros}</p>
+                    <p class="text-xs text-neutral-400">${safeCuartos} • ${safeMetros}</p>
                   </div>
                 </td>
                 <td class="py-3 px-4">
                   <div class="flex items-center gap-2">
-                    ${esAvatarValido(asesor.avatar) ? `<img src="${asesor.avatar}" class="w-6 h-6 rounded-full object-cover ring-1 ring-white/10 shrink-0">` : `<div class="w-6 h-6 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center font-bold text-[9px] text-white shrink-0">${obtenerIniciales(asesor.nombre)}</div>`}
-                    <span class="text-xs font-medium text-neutral-300 truncate max-w-[120px]">${asesor.nombre}</span>
+                    ${esAvatarValido(asesor.avatar) ? `<img src="${safeAsesorAvatar}" class="w-6 h-6 rounded-full object-cover ring-1 ring-white/10 shrink-0">` : `<div class="w-6 h-6 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center font-bold text-[9px] text-white shrink-0">${obtenerIniciales(asesor.nombre)}</div>`}
+                    <span class="text-xs font-medium text-neutral-300 truncate max-w-[120px]">${safeAsesorNombre}</span>
                   </div>
                 </td>
                 <td class="py-3 px-4 text-center">
                   ${puedeCambiarEstado ? `
-                  <button type="button" onclick="toggleEstadoPropiedad('${p.id}')" class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${esVendida ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30'}" title="Clic para cambiar estado">
+                  <button type="button" onclick="toggleEstadoPropiedad('${safeId}')" class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${esVendida ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30'}" title="Clic para alternar Disponibilidad">
                     ${esVendida ? '<i class="fa-solid fa-lock mr-1"></i> Vendida' : '<i class="fa-solid fa-check mr-1"></i> Disponible'}
                   </button>
                   ` : `
@@ -3441,17 +3496,19 @@
                 </td>
                 <td class="py-3 px-6 text-right">
                   <div class="inline-flex items-center gap-1.5">
-                    <button type="button" onclick="verDetallePropiedad('${p.id}')" class="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800" title="Ver detalles">
+                    <button type="button" onclick="verDetallePropiedad('${safeId}')" class="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800" title="Ver detalles">
                       <i class="fa-regular fa-eye"></i>
                     </button>
-                    <button type="button" onclick="abrirModalEditar('${p.id}')" class="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800" title="Editar propiedad">
+                    ${puedeCambiarEstado ? `
+                    <button type="button" onclick="abrirModalEditar('${safeId}')" class="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800 cursor-pointer" title="Editar propiedad">
                       <i class="fa-regular fa-pen-to-square"></i>
                     </button>
+                    ` : ''}
                     ${esAdmin ? `
-                    <button type="button" onclick="copiarFilaCSV('${p.id}')" class="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800" title="Copiar fila Google Sheets">
+                    <button type="button" onclick="copiarFilaCSV('${safeId}')" class="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800 cursor-pointer" title="Copiar fila Google Sheets">
                       <i class="fa-regular fa-copy"></i>
                     </button>
-                    <button type="button" onclick="confirmarEliminarPropiedad('${p.id}')" class="p-2 text-neutral-400 hover:text-red-400 rounded-lg hover:bg-red-950/40" title="Eliminar propiedad">
+                    <button type="button" onclick="confirmarEliminarPropiedad('${safeId}')" class="p-2 text-neutral-400 hover:text-red-400 rounded-lg hover:bg-red-950/40 cursor-pointer" title="Eliminar propiedad">
                       <i class="fa-regular fa-trash-can"></i>
                     </button>
                     ` : ''}
@@ -3532,63 +3589,89 @@
           `;
         } else {
           tbody.innerHTML = filtradas.map(p => {
-            const asesor = asesores[p.id_asesor] || asesores['carmen'];
+            const asesor = asesores[p.id_asesor] || asesores['carmen'] || { nombre: 'Asesor', avatar: '', puesto: 'Asesor VIP', tel: '50200000000' };
             const esVendida = p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid');
             const precioNum = parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0;
             const esRenta = precioNum < 10000;
+
+            const esAdmin = (currentUser && currentUser.rol === 'admin');
+            const esDuenio = (currentUser && p.id_asesor === currentUser.id);
+            const puedeCambiarEstado = (esAdmin || esDuenio);
+
+            const safeId = escapeHtml(p.id);
+            const safeTitulo = escapeHtml(p.titulo);
+            const safeUbicacion = escapeHtml(p.ubicacion);
+            const safePrecio = escapeHtml(p.precio);
+            const safeCuartos = escapeHtml(p.cuartos);
+            const safeBanos = escapeHtml(p.banos);
+            const safeMetros = escapeHtml(p.metros);
+            const safeAsesorNombre = escapeHtml(asesor.nombre);
+            const safePortada = sanitizeUrl(p.imagen_portada) || 'assets/logo-icon.png';
+            const safeAsesorAvatar = sanitizeUrl(asesor.avatar);
+            const safeTel = sanitizePhone(asesor.tel);
 
             return `
               <tr class="hover:bg-neutral-900/60 transition-colors">
                 <td class="py-3 px-6">
                   <div class="flex items-center gap-3">
-                    <span class="text-xs font-mono font-bold text-neutral-500">#${p.id}</span>
-                    <div class="w-14 h-14 rounded-xl overflow-hidden bg-neutral-900 shrink-0 relative cursor-pointer border border-neutral-800" onclick="verDetallePropiedad('${p.id}')">
-                      <img src="${p.imagen_portada}" alt="${p.titulo}" class="w-full h-full object-cover hover:scale-110 transition-transform">
+                    <span class="text-xs font-mono font-bold text-neutral-500">#${safeId}</span>
+                    <div class="w-14 h-14 rounded-xl overflow-hidden bg-neutral-900 shrink-0 relative cursor-pointer border border-neutral-800" onclick="verDetallePropiedad('${safeId}')">
+                      <img src="${safePortada}" alt="${safeTitulo}" class="w-full h-full object-cover hover:scale-110 transition-transform">
                       ${esVendida ? '<div class="absolute inset-0 bg-red-600/40 flex items-center justify-center text-[10px] font-black text-white">SOLD</div>' : ''}
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-white hover:text-neutral-300 cursor-pointer max-w-xs truncate" onclick="verDetallePropiedad('${safeId}')">${safeTitulo}</h4>
+                      <p class="text-xs text-neutral-400 max-w-xs truncate">${safeUbicacion}</p>
                     </div>
                   </div>
                 </td>
+                <td class="py-3 px-4 font-serif font-bold text-white">${safePrecio}</td>
                 <td class="py-3 px-4">
-                  <p class="font-bold text-white hover:text-neutral-300 cursor-pointer flex items-center" onclick="verDetallePropiedad('${p.id}')">
-                    <span>${p.titulo}</span>
-                    ${esPropiedadReciente(p) && !esVendida ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0 ml-1.5"><i class="fa-solid fa-sparkles text-[9px]"></i> Nuevo</span>' : ''}
-                  </p>
-                  <p class="text-xs text-neutral-400">${p.ubicacion}</p>
+                  <span class="text-xs px-2.5 py-1 rounded-full font-bold ${esRenta ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-neutral-800 text-white border border-neutral-700'}">
+                    ${esRenta ? 'Renta' : 'Venta'}
+                  </span>
                 </td>
-                <td class="py-3 px-4 font-serif font-bold text-white">${p.precio}</td>
                 <td class="py-3 px-4 text-xs text-neutral-300">
-                  <span>${p.cuartos}</span> • <span>${p.banos}</span><br>
-                  <span class="text-neutral-500">${p.metros}</span>
+                  <span>${safeCuartos}</span> • <span>${safeBanos}</span><br>
+                  <span class="text-neutral-500">${safeMetros}</span>
                 </td>
                 <td class="py-3 px-4">
                   <div class="flex items-center gap-2">
-                    ${esAvatarValido(asesor.avatar) ? `<img src="${asesor.avatar}" class="w-7 h-7 rounded-full object-cover ring-1 ring-white/10 shrink-0">` : `<div class="w-7 h-7 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center font-bold text-[10px] text-white shrink-0">${obtenerIniciales(asesor.nombre)}</div>`}
+                    ${esAvatarValido(asesor.avatar) ? `<img src="${safeAsesorAvatar}" class="w-7 h-7 rounded-full object-cover ring-1 ring-white/10 shrink-0">` : `<div class="w-7 h-7 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center font-bold text-[10px] text-white shrink-0">${obtenerIniciales(asesor.nombre)}</div>`}
                     <div class="min-w-0">
-                      <p class="text-xs font-bold text-white truncate max-w-[130px]">${asesor.nombre}</p>
-                      <a href="https://wa.me/${asesor.tel}?text=Hola ${encodeURIComponent(asesor.nombre)}, sobre la propiedad: ${encodeURIComponent(p.titulo)}" target="_blank" class="text-[11px] text-emerald-400 hover:underline flex items-center gap-1">
+                      <p class="text-xs font-bold text-white truncate max-w-[130px]">${safeAsesorNombre}</p>
+                      <a href="https://wa.me/${safeTel}?text=Hola%20${encodeURIComponent(asesor.nombre)}%2C%20sobre%20la%20propiedad%3A%20${encodeURIComponent(p.titulo)}" target="_blank" class="text-[11px] text-emerald-400 hover:underline flex items-center gap-1">
                         <i class="fa-brands fa-whatsapp"></i> Chat
                       </a>
                     </div>
                   </div>
                 </td>
                 <td class="py-3 px-4 text-center">
-                  <button type="button" onclick="toggleEstadoPropiedad('${p.id}')" class="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${esVendida ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30'}" title="Clic para alternar Disponible/Vendida">
+                  ${puedeCambiarEstado ? `
+                  <button type="button" onclick="toggleEstadoPropiedad('${safeId}')" class="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${esVendida ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30'}" title="Clic para alternar Disponible/Vendida">
                     ${esVendida ? '<i class="fa-solid fa-lock mr-1"></i> Vendida (SOLD)' : '<i class="fa-solid fa-check mr-1"></i> Disponible'}
                   </button>
+                  ` : `
+                  <span class="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider opacity-60 cursor-not-allowed ${esVendida ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}" title="Acceso restringido: Solo puedes gestionar tus propias propiedades">
+                    ${esVendida ? '<i class="fa-solid fa-lock mr-1"></i> Vendida' : '<i class="fa-solid fa-check mr-1"></i> Disponible'}
+                  </span>
+                  `}
                 </td>
                 <td class="py-3 px-6 text-right">
                   <div class="inline-flex items-center gap-2">
-                    <button type="button" onclick="verDetallePropiedad('${p.id}')" class="px-2.5 py-1 text-xs font-bold text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg transition-all" title="Ver ficha">
+                    <button type="button" onclick="verDetallePropiedad('${safeId}')" class="px-2.5 py-1 text-xs font-bold text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg transition-all" title="Ver ficha">
                       Ver
                     </button>
-                    <button type="button" onclick="abrirModalEditar('${p.id}')" class="px-2.5 py-1 text-xs font-bold text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg transition-all flex items-center gap-1" title="Editar propiedad">
+                    ${puedeCambiarEstado ? `
+                    <button type="button" onclick="abrirModalEditar('${safeId}')" class="px-2.5 py-1 text-xs font-bold text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg transition-all flex items-center gap-1 cursor-pointer" title="Editar propiedad">
                       <i class="fa-regular fa-pen-to-square"></i> Editar
                     </button>
-                    ${(currentUser && currentUser.rol === 'admin') ? `
-                    <button type="button" onclick="copiarFilaCSV('${p.id}')" class="px-2.5 py-1 text-xs font-bold text-black bg-white hover:bg-neutral-200 rounded-lg transition-all flex items-center gap-1 shadow-xs" title="Copiar fila para Google Sheets">
+                    ` : ''}
+                    ${esAdmin ? `
+                    <button type="button" onclick="copiarFilaCSV('${safeId}')" class="px-2.5 py-1 text-xs font-bold text-black bg-white hover:bg-neutral-200 rounded-lg transition-all flex items-center gap-1 shadow-xs cursor-pointer" title="Copiar fila para Google Sheets">
                       <i class="fa-regular fa-copy"></i> Fila
                     </button>
-                    <button type="button" onclick="confirmarEliminarPropiedad('${p.id}')" class="p-1.5 text-neutral-400 hover:text-red-400 rounded-lg hover:bg-red-950/40 border border-transparent hover:border-red-900/40 transition-all cursor-pointer" title="Eliminar propiedad (Solo Admin)">
+                    <button type="button" onclick="confirmarEliminarPropiedad('${safeId}')" class="p-1.5 text-neutral-400 hover:text-red-400 rounded-lg hover:bg-red-950/40 border border-transparent hover:border-red-900/40 transition-all cursor-pointer" title="Eliminar propiedad (Solo Admin)">
                       <i class="fa-regular fa-trash-can"></i>
                     </button>
                     ` : ''}
@@ -3604,15 +3687,27 @@
       const grid = document.getElementById('inventario-view-grid');
       if (grid) {
         grid.innerHTML = filtradas.map(p => {
-          const asesor = asesores[p.id_asesor] || asesores['carmen'];
+          const asesor = asesores[p.id_asesor] || asesores['carmen'] || { nombre: 'Asesor', avatar: '', puesto: 'Asesor VIP' };
           const esVendida = p.es_vendida || String(p.estado || '').toLowerCase().includes('vendid');
           const precioNum = parseInt(String(p.precio).replace(/[^0-9]/g, ''), 10) || 0;
           const esRenta = precioNum < 10000;
+          const esAdmin = (currentUser && currentUser.rol === 'admin');
+          const esDuenio = (currentUser && p.id_asesor === currentUser.id);
+          const puedeCambiarEstado = (esAdmin || esDuenio);
+
+          const safeId = escapeHtml(p.id);
+          const safeTitulo = escapeHtml(p.titulo);
+          const safeUbicacion = escapeHtml(p.ubicacion);
+          const safePrecio = escapeHtml(p.precio);
+          const safeCuartos = escapeHtml(p.cuartos);
+          const safeBanos = escapeHtml(p.banos);
+          const safeMetros = escapeHtml(p.metros);
+          const safePortada = sanitizeUrl(p.imagen_portada) || 'assets/logo-icon.png';
 
           return `
             <div class="bg-[#141414] rounded-2xl shadow-sm border border-[#2A2A2A] overflow-hidden flex flex-col hover:border-neutral-600 transition-all">
               <div class="relative h-48 overflow-hidden bg-neutral-900">
-                <img src="${p.imagen_portada}" alt="${p.titulo}" class="w-full h-full object-cover">
+                <img src="${safePortada}" alt="${safeTitulo}" class="w-full h-full object-cover">
                 ${esVendida ? `
                   <div class="absolute top-0 right-0 w-28 h-28 overflow-hidden pointer-events-none z-10">
                     <div class="absolute transform rotate-45 bg-red-600 text-white font-black text-[10px] py-1 -right-8 top-5 w-32 text-center shadow uppercase tracking-wider">
@@ -3639,20 +3734,24 @@
               </div>
               <div class="p-5 flex-1 flex flex-col justify-between">
                 <div>
-                  <span class="text-xs uppercase font-semibold text-neutral-400 block tracking-wider truncate">${p.ubicacion}</span>
-                  <h4 class="font-serif text-lg font-bold text-white mt-1 hover:text-neutral-300 cursor-pointer line-clamp-1" onclick="verDetallePropiedad('${p.id}')">${p.titulo}</h4>
-                  <p class="font-serif text-xl font-extrabold ${esVendida ? 'text-neutral-500 line-through' : 'text-white'} mt-2">${p.precio}</p>
+                  <span class="text-xs uppercase font-semibold text-neutral-400 block tracking-wider truncate">${safeUbicacion}</span>
+                  <h4 class="font-serif text-lg font-bold text-white mt-1 hover:text-neutral-300 cursor-pointer line-clamp-1" onclick="verDetallePropiedad('${safeId}')">${safeTitulo}</h4>
+                  <p class="font-serif text-xl font-extrabold ${esVendida ? 'text-neutral-500 line-through' : 'text-white'} mt-2">${safePrecio}</p>
                 </div>
                 <div class="pt-4 mt-4 border-t border-neutral-800 flex items-center justify-between text-xs text-neutral-400">
-                  <span>${p.cuartos} • ${p.banos} • ${p.metros}</span>
+                  <span>${safeCuartos} • ${safeBanos} • ${safeMetros}</span>
                   <div class="flex items-center gap-2">
-                    <button type="button" onclick="abrirModalEditar('${p.id}')" class="text-xs font-bold text-neutral-300 hover:text-white flex items-center gap-1" title="Editar propiedad">
+                    ${puedeCambiarEstado ? `
+                    <button type="button" onclick="abrirModalEditar('${safeId}')" class="text-xs font-bold text-neutral-300 hover:text-white flex items-center gap-1 cursor-pointer" title="Editar propiedad">
                       <i class="fa-regular fa-pen-to-square"></i> Editar
                     </button>
+                    ` : ''}
+                    ${esAdmin ? `
                     <span class="text-neutral-700">•</span>
-                    <button type="button" onclick="confirmarEliminarPropiedad('${p.id}')" class="text-xs font-bold text-red-400/80 hover:text-red-400 flex items-center gap-1" title="Eliminar propiedad">
+                    <button type="button" onclick="confirmarEliminarPropiedad('${safeId}')" class="text-xs font-bold text-red-400/80 hover:text-red-400 flex items-center gap-1 cursor-pointer" title="Eliminar propiedad">
                       <i class="fa-regular fa-trash-can"></i>
                     </button>
+                    ` : ''}
                   </div>
                 </div>
               </div>
@@ -3744,9 +3843,12 @@
       const prop = propiedades.find(p => String(p.id) === String(id));
       if (!prop) return;
 
+      const esAdmin = currentUser && currentUser.rol === 'admin';
+      const esDuenio = currentUser && prop.id_asesor === currentUser.id;
+
       // Bloqueo RBAC: Asesor solo puede cambiar el estado de sus propiedades
-      if (currentUser && currentUser.rol === 'asesor' && prop.id_asesor !== currentUser.id) {
-        lanzarToast("Acceso denegado: Solo puedes modificar la disponibilidad de tus propias propiedades.", "error");
+      if (!esAdmin && !esDuenio) {
+        lanzarToast("Acceso denegado: Solo puedes modificar la disponibilidad de tus propias propiedades asignadas.", "error");
         return;
       }
 
@@ -4404,8 +4506,11 @@
       const p = propiedades.find(x => String(x.id) === String(id));
       if (!p) return;
 
+      const esAdmin = currentUser && currentUser.rol === 'admin';
+      const esDuenio = currentUser && p.id_asesor === currentUser.id;
+
       // Bloqueo RBAC: Asesor solo puede editar sus propiedades
-      if (currentUser && currentUser.rol === 'asesor' && p.id_asesor !== currentUser.id) {
+      if (!esAdmin && !esDuenio) {
         lanzarToast("Acceso denegado: No tienes permiso para editar propiedades de otros asesores.", "error");
         return;
       }
@@ -4468,8 +4573,11 @@
       const p = propiedades.find(x => String(x.id) === String(id));
       if (!p) return;
 
+      const esAdmin = currentUser && currentUser.rol === 'admin';
+      const esDuenio = currentUser && p.id_asesor === currentUser.id;
+
       // Bloqueo RBAC: Asesor solo puede guardar cambios en sus propiedades
-      if (currentUser && currentUser.rol === 'asesor' && p.id_asesor !== currentUser.id) {
+      if (!esAdmin && !esDuenio) {
         lanzarToast("Acceso denegado: No tienes permiso para editar propiedades de otros asesores.", "error");
         return;
       }
@@ -4497,7 +4605,7 @@
       p.cuartos = cuartos ? (cuartos.includes('Hab') ? cuartos : (cuartos + ' Habs')) : p.cuartos;
       p.banos = banos ? (banos.includes('Baño') ? banos : (banos + ' Baños')) : p.banos;
       p.metros = metros ? (metros.includes('m') ? metros : (metros + ' m²')) : p.metros;
-      p.id_asesor = asesor;
+      p.id_asesor = (currentUser && currentUser.rol === 'admin') ? asesor : currentUser.id;
       p.estado = estado;
       p.es_vendida = esVendida;
       if (fotoUrl) p.imagen_portada = fotoUrl;
@@ -4540,6 +4648,11 @@
     }
 
     function ejecutarEliminacionPropiedad() {
+      if (!currentUser || currentUser.rol !== 'admin') {
+        lanzarToast("Acción no autorizada: Solo el Administrador puede eliminar propiedades.", "error");
+        cerrarModalEliminar();
+        return;
+      }
       if (!propiedadIdAEliminar) return;
       const id = propiedadIdAEliminar;
       const p = propiedades.find(x => String(x.id) === String(id));
@@ -5085,16 +5198,23 @@
         const tieneFoto = esAvatarValido(u.avatar);
         const iniciales = obtenerIniciales(u.nombre);
 
+        const safeId = escapeHtml(u.id);
+        const safeNombre = escapeHtml(u.nombre);
+        const safeEmail = escapeHtml(u.email);
+        const safeTel = sanitizePhone(u.tel);
+        const safeAvatar = sanitizeUrl(u.avatar);
+        const safeInits = escapeHtml(iniciales);
+
         return `
           <tr class="hover:bg-neutral-900/60 transition-colors">
             <td class="py-3 px-6">
               <div class="flex items-center gap-3">
                 ${tieneFoto
-                ? `<img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover ring-1 ring-white/20 shrink-0">`
-                : `<div class="w-10 h-10 rounded-full bg-gradient-to-br from-neutral-800 to-neutral-900 border border-neutral-700/80 flex items-center justify-center font-bold text-xs text-white tracking-wider shrink-0">${iniciales}</div>`}
+                ? `<img src="${safeAvatar}" class="w-10 h-10 rounded-full object-cover ring-1 ring-white/20 shrink-0">`
+                : `<div class="w-10 h-10 rounded-full bg-gradient-to-br from-neutral-800 to-neutral-900 border border-neutral-700/80 flex items-center justify-center font-bold text-xs text-white tracking-wider shrink-0">${safeInits}</div>`}
                 <div>
-                  <p class="font-bold text-white leading-tight">${u.nombre}</p>
-                  <p class="text-xs text-neutral-400 font-mono">${u.email}</p>
+                  <p class="font-bold text-white leading-tight">${safeNombre}</p>
+                  <p class="text-xs text-neutral-400 font-mono">${safeEmail}</p>
                 </div>
               </div>
             </td>
@@ -5111,8 +5231,8 @@
               </span>
             </td>
             <td class="py-3 px-4 text-xs font-mono text-neutral-300">
-              <a href="https://wa.me/${u.tel}" target="_blank" class="hover:text-emerald-400 flex items-center gap-1">
-                <i class="fa-brands fa-whatsapp text-emerald-500"></i> +${u.tel}
+              <a href="https://wa.me/${safeTel}" target="_blank" class="hover:text-emerald-400 flex items-center gap-1">
+                <i class="fa-brands fa-whatsapp text-emerald-500"></i> +${safeTel}
               </a>
             </td>
             <td class="py-3 px-4 text-center">
@@ -5834,18 +5954,19 @@
       }
 
       container.innerHTML = tareas.map(t => {
-        const textoSeguro = t.texto || t.title || t.descripcion || 'Tarea pendiente';
+        const textoSeguro = escapeHtml(t.texto || t.title || t.descripcion || 'Tarea pendiente');
+        const safeId = escapeHtml(t.id);
         return `
           <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#0D0D0D] border border-neutral-900 group hover:border-neutral-800 transition-all">
             <div class="flex items-center gap-3 min-w-0 flex-1">
-              <button type="button" onclick="toggleTarea('${t.id}')" class="w-5 h-5 rounded-lg border ${t.completada ? 'bg-white border-white text-black' : 'border-neutral-700 bg-neutral-900 hover:border-white'} flex items-center justify-center shrink-0 cursor-pointer transition-colors" title="${t.completada ? 'Marcar pendiente' : 'Marcar completada'}">
+              <button type="button" onclick="toggleTarea('${safeId}')" class="w-5 h-5 rounded-lg border ${t.completada ? 'bg-white border-white text-black' : 'border-neutral-700 bg-neutral-900 hover:border-white'} flex items-center justify-center shrink-0 cursor-pointer transition-colors" title="${t.completada ? 'Marcar pendiente' : 'Marcar completada'}">
                 ${t.completada ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}
               </button>
               <span class="text-xs truncate ${t.completada ? 'line-through text-neutral-500' : 'text-neutral-200'}">
                 ${textoSeguro}
               </span>
             </div>
-            <button type="button" onclick="eliminarTarea('${t.id}')" class="opacity-0 group-hover:opacity-100 p-1 text-neutral-500 hover:text-white rounded-lg transition-all ml-2 cursor-pointer" title="Eliminar tarea">
+            <button type="button" onclick="eliminarTarea('${safeId}')" class="opacity-0 group-hover:opacity-100 p-1 text-neutral-500 hover:text-white rounded-lg transition-all ml-2 cursor-pointer" title="Eliminar tarea">
               <i class="fa-solid fa-trash-can text-xs"></i>
             </button>
           </div>
@@ -5953,16 +6074,20 @@
       }
 
       container.innerHTML = leads.map(l => {
-        const propTexto = (l.propiedad && String(l.propiedad).trim() && l.propiedad !== 'undefined')
+        const rawProp = (l.propiedad && String(l.propiedad).trim() && l.propiedad !== 'undefined')
           ? l.propiedad
           : 'Portafolio VIP';
-        const waMsg = encodeURIComponent('Hola ' + l.nombre + ', le saludo de Santander Real Estate respecto a su interés en: ' + propTexto + '.');
-        const waUrl = 'https://wa.me/' + l.tel + '?text=' + waMsg;
+        const propTexto = escapeHtml(rawProp);
+        const safeNombre = escapeHtml(l.nombre);
+        const safeId = escapeHtml(l.id);
+        const safeTel = sanitizePhone(l.tel);
+        const waMsg = encodeURIComponent('Hola ' + (l.nombre || 'estimado cliente') + ', le saludo de Santander Real Estate respecto a su interés en: ' + rawProp + '.');
+        const waUrl = 'https://wa.me/' + safeTel + '?text=' + waMsg;
 
         return `
           <div class="p-3 rounded-2xl bg-[#0D0D0D] border border-neutral-900 flex items-center justify-between gap-3 group hover:border-neutral-800 transition-all">
             <div class="min-w-0 flex-1">
-              <p class="text-xs font-bold text-white truncate">${l.nombre}</p>
+              <p class="text-xs font-bold text-white truncate">${safeNombre}</p>
               <p class="text-[11px] text-neutral-400 truncate mt-0.5 flex items-center gap-1.5">
                 <i class="fa-solid fa-house-chimney text-[10px] text-neutral-500"></i>
                 <span>${propTexto}</span>
@@ -5973,7 +6098,7 @@
                 <i class="fa-brands fa-whatsapp text-xs"></i>
                 <span>Chat</span>
               </a>
-              <button type="button" onclick="eliminarLead('${l.id}')" class="opacity-0 group-hover:opacity-100 p-1.5 text-neutral-500 hover:text-white rounded-lg transition-all cursor-pointer" title="Eliminar lead">
+              <button type="button" onclick="eliminarLead('${safeId}')" class="opacity-0 group-hover:opacity-100 p-1.5 text-neutral-500 hover:text-white rounded-lg transition-all cursor-pointer" title="Eliminar lead">
                 <i class="fa-solid fa-xmark text-xs"></i>
               </button>
             </div>

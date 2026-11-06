@@ -79,6 +79,33 @@
   /**
    * Cryptographic Functions (PBKDF2 with SHA-256)
    */
+  function generateSecureToken() {
+    if (cryptoObj && cryptoObj.getRandomValues) {
+      const arr = new Uint8Array(24);
+      cryptoObj.getRandomValues(arr);
+      return 'sat_' + Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    let s = '';
+    for (let i = 0; i < 48; i++) {
+      s += Math.floor(Math.random() * 16).toString(16);
+    }
+    return 'sat_' + s;
+  }
+
+  function sanitizeAvatarUrl(url) {
+    if (!url || typeof url !== 'string') return '';
+    const clean = url.trim();
+    if (/^https?:\/\//i.test(clean) || /^data:image\/(jpeg|png|webp|gif|svg\+xml);base64,/i.test(clean)) {
+      return clean;
+    }
+    return '';
+  }
+
+  function sanitizePhoneNumber(phone) {
+    if (!phone || typeof phone !== 'string') return '';
+    return phone.replace(/[^0-9]/g, '');
+  }
+
   async function generateSalt(length = 16) {
     if (cryptoObj && cryptoObj.getRandomValues) {
       const arr = new Uint8Array(length);
@@ -350,14 +377,14 @@
   function createSession(user, rememberMe = false) {
     const now = Date.now();
     const session = {
-      token: 'jwt_santander_' + Math.random().toString(36).substring(2) + '_' + now,
+      token: generateSecureToken(),
       user: {
         id: user.id,
         nombre: user.nombre,
         email: user.email,
-        tel: user.tel,
+        tel: sanitizePhoneNumber(user.tel),
         puesto: user.puesto,
-        avatar: user.avatar,
+        avatar: sanitizeAvatarUrl(user.avatar),
         rol: user.rol,
         estado: user.estado
       },
@@ -395,6 +422,16 @@
       if (session.lastActivity && (now - session.lastActivity > CONFIG.INACTIVITY_TIMEOUT_MS)) {
         destroySession();
         return null;
+      }
+
+      // Zero-Trust Live Check: Verificar si la cuenta sigue activa en la base de datos
+      if (session.user && session.user.id) {
+        const users = getUsersStore();
+        const dbUser = users.find(u => u.id === session.user.id);
+        if (!dbUser || dbUser.estado === 'suspendido') {
+          destroySession();
+          return null;
+        }
       }
 
       return session;
@@ -690,9 +727,9 @@
         id,
         nombre: nombre.trim(),
         email: cleanEmail,
-        tel: (tel || '').trim() || '50200000000',
+        tel: sanitizePhoneNumber(tel) || '50200000000',
         puesto: (puesto || 'Asesor Inmobiliario VIP').trim(),
-        avatar: (avatar || '').trim(), // Sin foto random por defecto, el sistema renderiza iniciales
+        avatar: sanitizeAvatarUrl(avatar), // Sin foto random por defecto, el sistema renderiza iniciales
         rol: rol === 'admin' ? 'admin' : 'asesor',
         estado: 'activo',
         salt,
@@ -850,18 +887,21 @@
       if (!user) throw new Error('Usuario no encontrado.');
 
       // Verificación estricta de seguridad: si se modifica el correo corporativo
+      const isSelf = (current.id === userId);
       if (email && email.trim().toLowerCase() !== user.email.toLowerCase()) {
         const cleanEmail = email.trim().toLowerCase();
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(cleanEmail)) {
           throw new Error('El formato del correo corporativo no es válido.');
         }
-        if (!currentPassword) {
-          throw new Error('Por seguridad, debes ingresar tu contraseña actual para autorizar el cambio de correo.');
-        }
-        const passOk = await this.verifyPassword(userId, currentPassword);
-        if (!passOk) {
-          throw new Error('Contraseña actual incorrecta. No se autorizó el cambio de correo.');
+        if (isSelf) {
+          if (!currentPassword) {
+            throw new Error('Por seguridad, debes ingresar tu contraseña actual para autorizar el cambio de correo.');
+          }
+          const passOk = await this.verifyPassword(userId, currentPassword);
+          if (!passOk) {
+            throw new Error('Contraseña actual incorrecta. No se autorizó el cambio de correo.');
+          }
         }
         if (this.isEmailTaken(cleanEmail, userId)) {
           throw new Error('El correo ' + cleanEmail + ' ya está registrado por otro usuario.');
@@ -872,12 +912,14 @@
 
       // Verificación si se solicitó cambio de clave
       if (newPassword && newPassword.trim()) {
-        if (!currentPassword) {
-          throw new Error('Debes ingresar tu contraseña actual para establecer una nueva clave.');
-        }
-        const passOk = await this.verifyPassword(userId, currentPassword);
-        if (!passOk) {
-          throw new Error('Contraseña actual incorrecta.');
+        if (isSelf) {
+          if (!currentPassword) {
+            throw new Error('Debes ingresar tu contraseña actual para establecer una nueva clave.');
+          }
+          const passOk = await this.verifyPassword(userId, currentPassword);
+          if (!passOk) {
+            throw new Error('Contraseña actual incorrecta.');
+          }
         }
         if (newPassword.length < 6) {
           throw new Error('La nueva contraseña debe tener al menos 6 caracteres.');
@@ -888,9 +930,9 @@
       }
 
       if (nombre) user.nombre = nombre.trim();
-      if (tel !== undefined) user.tel = tel.trim();
+      if (tel !== undefined) user.tel = sanitizePhoneNumber(tel);
       if (puesto) user.puesto = puesto.trim();
-      if (avatar !== undefined) user.avatar = avatar.trim();
+      if (avatar !== undefined) user.avatar = sanitizeAvatarUrl(avatar);
 
       saveUsersStore(users);
 

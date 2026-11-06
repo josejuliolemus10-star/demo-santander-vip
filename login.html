@@ -533,6 +533,22 @@
       }
     }
 
+    // Validación criptográfica y estricta de redirección interna (Prevención Open Redirect y DOM XSS)
+    function getSafeRedirectUrl(target) {
+      if (!target || typeof target !== 'string') return 'admin.html';
+      const clean = target.trim();
+      // Bloquear esquemas peligrosos y URLs externas
+      if (/^(javascript|data|vbscript):/i.test(clean) || /^\/\//.test(clean) || /^https?:\/\//i.test(clean)) {
+        return 'admin.html';
+      }
+      const allowed = ['admin.html', 'panel.html', 'index.html'];
+      const baseName = clean.split('?')[0].split('#')[0];
+      if (allowed.includes(baseName)) {
+        return clean;
+      }
+      return 'admin.html';
+    }
+
     // Toggle ver contraseña
     function togglePasswordVisibility() {
       const pwd = document.getElementById('password');
@@ -636,9 +652,10 @@
         if (result.success) {
           btnSpinner.innerHTML = '<i class="fa-solid fa-check text-emerald-500"></i> Acceso autorizado. Redirigiendo...';
           const urlParams = new URLSearchParams(window.location.search);
-          const redirectTarget = urlParams.get('redirect') || (document.referrer.includes('panel.html') ? 'panel.html' : 'admin.html');
+          const rawRedirect = urlParams.get('redirect') || (document.referrer.includes('panel.html') ? 'panel.html' : 'admin.html');
+          const safeRedirect = getSafeRedirectUrl(rawRedirect);
           setTimeout(() => {
-            window.location.replace(redirectTarget);
+            window.location.replace(safeRedirect);
           }, 350);
           return;
         }

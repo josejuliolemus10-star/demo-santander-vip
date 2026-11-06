@@ -1086,12 +1086,48 @@
 
       </div>
 
-      <div class="pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-gray-500">
-        <p>&copy; 2026 Inmobiliaria Santander Guatemala. Todos los derechos reservados.</p>
-        <div class="flex space-x-6 mt-4 md:mt-0">
-          <a href="#" class="hover:text-gray-400 transition-colors">Aviso de Privacidad</a>
-          <a href="#" class="hover:text-gray-400 transition-colors">Términos de Intermediación</a>
-          <a href="#" class="hover:text-gray-400 transition-colors">Código de Ética VIP</a>
+      <!-- Banner de Creación Visual y Propiedad Intelectual Exclusiva -->
+      <div class="mt-10 p-5 rounded-2xl bg-white/[0.03] border border-white/10 flex flex-col md:flex-row items-center justify-between gap-5">
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-neutral-900 border border-neutral-700/80 flex items-center justify-center shrink-0 shadow-inner">
+            <img src="assets/logo-icon-white.png" alt="Santander Logo" class="w-6 h-6 object-contain">
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-white tracking-wide">Producción & Propiedad Intelectual de Contenido Visual</span>
+              <span class="text-[9.5px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 px-2 py-0.5 rounded-full">Autoría Original</span>
+            </div>
+            <p class="text-xs text-neutral-400 leading-relaxed mt-1">
+              Santander Real Estate es el autor, creador y titular de los derechos de autor de todas las fotografías arquitectónicas de alta resolución, planos digitales, renders 3D y material audiovisual exhibido en este sitio. Queda prohibida su reproducción o distribución sin autorización previa por escrito.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2.5 shrink-0 w-full md:w-auto justify-end">
+          <button type="button" onclick="abrirModalPropiedadIntelectual()" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold border border-white/15 transition-all cursor-pointer">
+            Ver Certificación
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra Inferior de Enlaces Legales Corporativos -->
+      <div class="pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-neutral-400 gap-4">
+        <p>&copy; 2026 Santander Real Estate Guatemala S.A. Todos los derechos reservados.</p>
+        <div class="flex flex-wrap items-center justify-center gap-5 sm:gap-6">
+          <button type="button" onclick="abrirModalTerminos()" class="text-neutral-400 hover:text-white transition-colors cursor-pointer">
+            Términos de Servicio
+          </button>
+          <span class="text-neutral-700">•</span>
+          <button type="button" onclick="abrirModalPrivacidad()" class="text-neutral-400 hover:text-white transition-colors cursor-pointer">
+            Política de Privacidad
+          </button>
+          <span class="text-neutral-700">•</span>
+          <button type="button" onclick="abrirModalPropiedadIntelectual()" class="text-neutral-400 hover:text-white transition-colors cursor-pointer">
+            Derechos de Imagen & Autor
+          </button>
+          <span class="text-neutral-700">•</span>
+          <a href="login.html" class="text-neutral-400 hover:text-emerald-400 transition-colors flex items-center gap-1.5 font-medium">
+            <i class="fa-solid fa-lock text-[10px] text-emerald-500"></i> Acceso Asesores VIP
+          </a>
         </div>
       </div>
 
@@ -2221,5 +2257,282 @@
       });
     });
   </script>
+  <!-- ========================================================
+       MODALES LEGALES CORPORATIVOS (DARK LUXURY BENTO)
+       ======================================================== -->
+
+  <!-- Modal 1: Términos y Condiciones del Servicio -->
+  <div id="modal-terminos" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="terminos-title">
+    <div class="bg-[#0D0E12] border border-white/10 text-white rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden transform transition-all animate-modal-enter">
+      
+      <!-- Encabezado Modal -->
+      <div class="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-neutral-900 border border-neutral-700 flex items-center justify-center shrink-0">
+            <img src="assets/logo-icon-white.png" alt="Santander Logo" class="w-5 h-5 object-contain">
+          </div>
+          <div>
+            <h3 id="terminos-title" class="font-serif text-lg sm:text-xl font-bold text-white">Términos y Condiciones del Servicio</h3>
+            <p class="text-xs text-neutral-400">Santander Real Estate Guatemala • Marco Jurídico Operativo</p>
+          </div>
+        </div>
+        <button type="button" onclick="cerrarModalTerminos()" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/15 text-neutral-400 hover:text-white flex items-center justify-center transition-all cursor-pointer" aria-label="Cerrar modal">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Contenido Scrollable con Cláusulas -->
+      <div class="px-6 py-5 overflow-y-auto space-y-5 text-xs text-neutral-300 leading-relaxed font-sans">
+        
+        <div class="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block mb-1">Última actualización: Enero 2026</span>
+          <p>
+            Bienvenido a <strong>Santander Real Estate Guatemala</strong>. Los presentes Términos y Condiciones regulan el acceso, consulta, intermediación y contratación de servicios de consultoría inmobiliaria especializada en propiedades residenciales y corporativas de alta gama en la República de Guatemala.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1.5 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            1. Autoría Original y Derechos Exclusivos de Contenido Audiovisual
+          </h4>
+          <p class="text-neutral-300">
+            Todas las fotografías arquitectónicas, videos de alta definición, tomas cinematográficas con drones, renders 3D computarizados, recorridos virtuales y textos descriptivos publicados en este portal son <strong>creaciones originales y propiedad intelectual exclusiva de Santander Real Estate Guatemala</strong> o han sido elaborados bajo licencias comerciales expresas.
+          </p>
+          <p class="text-neutral-400 mt-2 bg-neutral-900/60 p-3 rounded-xl border border-neutral-800">
+            Queda estrictamente prohibida la copia, reproducción parcial o total, descarga no autorizada, captura masiva (web scraping), republicación en portales inmobiliarios de terceros, o uso publicitario sin autorización formal escrita de la administración de Santander Real Estate.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1.5 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            2. Naturaleza del Servicio de Intermediación VIP
+          </h4>
+          <p>
+            Santander Real Estate actúa como entidad de corretaje, promoción e intermediación inmobiliaria entre propietarios, desarrolladores, compradores e inversionistas. La formalización definitiva de cualquier contrato de compraventa, promesa o arrendamiento está sujeta a la debida diligencia legal, estudio de títulos en el Registro General de la Propiedad de Guatemala y comparecencia ante Notario Público legalmente colegiado.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1.5 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            3. Veracidad de Precios y Disponibilidad
+          </h4>
+          <p>
+            Los precios expresados en Dólares de los Estados Unidos (USD $) o Quetzales (GTQ Q) y los detalles técnicos de cada inmueble corresponden a valores de lista vigentes. Los inmuebles están sujetos a disponibilidad y a variación sin previo aviso hasta la firma del documento de reserva o promesa correspondiente.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1.5 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            4. Cumplimiento Normativo y Prevención de Lavado de Dinero (IVE)
+          </h4>
+          <p>
+            En estricto cumplimiento con la <em>Ley Contra el Lavado de Dinero u Otros Activos (Decreto 67-2001)</em> y la <em>Ley para Prevenir y Reprimir el Financiamiento del Terrorismo (Decreto 58-2005)</em> de la República de Guatemala, Santander Real Estate solicitará formalmente formularios de identificación de clientes, origen de fondos y documentación de soporte antes de formalizar transacciones inmobiliarias.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1.5 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            5. Jurisdicción y Ley Aplicable
+          </h4>
+          <p>
+            Cualquier controversia derivada de la interpretación o ejecución de los presentes términos se someterá a la legislación vigente de la República de Guatemala y a la competencia de los tribunales civiles de la Ciudad de Guatemala.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Pie del Modal -->
+      <div class="px-6 py-4 border-t border-white/10 flex items-center justify-between bg-white/[0.02]">
+        <span class="text-[11px] text-neutral-400">Sede Central: Edificio Burgó, Zona 14, Guatemala</span>
+        <button type="button" onclick="cerrarModalTerminos()" class="px-4 py-2 bg-white text-black hover:bg-neutral-200 font-bold text-xs rounded-xl transition-all cursor-pointer">
+          Entendido
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- Modal 2: Política de Privacidad y Protección de Datos -->
+  <div id="modal-privacidad" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="privacidad-title">
+    <div class="bg-[#0D0E12] border border-white/10 text-white rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden transform transition-all animate-modal-enter">
+      
+      <!-- Encabezado Modal -->
+      <div class="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-neutral-900 border border-neutral-700 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-user-shield text-emerald-400 text-lg"></i>
+          </div>
+          <div>
+            <h3 id="privacidad-title" class="font-serif text-lg sm:text-xl font-bold text-white">Política de Privacidad & Protección de Datos</h3>
+            <p class="text-xs text-neutral-400">Compromiso de Confidencialidad y Seguridad de Clientes VIP</p>
+          </div>
+        </div>
+        <button type="button" onclick="cerrarModalPrivacidad()" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/15 text-neutral-400 hover:text-white flex items-center justify-center transition-all cursor-pointer" aria-label="Cerrar modal">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Contenido Scrollable -->
+      <div class="px-6 py-5 overflow-y-auto space-y-5 text-xs text-neutral-300 leading-relaxed font-sans">
+        
+        <div class="p-3.5 rounded-2xl bg-emerald-950/20 border border-emerald-800/30 text-emerald-300">
+          <i class="fa-solid fa-lock mr-1.5 text-emerald-400"></i>
+          Garantía de Confidencialidad: Santander Real Estate no comercializa, no cede y no comparte bases de datos con terceros para fines publicitarios.
+        </div>
+
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1.5 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            1. Responsable del Tratamiento
+          </h4>
+          <p>
+            Inmobiliaria Santander Guatemala S.A., con oficinas corporativas en Edificio Burgó, 6a avenida 1-81, Zona 14, Ciudad de Guatemala, es responsable de resguardar la confidencialidad de la información personal recopilada a través de este portal y nuestros canales oficiales.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1.5 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            2. Datos Personales Recabados
+          </h4>
+          <p>
+            Podemos recopilar información voluntariamente facilitada por usted: nombre completo, correo electrónico, número telefónico de WhatsApp, preferencias de inversión inmobiliaria y rangos de presupuesto para coordinar asesorías personalizadas.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1.5 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            3. Finalidades del Tratamiento
+          </h4>
+          <ul class="list-disc pl-5 space-y-1 text-neutral-400">
+            <li>Coordinar visitas privadas y exclusivas a residencias de nuestro catálogo VIP.</li>
+            <li>Brindar atención inmobiliaria directa mediante asesores colegiados vía WhatsApp o llamada telefónica.</li>
+            <li>Remitir fichas técnicas, memorándums de inversión y propuestas de valor patrimonial.</li>
+            <li>Formalizar instrumentos legales notariales ante Notario de confianza de las partes.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1.5 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            4. Estándares de Seguridad Criptográfica
+          </h4>
+          <p>
+            Implementamos protocolos criptográficos alineados a estándares internacionales NIST (PBKDF2 con SHA-256 para credenciales de acceso administrativo, certificados SSL/TLS para el tráfico web y aislamiento estricto de roles RBAC).
+          </p>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1.5 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            5. Derechos ARCO (Acceso, Rectificación, Cancelación y Oposición)
+          </h4>
+          <p>
+            Usted puede revocar en cualquier momento el consentimiento sobre el uso de sus datos personales o solicitar su eliminación definitiva de nuestros registros de contacto enviando un mensaje directo a nuestras oficinas centrales al correo <strong class="text-white">privacidad@santandervip.gt</strong> o vía telefónica al <strong class="text-white">(502) 5294-5088</strong>.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Pie del Modal -->
+      <div class="px-6 py-4 border-t border-white/10 flex items-center justify-between bg-white/[0.02]">
+        <span class="text-[11px] text-neutral-400">Oficina Oficial: (502) 5632-4236</span>
+        <button type="button" onclick="cerrarModalPrivacidad()" class="px-4 py-2 bg-white text-black hover:bg-neutral-200 font-bold text-xs rounded-xl transition-all cursor-pointer">
+          Aceptar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- Modal 3: Certificación de Propiedad Intelectual y Creación Visual -->
+  <div id="modal-propiedad-intelectual" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="pi-title">
+    <div class="bg-[#0D0E12] border border-white/10 text-white rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden transform transition-all animate-modal-enter">
+      
+      <!-- Encabezado Modal -->
+      <div class="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-neutral-900 border border-neutral-700 flex items-center justify-center shrink-0">
+            <img src="assets/logo-icon-white.png" alt="Santander Logo" class="w-5 h-5 object-contain">
+          </div>
+          <div>
+            <h3 id="pi-title" class="font-serif text-lg sm:text-xl font-bold text-white">Declaración de Autoría & Creación Visual</h3>
+            <p class="text-xs text-neutral-400">Protección Integral de Obras Fotográficas y Audiovisuales</p>
+          </div>
+        </div>
+        <button type="button" onclick="cerrarModalPropiedadIntelectual()" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/15 text-neutral-400 hover:text-white flex items-center justify-center transition-all cursor-pointer" aria-label="Cerrar modal">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Contenido Scrollable -->
+      <div class="px-6 py-5 overflow-y-auto space-y-5 text-xs text-neutral-300 leading-relaxed font-sans">
+        
+        <div class="p-4 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-start gap-3">
+          <i class="fa-solid fa-camera text-emerald-400 text-lg mt-0.5 shrink-0"></i>
+          <div>
+            <h4 class="text-xs font-bold text-white">Certificación de Autoría y Producción Directa</h4>
+            <p class="text-neutral-400 mt-1">
+              Santander Real Estate produce internamente y comisiona con equipos profesionales la totalidad del material fotográfico de alta fidelidad, videos aéreos en 4K, levantamientos planimétricos y visualizaciones 3D que componen este catálogo exclusivo.
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1.5 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            1. Marco Legal de Protección de Obras (Decreto 33-98)
+          </h4>
+          <p>
+            Conforme a la <em>Ley de Derecho de Autor y Derechos Conexos de Guatemala (Decreto Número 33-98 del Congreso de la República)</em> y los tratados internacionales suscritos ante la Organización Mundial de la Propiedad Intelectual (OMPI), cada una de las obras fotográficas y audiovisuales se encuentra protegida desde el momento de su fijación material.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1.5 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            2. Prohibición de Raspado (Scraping) y Uso Indebido
+          </h4>
+          <p>
+            Ninguna persona individual o jurídica, portal inmobiliario, agregador web o competidor comercial está autorizado para:
+          </p>
+          <ul class="list-disc pl-5 space-y-1 text-neutral-400 mt-1.5">
+            <li>Descargar, editar, cortar o remover marcas de agua o firmas de autor.</li>
+            <li>Reutilizar nuestras imágenes para promocionar propiedades en portales clasificados o redes sociales.</li>
+            <li>Alimentar modelos de inteligencia artificial o rastreadores automatizados con el portafolio visual de Santander Real Estate.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1.5 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            3. Acciones Legales y Sanciones
+          </h4>
+          <p>
+            El uso no autorizado de nuestro material gráfico faculta a Santander Real Estate para interponer las acciones civiles por daños y perjuicios, así como las denuncias penales correspondientes por violación a los derechos de autor conforme a los Artículos 274 y 275 del Código Penal de Guatemala.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Pie del Modal -->
+      <div class="px-6 py-4 border-t border-white/10 flex items-center justify-between bg-white/[0.02]">
+        <span class="text-[11px] text-neutral-400">Asesoría Legal Central: legal@santandervip.gt</span>
+        <button type="button" onclick="cerrarModalPropiedadIntelectual()" class="px-4 py-2 bg-white text-black hover:bg-neutral-200 font-bold text-xs rounded-xl transition-all cursor-pointer">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
 </body>
 </html>
