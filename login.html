@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-[#0A0A0A]">
+<html lang="es" class="h-full bg-[#080809]">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Santander Real Estate | Acceso Seguro al Portal VIP</title>
+  <title>Santander Real Estate | Acceso Corporativo VIP</title>
   
   <!-- Favicon Oficial Santander Real Estate -->
   <link rel="icon" type="image/png" href="assets/logo-icon.png">
@@ -30,12 +30,10 @@
           },
           colors: {
             brand: {
-              black: '#0A0A0A',
-              card: '#141414',
-              surface: '#181818',
-              surfaceLight: '#222222',
-              border: '#2A2A2A',
-              borderLight: '#383838'
+              black: '#080809',
+              card: '#121214',
+              surface: '#18181b',
+              border: 'rgba(255, 255, 255, 0.08)'
             }
           }
         }
@@ -47,12 +45,92 @@
   <script src="auth.js"></script>
 
   <style>
-    /* Estética Dark Luxury & Scrollbars */
+    /* Estética Dark Luxury & Motion Graphics */
     ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #0A0A0A; }
-    ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 9999px; }
-    .luxury-glow {
-      background: radial-gradient(circle at 50% 0%, rgba(42, 157, 143, 0.08) 0%, rgba(10, 10, 10, 0) 70%);
+    ::-webkit-scrollbar-track { background: #080809; }
+    ::-webkit-scrollbar-thumb { background: #222226; border-radius: 9999px; }
+
+    /* Fondo ambiental cósmico con niebla auroral sutil */
+    .bg-nebula-top {
+      background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(16, 185, 129, 0.07) 0%, rgba(255, 255, 255, 0.02) 40%, transparent 80%);
+    }
+
+    .bg-nebula-bottom {
+      background: radial-gradient(ellipse 60% 35% at 50% 105%, rgba(139, 92, 246, 0.07) 0%, rgba(59, 130, 246, 0.03) 40%, transparent 80%);
+    }
+
+    /* Tarjeta Bento Glassmorphism Ultra Premium */
+    .bento-glass-card {
+      background: rgba(18, 18, 20, 0.65);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      box-shadow: 
+        0 0 0 1px rgba(255, 255, 255, 0.03),
+        0 32px 72px -16px rgba(0, 0, 0, 0.85),
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.15),
+        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4);
+      transform-style: preserve-3d;
+      transition: transform 0.25s cubic-bezier(0.2, 0, 0.2, 1), box-shadow 0.3s ease;
+    }
+
+    .bento-glass-card:hover {
+      box-shadow: 
+        0 0 0 1px rgba(255, 255, 255, 0.06),
+        0 40px 84px -16px rgba(0, 0, 0, 0.95),
+        inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4);
+    }
+
+    /* Input Glass */
+    .bento-input {
+      background: rgba(26, 26, 30, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.2s ease;
+    }
+    .bento-input:focus {
+      background: rgba(32, 32, 38, 0.9);
+      border-color: rgba(255, 255, 255, 0.35);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+    }
+
+    /* Líneas de circuito laterales con pulso de luz */
+    @keyframes circuitPulseLeft {
+      0% { stroke-dashoffset: 400; opacity: 0.2; }
+      50% { opacity: 0.9; }
+      100% { stroke-dashoffset: 0; opacity: 0.2; }
+    }
+
+    @keyframes circuitPulseRight {
+      0% { stroke-dashoffset: 400; opacity: 0.2; }
+      50% { opacity: 0.9; }
+      100% { stroke-dashoffset: 0; opacity: 0.2; }
+    }
+
+    .pulse-line-left {
+      stroke-dasharray: 60 340;
+      animation: circuitPulseLeft 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    .pulse-line-right {
+      stroke-dasharray: 60 340;
+      animation: circuitPulseRight 5s cubic-bezier(0.4, 0, 0.2, 1) infinite 2.5s;
+    }
+
+    /* Brillo flotante en el logo */
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-3px); }
+    }
+
+    .logo-badge-float {
+      animation: logoFloat 4s ease-in-out infinite;
+    }
+
+    /* Respeto a accesibilidad de movimiento */
+    @media (prefers-reduced-motion: reduce) {
+      .bento-glass-card { transition: none !important; }
+      .pulse-line-left, .pulse-line-right, .logo-badge-float { animation: none !important; }
     }
   </style>
 
@@ -63,206 +141,357 @@
     }
   </script>
 </head>
-<body class="min-h-full flex flex-col justify-center items-center p-4 sm:p-6 text-neutral-100 bg-[#0A0A0A] luxury-glow antialiased select-none">
+<body class="min-h-full flex flex-col justify-center items-center p-4 sm:p-6 text-neutral-100 bg-[#080809] bg-nebula-top antialiased select-none relative overflow-x-hidden">
 
-  <!-- Contenedor Principal Centrado -->
-  <div class="w-full max-w-md my-auto">
-    
-    <!-- Header de Marca & Logo -->
-    <div class="text-center mb-8">
-      <a href="index.html" class="inline-block transition-transform hover:scale-[1.02] focus:outline-none" title="Volver al sitio público">
-        <img src="assets/logo-santander-horizontal-white.png" alt="Santander Real Estate" class="h-11 sm:h-12 w-auto mx-auto object-contain">
-      </a>
-      <div class="mt-4 flex items-center justify-center gap-2">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">
-          <i class="fa-solid fa-shield-halved text-[9px]"></i> Sistema Seguro RBAC
-        </span>
-        <span class="text-[10px] text-neutral-500 font-mono">PBKDF2 Cifrado</span>
-      </div>
-    </div>
+  <!-- Fondo Ambiental Gradiente Inferior Cósmico -->
+  <div class="fixed inset-0 bg-nebula-bottom pointer-events-none -z-20"></div>
 
-    <!-- Tarjeta Dark Luxury de Autenticación -->
-    <div class="bg-[#141414] border border-[#262626] rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/80 backdrop-blur-xl">
+  <!-- Canvas Interactivo de Motion Graphics (Partículas / Estrellas en suspensión) -->
+  <canvas id="motion-canvas" class="fixed inset-0 w-full h-full pointer-events-none -z-10"></canvas>
+
+  <!-- Gráficos de Circuito Vectorial Lateral (Inspirado en Bento Social) -->
+  <svg class="fixed inset-0 w-full h-full pointer-events-none -z-10 hidden md:block overflow-visible" preserveAspectRatio="none" viewBox="0 0 1440 900">
+    <defs>
+      <!-- Gradientes sutiles de conexión horizontal -->
+      <linearGradient id="circ-grad-left" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="rgba(255,255,255,0)" />
+        <stop offset="65%" stop-color="rgba(255,255,255,0.06)" />
+        <stop offset="100%" stop-color="rgba(255,255,255,0.18)" />
+      </linearGradient>
+
+      <linearGradient id="circ-grad-right" x1="100%" y1="0%" x2="0%" y2="0%">
+        <stop offset="0%" stop-color="rgba(255,255,255,0)" />
+        <stop offset="65%" stop-color="rgba(255,255,255,0.06)" />
+        <stop offset="100%" stop-color="rgba(255,255,255,0.18)" />
+      </linearGradient>
+
+      <linearGradient id="photon-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="rgba(16,185,129,0)" />
+        <stop offset="50%" stop-color="rgba(255,255,255,0.8)" />
+        <stop offset="100%" stop-color="rgba(16,185,129,0)" />
+      </linearGradient>
+    </defs>
+
+    <!-- Línea izquierda base -->
+    <path d="M 0,450 C 260,450 360,450 490,450" fill="none" stroke="url(#circ-grad-left)" stroke-width="1" />
+    <path d="M 0,450 C 260,450 360,450 490,450" fill="none" stroke="url(#photon-grad)" stroke-width="1.5" class="pulse-line-left" />
+    <!-- Nodo conector izquierdo -->
+    <circle cx="490" cy="450" r="2.5" fill="#FFFFFF" opacity="0.6" />
+    <circle cx="490" cy="450" r="5" fill="none" stroke="#FFFFFF" opacity="0.25" />
+
+    <!-- Línea derecha base -->
+    <path d="M 1440,450 C 1180,450 1080,450 950,450" fill="none" stroke="url(#circ-grad-right)" stroke-width="1" />
+    <path d="M 1440,450 C 1180,450 1080,450 950,450" fill="none" stroke="url(#photon-grad)" stroke-width="1.5" class="pulse-line-right" />
+    <!-- Nodo conector derecho -->
+    <circle cx="950" cy="450" r="2.5" fill="#FFFFFF" opacity="0.6" />
+    <circle cx="950" cy="450" r="5" fill="none" stroke="#FFFFFF" opacity="0.25" />
+  </svg>
+
+  <!-- Contenedor Principal Centrado con Perspectiva 3D -->
+  <div class="w-full max-w-[420px] my-auto relative z-10" style="perspective: 1200px;">
+
+    <!-- Tarjeta Bento Glassmorphism Flotante -->
+    <div id="bento-card" class="bento-glass-card rounded-[28px] sm:rounded-[32px] p-6 sm:p-8 relative">
       
-      <div class="mb-6">
-        <h1 class="font-serif text-2xl font-bold text-white tracking-tight">Acceso al Panel VIP</h1>
-        <p class="text-xs text-neutral-400 mt-1">Ingresa tus credenciales autorizadas de Santander Real Estate.</p>
-      </div>
-
-      <!-- Alerta Dinámica de Estado (Logout, Inactividad, No Autorizado) -->
-      <div id="status-notice" class="hidden mb-5 p-3.5 rounded-2xl text-xs flex items-start gap-3">
-        <i id="status-notice-icon" class="fa-solid fa-circle-info text-sm mt-0.5 shrink-0"></i>
-        <div id="status-notice-text" class="leading-relaxed"></div>
-      </div>
-
-      <!-- Alerta de Bloqueo Anti-Fuerza Bruta (15 Minutos) -->
-      <div id="lockout-banner" class="hidden mb-5 p-4 rounded-2xl bg-red-950/50 border border-red-800/60 text-red-200 text-xs">
-        <div class="flex items-center gap-2 font-bold text-red-400 mb-1">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-          <span>ACCESO TEMPORALMENTE BLOQUEADO</span>
+      <!-- Insignia Superior: Logo Oficial en lugar de la Estrella -->
+      <div class="flex justify-center mb-5">
+        <div class="relative group">
+          <!-- Halo de luz ambiental posterior al logo -->
+          <div class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-emerald-500/20 via-white/10 to-transparent blur-md -z-10 opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
+          
+          <!-- Contenedor Glass del Logo -->
+          <div class="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/15 flex items-center justify-center p-2.5 shadow-inner backdrop-blur-md logo-badge-float transition-all duration-300 group-hover:border-white/30 group-hover:bg-white/[0.08]">
+            <img src="assets/logo-icon-white.png" alt="Santander Real Estate" class="w-8 h-8 object-contain drop-shadow-[0_2px_8px_rgba(255,255,255,0.35)] transition-transform duration-300 group-hover:scale-110">
+          </div>
         </div>
-        <p class="text-neutral-300 leading-relaxed mb-2">
-          Se han registrado 5 intentos fallidos consecutivos. Por protocolo de ciberseguridad, la interfaz permanecerá bloqueada por 15 minutos.
+      </div>
+
+      <!-- Título de Marca Corporativa -->
+      <div class="text-center mb-6">
+        <h1 class="font-serif text-xl sm:text-2xl font-bold text-white tracking-tight drop-shadow-sm">
+          Santander Real Estate
+        </h1>
+        <p class="text-xs text-neutral-400 mt-1 font-normal tracking-wide">
+          Portal Privado & CRM Ejecutivo
         </p>
-        <div class="flex items-center justify-between pt-2 border-t border-red-900/50 text-[11px] font-mono">
+      </div>
+
+      <!-- Alertas de Estado Dinámicas -->
+      <div id="status-notice" class="hidden mb-4 p-3 rounded-2xl text-xs flex items-start gap-2.5 transition-all">
+        <i id="status-notice-icon" class="fa-solid fa-circle-info text-xs mt-0.5 shrink-0"></i>
+        <div id="status-notice-text" class="leading-relaxed text-[11px]"></div>
+      </div>
+
+      <div id="lockout-banner" class="hidden mb-4 p-3.5 rounded-2xl bg-red-950/60 border border-red-800/60 text-red-200 text-xs">
+        <div class="flex items-center gap-2 font-bold text-red-400 mb-1">
+          <i class="fa-solid fa-triangle-exclamation text-xs"></i>
+          <span class="text-[11px] tracking-wider uppercase">Acceso Bloqueado</span>
+        </div>
+        <p class="text-neutral-300 text-[11px] leading-relaxed mb-2">
+          5 intentos fallidos registrados. Bloqueo temporal de ciberseguridad.
+        </p>
+        <div class="flex items-center justify-between pt-2 border-t border-red-900/40 text-[10px] font-mono">
           <span class="text-neutral-400">Tiempo restante:</span>
           <span id="lockout-timer" class="font-bold text-red-400 bg-red-900/40 px-2 py-0.5 rounded">15:00</span>
         </div>
       </div>
 
-      <!-- Alerta de Error de Validación -->
-      <div id="error-banner" class="hidden mb-5 p-3.5 rounded-2xl bg-red-950/40 border border-red-800/50 text-red-300 text-xs flex items-start gap-2.5">
-        <i class="fa-solid fa-circle-exclamation text-red-400 mt-0.5 shrink-0"></i>
-        <span id="error-text" class="leading-relaxed"></span>
+      <div id="error-banner" class="hidden mb-4 p-3 rounded-2xl bg-red-950/50 border border-red-800/60 text-red-300 text-xs flex items-start gap-2.5">
+        <i class="fa-solid fa-circle-exclamation text-red-400 text-xs mt-0.5 shrink-0"></i>
+        <span id="error-text" class="leading-relaxed text-[11px]"></span>
       </div>
 
-      <!-- Formulario de Login -->
-      <form id="login-form" onsubmit="ejecutarLogin(event)" class="space-y-4">
+      <!-- Formulario de Acceso Directo (Estilo Bento Input) -->
+      <form id="login-form" onsubmit="ejecutarLogin(event)" class="space-y-3.5">
         
         <!-- Campo: Usuario / Correo -->
         <div>
-          <label for="identifier" class="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-1.5">
-            Usuario o Correo Corporativo
+          <label for="identifier" class="block text-[11px] font-medium text-neutral-300 mb-1.5 pl-0.5">
+            Email o Usuario
           </label>
           <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-500">
-              <i class="fa-regular fa-envelope text-sm"></i>
-            </div>
             <input 
               type="text" 
               id="identifier" 
               name="identifier" 
               required 
               autocomplete="username"
-              placeholder="nombre@santandervip.gt o usuario"
-              class="w-full pl-10 pr-4 py-3 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white focus:ring-1 focus:ring-white rounded-xl text-sm text-white placeholder-neutral-500 transition-all outline-none"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              placeholder="nombre@santandervip.gt" 
+              class="bento-input w-full px-4 py-3 rounded-xl sm:rounded-2xl text-sm text-white placeholder-neutral-500 outline-none"
             >
           </div>
         </div>
 
         <!-- Campo: Contraseña -->
         <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
+          <div class="flex items-center justify-between mb-1.5 pl-0.5">
+            <label for="password" class="block text-[11px] font-medium text-neutral-300">
               Contraseña
             </label>
-            <span class="text-[10px] text-neutral-500 font-mono">8+ caracteres</span>
+            <span class="text-[10px] text-neutral-500 font-mono">Confidencial</span>
           </div>
           <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-500">
-              <i class="fa-solid fa-lock text-sm"></i>
-            </div>
             <input 
               type="password" 
               id="password" 
               name="password" 
               required 
               autocomplete="current-password"
-              placeholder="••••••••••••"
-              class="w-full pl-10 pr-11 py-3 bg-[#1A1A1A] border border-[#2E2E2E] focus:border-white focus:ring-1 focus:ring-white rounded-xl text-sm text-white placeholder-neutral-500 transition-all outline-none font-mono"
+              placeholder="••••••••••••" 
+              class="bento-input w-full pl-4 pr-11 py-3 rounded-xl sm:rounded-2xl text-sm text-white placeholder-neutral-500 outline-none font-mono"
             >
             <button 
               type="button" 
               onclick="togglePasswordVisibility()" 
-              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-400 hover:text-white transition-colors"
-              title="Mostrar/Ocultar contraseña"
+              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+              title="Mostrar u ocultar contraseña"
+              aria-label="Mostrar contraseña"
             >
-              <i id="password-toggle-icon" class="fa-regular fa-eye text-sm"></i>
+              <i id="password-toggle-icon" class="fa-regular fa-eye text-xs"></i>
             </button>
           </div>
         </div>
 
         <!-- Opciones: Recordarme -->
-        <div class="flex items-center justify-between pt-1">
-          <label class="flex items-center gap-2 cursor-pointer select-none">
+        <div class="flex items-center justify-between pt-0.5 text-xs">
+          <label class="flex items-center gap-2 cursor-pointer select-none group">
             <input 
               type="checkbox" 
               id="remember" 
-              class="w-4 h-4 rounded bg-[#1A1A1A] border-[#333333] text-emerald-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+              class="w-3.5 h-3.5 rounded bg-neutral-900 border-neutral-700 text-emerald-500 focus:ring-0 focus:ring-offset-0 cursor-pointer accent-emerald-500"
             >
-            <span class="text-xs text-neutral-400">Mantener sesión en este equipo</span>
+            <span class="text-[11px] text-neutral-400 group-hover:text-neutral-300 transition-colors">Recordarme</span>
           </label>
-          <span class="text-[11px] text-neutral-500">Auto-logout 2h</span>
+          <span class="text-[10px] text-neutral-500 font-mono flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400/80"></span>
+            Auto-logout 2h
+          </span>
         </div>
 
-        <!-- Botón de Envío -->
+        <!-- Botón Principal: Sign In -->
         <button 
           type="submit" 
           id="btn-submit"
-          class="w-full mt-2 py-3.5 px-4 bg-white hover:bg-neutral-200 text-black font-semibold text-sm rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-white/5 disabled:opacity-50 disabled:cursor-not-allowed group"
+          class="w-full mt-2 py-3.5 px-4 bg-white hover:bg-neutral-100 text-black font-semibold text-sm rounded-xl sm:rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-white/10 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer group"
         >
           <span id="btn-submit-text" class="flex items-center gap-2">
-            <i class="fa-solid fa-arrow-right-to-bracket text-xs transition-transform group-hover:translate-x-0.5"></i>
-            Ingresar al Portal VIP
+            <span>Iniciar Sesión</span>
+            <i class="fa-solid fa-arrow-right text-[11px] transition-transform group-hover:translate-x-1"></i>
           </span>
           <span id="btn-submit-spinner" class="hidden items-center gap-2 text-black font-bold">
             <i class="fa-solid fa-circle-notch fa-spin text-sm"></i>
-            Verificando credenciales...
+            <span>Verificando...</span>
           </span>
         </button>
 
       </form>
 
-      <!-- Selector Rápido de Credenciales Demo (Para Pruebas y Presentación) -->
-      <div class="mt-6 pt-5 border-t border-[#222222]">
-        <div class="flex items-center justify-between mb-2.5">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-500 flex items-center gap-1.5">
-            <i class="fa-solid fa-key text-[9px] text-emerald-400"></i> Accesos Demo para Pruebas
+      <!-- Selector Rápido de Credenciales Demo (Discreto y Elegante) -->
+      <div class="mt-5 pt-4 border-t border-white/[0.06]">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1">
+            <i class="fa-solid fa-key text-[9px] text-emerald-400"></i> Accesos Demo
           </span>
-          <span class="text-[9px] text-neutral-600 font-mono">1-Clic</span>
+          <span class="text-[9px] text-neutral-500 font-mono">1 Clic</span>
         </div>
         
         <div class="grid grid-cols-2 gap-2 text-left">
-          <!-- Botón Demo: Carmen Coloma (Admin) -->
           <button 
             type="button" 
             onclick="llenarDemo('carmen.coloma@santandervip.gt', 'Admin@Santander2026!')" 
-            class="p-2.5 rounded-xl bg-[#1A1A1A] hover:bg-[#222222] border border-[#2B2B2B] hover:border-neutral-500 transition-all text-left group"
+            class="p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.06] hover:border-white/20 transition-all text-left cursor-pointer group"
           >
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors">Carmen (Admin)</span>
-              <span class="text-[9px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1 rounded font-bold">FULL</span>
+              <span class="text-[11px] font-bold text-white group-hover:text-emerald-400 transition-colors">Carmen</span>
+              <span class="text-[8px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1 rounded font-bold">ADMIN</span>
             </div>
-            <p class="text-[10px] text-neutral-500 truncate mt-0.5">Directora Comercial</p>
+            <p class="text-[9px] text-neutral-400 truncate mt-0.5">Directora Comercial</p>
           </button>
 
-          <!-- Botón Demo: Santiago Leoni (Asesor) -->
           <button 
             type="button" 
             onclick="llenarDemo('santiago.leoni@santandervip.gt', 'Asesor@Santander2026!')" 
-            class="p-2.5 rounded-xl bg-[#1A1A1A] hover:bg-[#222222] border border-[#2B2B2B] hover:border-neutral-500 transition-all text-left group"
+            class="p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.06] hover:border-white/20 transition-all text-left cursor-pointer group"
           >
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors">Santiago (Asesor)</span>
-              <span class="text-[9px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1 rounded font-bold">ASIG</span>
+              <span class="text-[11px] font-bold text-white group-hover:text-blue-400 transition-colors">Santiago</span>
+              <span class="text-[8px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1 rounded font-bold">ASESOR</span>
             </div>
-            <p class="text-[10px] text-neutral-500 truncate mt-0.5">Vista Aislada Propia</p>
+            <p class="text-[9px] text-neutral-400 truncate mt-0.5">Vista Aislada VIP</p>
           </button>
-        </div>
-
-        <div class="mt-2 text-center">
-          <p class="text-[10px] text-neutral-500">
-            Contraseña inicial de asesores: <code class="text-neutral-400 bg-neutral-900 px-1 py-0.5 rounded font-mono">Asesor@Santander2026!</code>
-          </p>
         </div>
       </div>
 
     </div>
 
-    <!-- Enlace Volver a la Web Pública -->
-    <div class="text-center mt-6">
-      <a href="index.html" class="inline-flex items-center gap-2 text-xs text-neutral-400 hover:text-white transition-colors">
-        <i class="fa-solid fa-arrow-left text-[11px]"></i>
-        Volver a la Página Principal
-      </a>
-      <p class="text-[11px] text-neutral-600 mt-3 font-sans">
-        © 2026 Santander Real Estate • Todos los derechos reservados.
+    <!-- Pie de Seguridad Corporativo (Reemplaza los 2M de Bento Social) -->
+    <div class="text-center mt-6 space-y-2.5">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm text-[11px] text-neutral-400">
+        <i class="fa-solid fa-shield-halved text-[10px] text-emerald-400"></i>
+        <span>Acceso Corporativo Restringido • Cifrado NIST PBKDF2</span>
+      </div>
+
+      <div>
+        <a href="index.html" class="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition-colors">
+          <i class="fa-solid fa-arrow-left text-[10px]"></i>
+          <span>Volver al sitio público</span>
+        </a>
+      </div>
+
+      <p class="text-[10px] text-neutral-500 font-sans">
+        © 2026 Santander Real Estate • Alta Dirección Patrimonial
       </p>
     </div>
 
   </div>
 
-  <!-- Lógica de Interfaz y Anti-Brute Force -->
+  <!-- SCRIPT 1: Emotion Graphics (Canvas de Partículas y Parallax 3D) -->
+  <script>
+    (function initMotionGraphics() {
+      const canvas = document.getElementById('motion-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let width = canvas.width = window.innerWidth;
+      let height = canvas.height = window.innerHeight;
+
+      // Partículas cósmicas sutiles
+      const isMobile = width < 768;
+      const numParticles = isMobile ? 35 : 65;
+      const particles = [];
+
+      for (let i = 0; i < numParticles; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          radius: Math.random() * 1.4 + 0.4,
+          baseAlpha: Math.random() * 0.45 + 0.15,
+          alpha: 0.2,
+          speedX: (Math.random() - 0.5) * 0.2,
+          speedY: (Math.random() - 0.5) * 0.2,
+          phase: Math.random() * Math.PI * 2,
+          phaseSpeed: Math.random() * 0.02 + 0.008
+        });
+      }
+
+      let mouse = { x: width / 2, y: height / 2, targetX: width / 2, targetY: height / 2 };
+      let animId = null;
+
+      window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        mouse.targetX = e.clientX;
+        mouse.targetY = e.clientY;
+      });
+
+      function render() {
+        ctx.clearRect(0, 0, width, height);
+
+        // Suavizar posición del ratón
+        mouse.x += (mouse.targetX - mouse.x) * 0.05;
+        mouse.y += (mouse.targetY - mouse.y) * 0.05;
+
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.x += p.speedX;
+          p.y += p.speedY;
+          p.phase += p.phaseSpeed;
+
+          // Parpadeo suave
+          p.alpha = p.baseAlpha + Math.sin(p.phase) * 0.15;
+
+          // Rebote suave en bordes
+          if (p.x < 0) p.x = width;
+          if (p.x > width) p.x = 0;
+          if (p.y < 0) p.y = height;
+          if (p.y > height) p.y = 0;
+
+          // Dibujar partícula con destello sutil
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0.05, Math.min(0.8, p.alpha))})`;
+          ctx.fill();
+        }
+
+        animId = requestAnimationFrame(render);
+      }
+
+      // Desactivar animaciones si el usuario prefiere movimiento reducido
+      const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (!mediaQuery.matches) {
+        animId = requestAnimationFrame(render);
+      }
+
+      // Parallax 3D interactivo en la tarjeta Bento
+      const card = document.getElementById('bento-card');
+      if (card && !mediaQuery.matches) {
+        window.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const cardCenterX = rect.left + rect.width / 2;
+          const cardCenterY = rect.top + rect.height / 2;
+
+          const deltaX = (e.clientX - cardCenterX) / (window.innerWidth / 2);
+          const deltaY = (e.clientY - cardCenterY) / (window.innerHeight / 2);
+
+          const rotX = -deltaY * 5;
+          const rotY = deltaX * 5;
+
+          card.style.transform = `rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
+        });
+
+        window.addEventListener('mouseleave', () => {
+          card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+        });
+      }
+    })();
+  </script>
+
+  <!-- SCRIPT 2: Lógica de Autenticación, Anti-Fuerza Bruta & RBAC -->
   <script>
     let lockoutInterval = null;
 
@@ -286,20 +515,20 @@
       notice.classList.remove('hidden');
 
       if (reason === 'inactivity') {
-        notice.className = 'mb-5 p-3.5 rounded-2xl text-xs flex items-start gap-3 bg-amber-950/40 border border-amber-800/50 text-amber-300';
-        icon.className = 'fa-solid fa-hourglass-end text-sm mt-0.5 shrink-0 text-amber-400';
-        text.innerHTML = '<strong>Sesión cerrada por inactividad:</strong> Han transcurrido más de 2 horas sin actividad por protocolos de ciberseguridad. Por favor vuelve a ingresar.';
+        notice.className = 'mb-4 p-3 rounded-2xl text-xs flex items-start gap-2.5 bg-amber-950/50 border border-amber-800/60 text-amber-200';
+        icon.className = 'fa-solid fa-hourglass-end text-xs mt-0.5 shrink-0 text-amber-400';
+        text.innerHTML = '<strong>Sesión expirada:</strong> 2 horas de inactividad. Por seguridad, ingresa nuevamente.';
       } else if (reason === 'unauthorized') {
-        notice.className = 'mb-5 p-3.5 rounded-2xl text-xs flex items-start gap-3 bg-red-950/40 border border-red-800/50 text-red-300';
-        icon.className = 'fa-solid fa-shield-halved text-sm mt-0.5 shrink-0 text-red-400';
-        text.innerHTML = '<strong>Acceso Restringido:</strong> Debes iniciar sesión con una cuenta autorizada para acceder al panel de control.';
+        notice.className = 'mb-4 p-3 rounded-2xl text-xs flex items-start gap-2.5 bg-red-950/50 border border-red-800/60 text-red-200';
+        icon.className = 'fa-solid fa-shield-halved text-xs mt-0.5 shrink-0 text-red-400';
+        text.innerHTML = '<strong>Acceso Restringido:</strong> Debes autenticarte para ingresar al panel corporativo.';
       } else if (reason === 'suspended' || params.get('error') === 'suspended') {
-        notice.className = 'mb-5 p-3.5 rounded-2xl text-xs flex items-start gap-3 bg-red-950/40 border border-red-800/50 text-red-300';
-        icon.className = 'fa-solid fa-ban text-sm mt-0.5 shrink-0 text-red-400';
-        text.innerHTML = '<strong>Cuenta Suspendida:</strong> Tu acceso ha sido revocado por la dirección comercial de Santander VIP. Contacta al administrador.';
+        notice.className = 'mb-4 p-3 rounded-2xl text-xs flex items-start gap-2.5 bg-red-950/50 border border-red-800/60 text-red-200';
+        icon.className = 'fa-solid fa-ban text-xs mt-0.5 shrink-0 text-red-400';
+        text.innerHTML = '<strong>Cuenta Suspendida:</strong> Acceso revocado temporalmente. Consulta a la dirección.';
       } else if (reason === 'logout') {
-        notice.className = 'mb-5 p-3.5 rounded-2xl text-xs flex items-start gap-3 bg-neutral-900 border border-neutral-700 text-neutral-300';
-        icon.className = 'fa-solid fa-circle-check text-sm mt-0.5 shrink-0 text-emerald-400';
+        notice.className = 'mb-4 p-3 rounded-2xl text-xs flex items-start gap-2.5 bg-white/[0.04] border border-white/10 text-neutral-300';
+        icon.className = 'fa-solid fa-circle-check text-xs mt-0.5 shrink-0 text-emerald-400';
         text.innerHTML = 'Has cerrado tu sesión de forma segura. Hasta pronto.';
       }
     }
@@ -310,10 +539,10 @@
       const icon = document.getElementById('password-toggle-icon');
       if (pwd.type === 'password') {
         pwd.type = 'text';
-        icon.className = 'fa-regular fa-eye-slash text-sm text-white';
+        icon.className = 'fa-regular fa-eye-slash text-xs text-white';
       } else {
         pwd.type = 'password';
-        icon.className = 'fa-regular fa-eye text-sm text-neutral-400';
+        icon.className = 'fa-regular fa-eye text-xs text-neutral-400';
       }
     }
 
@@ -406,7 +635,6 @@
 
         if (result.success) {
           btnSpinner.innerHTML = '<i class="fa-solid fa-check text-emerald-500"></i> Acceso autorizado. Redirigiendo...';
-          // Redirigir al panel CRM
           const urlParams = new URLSearchParams(window.location.search);
           const redirectTarget = urlParams.get('redirect') || (document.referrer.includes('panel.html') ? 'panel.html' : 'admin.html');
           setTimeout(() => {
